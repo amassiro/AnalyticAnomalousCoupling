@@ -22,11 +22,6 @@ class AnaliticAnomalousCoupling(PhysicsModel):
                     raise RuntimeError, "Higgs mass range definition requires two extrema"
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
                     raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
-            if po.startswith("C1map="):
-                self.C1mapFile = po.replace("C1map=","")
-                print " C1mapFile = ", self.C1mapFile 
-                self.C1map = eval(open(self.C1mapFile , 'r').read())
-                
 
 #
 # standard, not touched (end)
@@ -41,8 +36,8 @@ class AnaliticAnomalousCoupling(PhysicsModel):
         """Create POI and other parameters, and define the POI set."""
         
         # trilinear Higgs couplings modified 
-        self.modelBuilder.doVar("k_lambda[1,-200,200]")
-        self.poiNames = "k_lambda"
+        self.modelBuilder.doVar("k_my[1,-200,200]")
+        self.poiNames = "k_my"
 
         self.modelBuilder.doVar("r[1,-10,10]")
         self.poiNames += ",r"
@@ -137,7 +132,7 @@ class AnaliticAnomalousCoupling(PhysicsModel):
           alpha = C1map[proc]
 
           # not considering the effects on BR (H>xx)
-          #self.modelBuilder.factory_("expr::XSscal_%s(\"(1+(@0-1)*%g-(@0*@0-1)*(1.536/1000/(1 + @0*@0*1.536/1000)))*@1\",k_lambda,r)" % (proc,alpha))
+          #self.modelBuilder.factory_("expr::XSscal_%s(\"(1+(@0-1)*%g-(@0*@0-1)*(1.536/1000/(1 + @0*@0*1.536/1000)))*@1\",k_my,r)" % (proc,alpha))
 
           # including also the BR effect
           # N -->   N * ( 1 + C1 * (k-1) - (k*k-1)* 1.536/1000 /  (1 + k*k*1.536/1000) )
@@ -146,11 +141,11 @@ class AnaliticAnomalousCoupling(PhysicsModel):
           # Ci = 0.49*10-3
           # Ctot = 2.3*10-3
           # 
-          self.modelBuilder.factory_("expr::XSscal_%s(\"(1+(@0-1)*%g-(@0*@0-1)*(1.536/1000/(1 + @0*@0*1.536/1000)))*(1+(@0-1)*(0.49-2.3)/1000/(1+(@0-1)*2.3/1000))*@1\",k_lambda,r)" % (proc,alpha))
+          self.modelBuilder.factory_("expr::XSscal_%s(\"(1+(@0-1)*%g-(@0*@0-1)*(1.536/1000/(1 + @0*@0*1.536/1000)))*(1+(@0-1)*(0.49-2.3)/1000/(1+(@0-1)*2.3/1000))*@1\",k_my,r)" % (proc,alpha))
           # FIXME
 
           #self.modelBuilder.factory_("expr::XSscal_%s(\"@0\",r)" % (proc))
-          #self.modelBuilder.factory_("expr::XSscal_%s(\"(1+(@0-1)*%g)*@1\",k_lambda,r)" % (proc,alpha))
+          #self.modelBuilder.factory_("expr::XSscal_%s(\"(1+(@0-1)*%g)*@1\",k_my,r)" % (proc,alpha))
 
 
         print self.poiNames

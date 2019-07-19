@@ -16,6 +16,8 @@ Where:
 Run:
 
                                                                  folder                    file.py             object defined in the file.py
-    text2workspace.py        datacard.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnalyticAnomalousCoupling:analiticAnomalousCoupling  --PO=k_my,r  -o      model_test.root    --PO C1map=mymap.py
+    text2workspace.py        datacard.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnalyticAnomalousCoupling:analiticAnomalousCoupling  --PO=k_my,r  -o      model_test.root   
+    
+    --PO C1map=mymap.py
 
     
