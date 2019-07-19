@@ -11,18 +11,16 @@ void draw() {
   graphScan->RemovePoint(0);
   
   TGraph *graphScanData = 0;
-  if (_file1) {
-    TTree* limitData = (TTree*) _file1->Get("limit");  
-    //     n_data = limitData->Draw("2*deltaNLL:r","deltaNLL<40 && deltaNLL>-30","l");
-    n_data = limitData->Draw("2*deltaNLL:k_my","deltaNLL<40 && deltaNLL>-30","l");
-    graphScanData = new TGraph(n_data,limitData->GetV2(),limitData->GetV1());
-    graphScanData->RemovePoint(0);
-    graphScanData->SetTitle("");
-    graphScanData->SetMarkerStyle(21);
-    graphScanData->SetLineWidth(2);
-    graphScanData->SetMarkerColor(kRed);
-    graphScanData->SetLineColor(kRed);
-  }
+  TTree* limitData = (TTree*) _file1->Get("limit");  
+  //     n_data = limitData->Draw("2*deltaNLL:r","deltaNLL<40 && deltaNLL>-30","l");
+  n_data = limitData->Draw("2*deltaNLL:k_my","deltaNLL<40 && deltaNLL>-30","l");
+  graphScanData = new TGraph(n_data,limitData->GetV2(),limitData->GetV1());
+  graphScanData->RemovePoint(0);
+  graphScanData->SetTitle("");
+  graphScanData->SetMarkerStyle(21);
+  graphScanData->SetLineWidth(2);
+  graphScanData->SetMarkerColor(kRed);
+  graphScanData->SetLineColor(kRed);
   
   cc->SetGrid();
   
