@@ -3,11 +3,11 @@ imax *
 jmax *
 kmax *
 ----------------------------------------------------------------------------------------------------------------------------------
-shapes *        * histos.root histo_$PROCESS histo_$PROCESS_$SYSTEMATIC
-shapes data_obs * histos.root histo_sm
+shapes *        * histos.root $PROCESS $PROCESS_$SYSTEMATIC
+shapes data_obs * histos.root sm
 ----------------------------------------------------------------------------------------------------------------------------------
 bin          test    
-observation     190  
+observation     168.93477   
 ----------------------------------------------------------------------------------------------------------------------------------
 bin        test      test     test
 process    sm        linear   quadratic

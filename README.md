@@ -24,6 +24,10 @@ Run:
      linear->Integral(-1, linear->GetNbinsX())
      quadratic->Integral(-1, quadratic->GetNbinsX())
 
+     histo_sm->Integral(-1, histo_sm->GetNbinsX())
+     histo_linear->Integral(-1, histo_linear->GetNbinsX())
+     histo_quadratic->Integral(-1, histo_quadratic->GetNbinsX())
+
      
 
                                                                  folder                    file.py             object defined in the file.py
