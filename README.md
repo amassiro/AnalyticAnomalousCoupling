@@ -17,6 +17,15 @@ Where:
     
 Run:
 
+    get the file:
+    wget https://www.dropbox.com/s/37auaiyq4qw4o3j/histo_0p3.root
+    
+     sm->Integral(-1, sm->GetNbinsX())
+     linear->Integral(-1, linear->GetNbinsX())
+     quadratic->Integral(-1, quadratic->GetNbinsX())
+
+     
+
                                                                  folder                    file.py             object defined in the file.py
     text2workspace.py        datacard.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCoupling:analiticAnomalousCoupling                 --PO=k_my,r  -o      model_test.root   
     
