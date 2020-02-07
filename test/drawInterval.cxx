@@ -161,15 +161,15 @@ void drawInterval() {
   Double_t max_x=1.;
 
   //find intesection of LL with the two lines
-  Double_t x_1_p=0;
-  Double_t x_1_n=0;
-  Double_t x_2_p=0;
-  Double_t x_2_n=0;
-  Double_t precision=1e-6;
+  Double_t x_1_p=max_x;
+  Double_t x_1_n=min_x;
+  Double_t x_2_p=max_x;
+  Double_t x_2_n=min_x;
+  Double_t precision=1e-3;
   std::cout << "intesections are(x_2_n, x_1_n,x_1_p,x_2_p)" <<endl;
   while(true){
-      if(graphScanData->Eval(x_2_n)<3.84){
-          x_2_n-=precision;
+      if(graphScanData->Eval(x_2_n)>3.84){
+          x_2_n+=precision;
       }
       else{
           break;
@@ -178,8 +178,8 @@ void drawInterval() {
   std::cout <<x_2_n <<std::endl;
 
   while(true){
-      if(graphScanData->Eval(x_1_n)<1.){
-          x_1_n-=precision;
+      if(graphScanData->Eval(x_1_n)>1.){
+          x_1_n+=precision;
       }
       else{
           break;
@@ -188,8 +188,8 @@ void drawInterval() {
   std::cout<<x_1_n <<std::endl;
 
   while(true){
-      if(graphScanData->Eval(x_1_p)<1.){
-          x_1_p+=precision;
+      if(graphScanData->Eval(x_1_p)>1.){
+          x_1_p-=precision;
       }
       else{
           break;
@@ -200,8 +200,8 @@ void drawInterval() {
 
 
   while(true){
-      if(graphScanData->Eval(x_2_p)<3.84){
-          x_2_p+=precision;
+      if(graphScanData->Eval(x_2_p)>3.84){
+          x_2_p-=precision;
       }
       else{
           break;
@@ -262,6 +262,6 @@ void drawInterval() {
 
 
 
-  c1->SaveAs("Hbox_ptl1.png");
+  c1->SaveAs("Hbox_mll.png");
 
 }
