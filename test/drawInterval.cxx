@@ -1,4 +1,4 @@
-void draw_mio() {
+void drawInterval() {
 
   int n = 0;
   int n_data = 0;
