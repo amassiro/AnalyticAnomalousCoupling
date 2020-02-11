@@ -1,8 +1,10 @@
+#text2workspace.py        datacard.txt     -P HiggsAnalysis.AnalyticAnomalousCoupling.AnaliticAnomalousCouplingTwoOp:AnaliticAnomalousCouplingTwoOp                 --PO=k_my,r  -o      model_test.root
+
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 import ROOT, os
 
-class AnaliticAnomalousCoupling(PhysicsModel):
+class AnaliticAnomalousCouplingTwoOp(PhysicsModel):
 
 #
 # standard, not touched
@@ -57,7 +59,7 @@ class AnaliticAnomalousCoupling(PhysicsModel):
         self.modelBuilder.factory_("expr::sm_func(\"@0\",r)")
         self.modelBuilder.factory_("expr::linear_func_1(\"@0*@1\",r,k_my_1)")
         self.modelBuilder.factory_("expr::linear_func_2(\"@0*@1\",r,k_my_2)")
-        self.modelBuilder.factory_("expr::linear_func_3(\"@0*@1*@2\",r,k_my_1,k_my_2)")
+        self.modelBuilder.factory_("expr::linear_func_mixed_12(\"@0*@1*@2\",r,k_my_1,k_my_2)")
         self.modelBuilder.factory_("expr::quadratic_func_1(\"@0*@1*@1\",r,k_my_1)")
         self.modelBuilder.factory_("expr::quadratic_func_2(\"@0*@1*@1\",r,k_my_2)")
 
@@ -76,7 +78,7 @@ class AnaliticAnomalousCoupling(PhysicsModel):
         if process == "sm":          return "sm_func"
         elif process == "linear_1":    return "linear_func_1"
         elif process == "linear_2":    return "linear_func_2"
-        elif process == "linear_3":     return "linear_func_3"
+        elif process == "linear_mixed_12":     return "linear_func_mixed_12"
         elif process == "quadratic_1": return "quadratic_func_1"
         elif process == "quadratic_2": return "quadratic_func_2"
 
@@ -85,4 +87,4 @@ class AnaliticAnomalousCoupling(PhysicsModel):
 
 
 
-analiticAnomalousCoupling = AnaliticAnomalousCoupling()
+AnaliticAnomalousCouplingTwoOp = AnaliticAnomalousCouplingTwoOp()
