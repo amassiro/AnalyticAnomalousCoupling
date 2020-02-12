@@ -1,4 +1,4 @@
-#text2workspace.py        datacard.txt     -P HiggsAnalysis.AnalyticAnomalousCoupling.AnaliticAnomalousCouplingTwoOp:AnaliticAnomalousCouplingTwoOp                 --PO=k_my,r  -o      model_test.root
+#text2workspace.py        datacard_0p3_ptj2.txt     -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCouplingTwoOp:analiticAnomalousCouplingTwoOp                 --PO=k_my_1,k_my_2,r  -o      data_0p3_ptj2.root
 
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
@@ -87,4 +87,4 @@ class AnaliticAnomalousCouplingTwoOp(PhysicsModel):
 
 
 
-AnaliticAnomalousCouplingTwoOp = AnaliticAnomalousCouplingTwoOp()
+analiticAnomalousCouplingTwoOp = AnaliticAnomalousCouplingTwoOp()
