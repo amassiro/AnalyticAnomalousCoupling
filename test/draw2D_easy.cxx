@@ -1,4 +1,4 @@
-void draw2D() {
+void draw2D_easy() {
 
   int n = 0;
   int n_data = 0;
@@ -13,7 +13,7 @@ void draw2D() {
   best_fit->SetMarkerSize(1); best_fit->SetMarkerStyle(34);best_fit->SetMarkerColor(kRed); best_fit->Draw("p same");
 
 
-  
+
   std::cout << "Name:" <<std::endl;
   string name;
   std::cin >> name;
