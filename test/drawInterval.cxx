@@ -133,7 +133,7 @@ void drawInterval() {
   graphScanData->Set(0);
 
   float data_min_x = -100;
-  //---- fix the 0 of the likelihood scan
+  //---- fix the 0 of the likelihood scan   
   minimum = 1000;
   for (std::map<double, double>::iterator it = x_y_map.begin(); it != x_y_map.end(); it++) {
     if ( it->second < minimum ) {
@@ -157,63 +157,63 @@ void drawInterval() {
 
 
   //manual limits for x
-  Double_t min_x=-1.;
-  Double_t max_x=1.;
+  Double_t min_x=-2.;
+  Double_t max_x=2.;
 
   //find intesection of LL with the two lines
-  Double_t x_1_p=0;
-  Double_t x_1_n=0;
-  Double_t x_2_p=0;
-  Double_t x_2_n=0;
-  Double_t precision=1e-6;
-  std::cout << "intesections are(x_2_n, x_1_n,x_1_p,x_2_p)" <<endl;
+  Double_t x_1_p=max_x;
+  Double_t x_1_n=min_x;
+  Double_t x_2_p=max_x;
+  Double_t x_2_n=min_x;
+  Double_t precision=1e-3;
+  std::cout << "intesections are(min, x_2_n, x_1_n,x_1_p,x_2_p)" <<endl;
+
   while(true){
-      if(graphScanData->Eval(x_2_n)<3.84){
-          x_2_n-=precision;
+      if(graphScanData->Eval(x_2_n)>3.84){
+          x_2_n+=precision;
       }
       else{
           break;
       }
   }
-  std::cout <<x_2_n <<std::endl;
 
   while(true){
-      if(graphScanData->Eval(x_1_n)<1.){
-          x_1_n-=precision;
+      if(graphScanData->Eval(x_1_n)>1.){
+          x_1_n+=precision;
       }
       else{
           break;
       }
   }
-  std::cout<<x_1_n <<std::endl;
 
   while(true){
-      if(graphScanData->Eval(x_1_p)<1.){
-          x_1_p+=precision;
+      if(graphScanData->Eval(x_1_p)>1.){
+          x_1_p-=precision;
       }
       else{
           break;
       }
   }
-  std::cout<<x_1_p <<std::endl;
 
 
 
   while(true){
-      if(graphScanData->Eval(x_2_p)<3.84){
-          x_2_p+=precision;
+      if(graphScanData->Eval(x_2_p)>3.84){
+          x_2_p-=precision;
       }
       else{
           break;
       }
   }
-  std::cout<<x_2_p <<std::endl;
 
+  std::cout << data_min_x<<"\t"<<x_2_n<<"\t"<<x_1_n<<"\t"<<x_1_p<<"\t"<<x_2_p <<std::endl;
 
-
+  std::cout << "Name:" <<std::endl;
+  string name;
+  std::cin >> name;
 
  auto *c1 = new TCanvas("c1","A Zoomed Graph",200,10,700,500);
- auto *hpx = new TH2F("hpx","Zoomed likelihood scan",10,min_x,max_x,10,0,6.);
+ auto *hpx = new TH2F("hpx",("Zoomed likelihood scan "+name).c_str(),10,min_x,max_x,10,0,6.);
 
  c1->SetGrid();
  c1->SetTicks();
@@ -262,6 +262,6 @@ void drawInterval() {
 
 
 
-  c1->SaveAs("Hbox_ptl1.png");
+  c1->SaveAs(("Hbox_"+name+".png").c_str());
 
 }
