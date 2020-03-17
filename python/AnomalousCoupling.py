@@ -4,15 +4,12 @@ import ROOT, os
 
 class AnaliticAnomalousCoupling(PhysicsModel):
 
-#
-# standard, not touched
-#
-
     "Float independently cross sections and branching ratios"
     def __init__(self):
         PhysicsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.mHRange = []
         self.poiNames = []
+        self.numOperators = 1
 
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
@@ -22,6 +19,11 @@ class AnaliticAnomalousCoupling(PhysicsModel):
                     raise RuntimeError, "Higgs mass range definition requires two extrema"
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
                     raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+
+            if po.startswith("numOperators="):
+               self.numOperators = int ( po.replace("higgsMassRange=","") )
+
+
 
 #
 # standard, not touched (end)
@@ -36,23 +38,43 @@ class AnaliticAnomalousCoupling(PhysicsModel):
         """Create POI and other parameters, and define the POI set."""
         
         # trilinear Higgs couplings modified 
-        self.modelBuilder.doVar("k_my[1,-200,200]")
-        self.poiNames = "k_my"
-
         self.modelBuilder.doVar("r[1,-10,10]")
-        self.poiNames += ",r"
+        self.poiNames = "r"
 
+
+        for operator in range(1, self.numOperators+1):
+          self.modelBuilder.doVar("k_my_" + operator + "[1,-200,200]")
+          self.poiNames = ",k_my_" + operator
+          
         #
         # model: SM + k*linear + k**2 * quadratic
         #
         #   SM        = Asm**2
         #   linear    = Asm*Absm
         #   quadratic = Absm**2
-        
+        #
+        #  ... and extended to more operators
+        #
+        #
+        #
+        # model: SM + k*linear + k**2 * quadratic
+        #
+        #   SM        = Asm**2
+        #   linear_1        = Asm*Abs_1
+        #   linear_2        = Asm*Absm_2
+        #   linear_3        = Absm_1*Absm_2
+        #   quadratic_1 = Absm_1**2
+        #   quadratic_2 = Absm_2**2
+        #
         self.modelBuilder.factory_("expr::sm_func(\"@0\",r)")
-        self.modelBuilder.factory_("expr::linear_func(\"@0*@1\",r,k_my)")
-        self.modelBuilder.factory_("expr::quadratic_func(\"@0*@1*@1\",r,k_my)")
 
+        for operator in range(1, self.numOperators+1):
+          self.modelBuilder.factory_("expr::linear_func_"+ operator + "(\"@0*@1\",r,k_my_" + operator + ")")
+          for operator_sub in range(operator+1, self.numOperators+1):
+            self.modelBuilder.factory_("expr::linear_func_mixed_" + operator + "_" + operator_sub +"(\"@0*@1*@2\",r,k_my_" + operator + ",k_my_" + operator_sub + ")")
+          self.modelBuilder.factory_("expr::quadratic_func_"+ operator + "(\"@0*@1*@1\",r,k_my_" + operator + ")")
+          
+          
         print self.poiNames
         self.modelBuilder.doSet("POI",self.poiNames)
 
@@ -64,12 +86,15 @@ class AnaliticAnomalousCoupling(PhysicsModel):
 
     def getYieldScale(self,bin,process):
 
-
-        if process == "sm":          return "sm_func"
-        elif process == "linear":    return "linear_func"
-        elif process == "quadratic": return "quadratic_func"
-        else:
-          return 1
+        if   process == "sm":          return "sm_func"
+      
+        for operator in range(1, self.numOperators+1):
+          if process == "linear_"+ operator :    return "linear_func_"+ operator 
+          for operator_sub in range(operator+1, self.numOperators+1):
+            if process == "linear_mixed_"+ operator + "_" + operator_sub:    return "linear_func_mixed_" + operator + "_" + operator_sub
+          if process == "quadratic_"+ operator :    return "quadratic_func_"+ operator 
+            
+        return 1
 
 
 
