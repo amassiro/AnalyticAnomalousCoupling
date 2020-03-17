@@ -44,6 +44,19 @@ Run:
         --redefineSignalPOIs k_my --freezeParameters r --setParameters r=1    --setParameterRanges k_my=-20,20   
     
 
+    
+    text2workspace.py        datacard2op.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCoupling:analiticAnomalousCoupling   -o  --numOperators=2    model_test.root   
+    
+    combine -M MultiDimFit model_test.root  --algo=grid --points 120  -m 125   -t -1 --expectSignal=1     \
+        --redefineSignalPOIs k_my_1 --freezeParameters r,k_my_2 --setParameters r=1,k_my_1=0,k_my_2=0    --setParameterRanges k_my_1=-20,20     \
+        --verbose -1
+    
+    
+    
+    
+    
+    
+    
 To simulate "sm" part, k_my == 0 :
     
     --setParameters r=1,k_my=0

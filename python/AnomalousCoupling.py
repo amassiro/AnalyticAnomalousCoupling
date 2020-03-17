@@ -43,8 +43,8 @@ class AnaliticAnomalousCoupling(PhysicsModel):
 
 
         for operator in range(1, self.numOperators+1):
-          self.modelBuilder.doVar("k_my_" + operator + "[1,-200,200]")
-          self.poiNames = ",k_my_" + operator
+          self.modelBuilder.doVar("k_my_" + str(operator) + "[1,-200,200]")
+          self.poiNames = ",k_my_" + str(operator)
           
         #
         # model: SM + k*linear + k**2 * quadratic
@@ -69,10 +69,10 @@ class AnaliticAnomalousCoupling(PhysicsModel):
         self.modelBuilder.factory_("expr::sm_func(\"@0\",r)")
 
         for operator in range(1, self.numOperators+1):
-          self.modelBuilder.factory_("expr::linear_func_"+ operator + "(\"@0*@1\",r,k_my_" + operator + ")")
+          self.modelBuilder.factory_("expr::linear_func_"+ str(operator) + "(\"@0*@1\",r,k_my_" + str(operator) + ")")
           for operator_sub in range(operator+1, self.numOperators+1):
-            self.modelBuilder.factory_("expr::linear_func_mixed_" + operator + "_" + operator_sub +"(\"@0*@1*@2\",r,k_my_" + operator + ",k_my_" + operator_sub + ")")
-          self.modelBuilder.factory_("expr::quadratic_func_"+ operator + "(\"@0*@1*@1\",r,k_my_" + operator + ")")
+            self.modelBuilder.factory_("expr::linear_func_mixed_" + str(operator) + "_" + str(operator_sub) +"(\"@0*@1*@2\",r,k_my_" + str(operator) + ",k_my_" + str(operator_sub) + ")")
+          self.modelBuilder.factory_("expr::quadratic_func_"+ str(operator) + "(\"@0*@1*@1\",r,k_my_" + str(operator) + ")")
           
           
         print self.poiNames
@@ -89,10 +89,10 @@ class AnaliticAnomalousCoupling(PhysicsModel):
         if   process == "sm":          return "sm_func"
       
         for operator in range(1, self.numOperators+1):
-          if process == "linear_"+ operator :    return "linear_func_"+ operator 
+          if process == "linear_"+ str(operator) :    return "linear_func_"+ str(operator) 
           for operator_sub in range(operator+1, self.numOperators+1):
-            if process == "linear_mixed_"+ operator + "_" + operator_sub:    return "linear_func_mixed_" + operator + "_" + operator_sub
-          if process == "quadratic_"+ operator :    return "quadratic_func_"+ operator 
+            if process == "linear_mixed_"+ str(operator) + "_" + str(operator_sub):    return "linear_func_mixed_" + str(operator) + "_" + str(operator_sub)
+          if process == "quadratic_"+ str(operator) :    return "quadratic_func_"+ str(operator) 
             
         return 1
 
