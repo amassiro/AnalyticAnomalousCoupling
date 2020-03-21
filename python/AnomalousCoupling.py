@@ -21,7 +21,7 @@ class AnaliticAnomalousCoupling(PhysicsModel):
                     raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
 
             if po.startswith("numOperators="):
-               self.numOperators = int ( po.replace("higgsMassRange=","") )
+               self.numOperators = int ( po.replace("numOperators=","") )
 
 
 
