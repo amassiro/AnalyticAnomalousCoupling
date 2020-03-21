@@ -44,7 +44,7 @@ class AnaliticAnomalousCoupling(PhysicsModel):
 
         for operator in range(1, self.numOperators+1):
           self.modelBuilder.doVar("k_my_" + str(operator) + "[1,-200,200]")
-          self.poiNames = ",k_my_" + str(operator)
+          self.poiNames += ",k_my_" + str(operator)
           
         #
         # model: SM + k*linear + k**2 * quadratic
@@ -75,6 +75,7 @@ class AnaliticAnomalousCoupling(PhysicsModel):
           self.modelBuilder.factory_("expr::quadratic_func_"+ str(operator) + "(\"@0*@1*@1\",r,k_my_" + str(operator) + ")")
           
           
+        print " parameters of interesst = "
         print self.poiNames
         self.modelBuilder.doSet("POI",self.poiNames)
 
