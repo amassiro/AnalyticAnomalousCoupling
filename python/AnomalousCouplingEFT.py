@@ -11,88 +11,89 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
         self.poiNames = []
         self.numOperators = 82
 
+        # NB: alphabetically sorted, do not reshuffle
         self.Operators = [
-             'ceWPh',      
-             'ceBPh',     
-             'cuGPh',     
-             'cuWPh',     
-             'cuBPh',     
-             'cdGPh',     
-             'cdWPh',     
-             'cdBPh',     
-             'cHudPh',        
-             'ceHPh',      
-             'cuHPh',      
-             'cdHPh',      
-             'cledqPh',          
-             'cquqd1Ph',            
-             'cquqd8Ph',            
-             'clequ1Ph',            
-             'clequ3Ph',            
              'cG',
-             'cGtil',  
-             'cW',  
-             'cWtil',  
+             'cGtil',
              'cH',
-             'cHbox',  
+             'cHB',
+             'cHBtil',
              'cHDD',
              'cHG',
-             'cHGtil',  
-             'cHW',  
-             'cHWtil',    
-             'cHB',
-             'cHBtil',    
+             'cHGtil',
+             'cHW',
              'cHWB',
-             'cHWBtil',      
-             'ceHAbs',               
-             'cuHAbs',    
-             'cdHAbs',    
-             'ceWAbs',    
-             'ceBAbs',    
-             'cuGAbs',    
-             'cuWAbs',    
-             'cuBAbs',    
-             'cdGAbs',    
-             'cdWAbs',    
-             'cdBAbs',    
+             'cHWBtil',
+             'cHWtil',
+             'cHbox',
+             'cHd',
+             'cHe',
              'cHl1',
              'cHl3',
-             'cHe',
              'cHq1',
              'cHq3',
              'cHu',
-             'cHd',
-             'cHudAbs',      
-             'cll',  
-             'cll1',    
-             'cqq1',    
-             'cqq11',      
-             'cqq3',    
-             'cqq31',      
-             'clq1',    
-             'clq3',    
-             'cee',  
-             'cuu',  
-             'cuu1',    
-             'cdd',  
-             'cdd1',    
-             'ceu',  
-             'ced',  
-             'cud1',    
-             'cud8',    
-             'cle',  
-             'clu',  
-             'cld',  
-             'cqe',  
-             'cqu1',    
-             'cqu8',    
-             'cqd1',    
-             'cqd8',    
-             'cledqAbs',            
-             'cquqd1Abs',        
-             'cquqd8Abs',             
-             'clequ1Abs',         
-             'clequ3Abs'
+             'cHudAbs',
+             'cHudPh',
+             'cW',
+             'cWtil',
+             'cdBAbs',
+             'cdBPh',
+             'cdGAbs',
+             'cdGPh',
+             'cdHAbs',
+             'cdHPh',
+             'cdWAbs',
+             'cdWPh',
+             'cdd',
+             'cdd1',
+             'ceBAbs',
+             'ceBPh',
+             'ceHAbs',
+             'ceHPh',
+             'ceWAbs',
+             'ceWPh',
+             'ced',
+             'cee',
+             'ceu',
+             'cld',
+             'cle',
+             'cledqAbs',
+             'cledqPh',
+             'clequ1Abs',
+             'clequ1Ph',
+             'clequ3Abs',
+             'clequ3Ph',
+             'cll',
+             'cll1',
+             'clq1',
+             'clq3',
+             'clu',
+             'cqd1',
+             'cqd8',
+             'cqe',
+             'cqq1',
+             'cqq11',
+             'cqq3',
+             'cqq31',
+             'cqu1',
+             'cqu8',
+             'cquqd1Abs',
+             'cquqd1Ph',
+             'cquqd8Abs',
+             'cquqd8Ph',
+             'cuBAbs',
+             'cuBPh',
+             'cuGAbs',
+             'cuGPh',
+             'cuHAbs',
+             'cuHPh',
+             'cuWAbs',
+             'cuWPh',
+             'cud1',
+             'cud8',
+             'cuu',
+             'cuu1'
              ]
         
         self.numOperators = len(self.Operators)
@@ -125,7 +126,7 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
         self.poiNames = "r"
 
 
-        for operator in range(1, self.numOperators+1):
+        for operator in range(0, self.numOperators):
           self.modelBuilder.doVar("k_" + str(self.Operators[operator]) + "[1,-200,200]")
           self.poiNames += ",k_" + str(self.Operators[operator])
           
@@ -139,7 +140,6 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
         #  ... and extended to more operators
         #
         #
-        #
         # model: SM + k*linear + k**2 * quadratic
         #
         #   SM        = Asm**2
@@ -151,15 +151,19 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
         #
         self.modelBuilder.factory_("expr::sm_func(\"@0\",r)")
 
-        for operator in range(1, self.numOperators+1):
+        for operator in range(0, self.numOperators):
+
+          # linear term in each Wilson coefficient
           self.modelBuilder.factory_("expr::linear_func_"+ str(self.Operators[operator]) + "(\"@0*@1\",r,k_" + str(self.Operators[operator]) + ")")
-          for operator_sub in range(operator+1, self.numOperators+1):
-            self.modelBuilder.factory_("expr::linear_func_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]) +"(\"@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) + ")")
+
+          # quadratic term in each Wilson coefficient
           self.modelBuilder.factory_("expr::quadratic_func_"+ str(self.Operators[operator]) + "(\"@0*@1*@1\",r,k_" + str(self.Operators[operator]) + ")")
+
+          # interference between pairs of Wilson coefficients
+          for operator_sub in range(operator+1, self.numOperators):
+            self.modelBuilder.factory_("expr::linear_func_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]) +"(\"@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) + ")")
           
-          
-        print " parameters of interesst = "
-        print self.poiNames
+        print " parameters of interesst = ", self.poiNames
         self.modelBuilder.doSet("POI",self.poiNames)
 
 
@@ -172,9 +176,9 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
 
         if   process == "sm":          return "sm_func"
       
-        for operator in range(1, self.numOperators+1):
+        for operator in range(0, self.numOperators):
           if process == "linear_"+ str(self.Operators[operator]) :    return "linear_func_"+ str(self.Operators[operator]) 
-          for operator_sub in range(operator+1, self.numOperators+1):
+          for operator_sub in range(operator+1, self.numOperators):
             if process == "linear_mixed_"+ str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]):    return "linear_func_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])
           if process == "quadratic_"+ str(self.Operators[operator]) :    return "quadratic_func_"+ str(self.Operators[operator]) 
             
