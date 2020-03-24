@@ -10,7 +10,7 @@
 #include "tdrstyle.C"
 
 
-void Draw2D(std::string xName = "r_{1}", std::string yName = "r_{3}", std::string xNameVar = "r1", std::string yNameVar = "r3" , int dimension = 2 , std::string cut = "1", int FillHighLL = 1,   float lumi = 15.2) {
+void draw2D(std::string xName = "r_{1}", std::string yName = "r_{3}", std::string xNameVar = "r1", std::string yNameVar = "r3" , int dimension = 2 , std::string cut = "1", int FillHighLL = 1,   float lumi = 15.2) {
   
   
   gStyle->SetOptStat(0);
@@ -159,7 +159,8 @@ void Draw2D(std::string xName = "r_{1}", std::string yName = "r_{3}", std::strin
   //   gStyle->SetPadRightMargin(0.2);
   
   TGraph* cross11 = new TGraph();
-  cross11->SetPoint(0,1,1);
+//   cross11->SetPoint(0,1,1);
+  cross11->SetPoint(0,0,0);
   cross11->SetMarkerStyle(22);
   cross11->SetMarkerSize(2);
   cross11->SetMarkerColor(kBlack);

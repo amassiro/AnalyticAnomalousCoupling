@@ -1,4 +1,6 @@
-void draw() {
+
+
+void draw(std::string variable = "k_my_1") {
   
   TCanvas* cc = new TCanvas("cc","", 800, 600);
   int n = 0;
@@ -6,14 +8,17 @@ void draw() {
   
   TTree* limit = (TTree*) _file0->Get("limit");  
   //   n = limit->Draw("2*deltaNLL:r","deltaNLL<10 && deltaNLL>-30","l");
-  n = limit->Draw("2*deltaNLL:k_my_1","deltaNLL<50 && deltaNLL>-30","l");
+  
+  TString toDraw = Form("2*deltaNLL:%s", variable.c_str());
+  
+  n = limit->Draw( toDraw.Data() , "deltaNLL<50 && deltaNLL>-30", "l");
   TGraph *graphScan = new TGraph(n,limit->GetV2(),limit->GetV1());
   graphScan->RemovePoint(0);
   
   TGraph *graphScanData = 0;
   TTree* limitData = (TTree*) _file1->Get("limit");  
   //     n_data = limitData->Draw("2*deltaNLL:r","deltaNLL<40 && deltaNLL>-30","l");
-  n_data = limitData->Draw("2*deltaNLL:k_my_1","deltaNLL<50 && deltaNLL>-30","l");
+  n_data = limitData->Draw(  toDraw.Data() , "deltaNLL<50 && deltaNLL>-30", "l");
   graphScanData = new TGraph(n_data,limitData->GetV2(),limitData->GetV1());
   graphScanData->RemovePoint(0);
   graphScanData->SetTitle("");
@@ -174,7 +179,7 @@ void draw() {
   
   //---- plot ----
   
-  graphScan->GetXaxis()->SetTitle("k");
+  graphScan->GetXaxis()->SetTitle(variable.c_str());
   graphScan->GetYaxis()->SetTitle("-2 #Delta LL");
   
   graphScan  ->Draw("al");

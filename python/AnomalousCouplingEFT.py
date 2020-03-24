@@ -127,7 +127,7 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
 
 
         for operator in range(0, self.numOperators):
-          self.modelBuilder.doVar("k_" + str(self.Operators[operator]) + "[1,-200,200]")
+          self.modelBuilder.doVar("k_" + str(self.Operators[operator]) + "[0,-200,200]")
           self.poiNames += ",k_" + str(self.Operators[operator])
           
         #
@@ -163,7 +163,7 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
           for operator_sub in range(operator+1, self.numOperators):
             self.modelBuilder.factory_("expr::linear_func_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]) +"(\"@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) + ")")
           
-        print " parameters of interesst = ", self.poiNames
+        print " parameters of interest = ", self.poiNames
         self.modelBuilder.doSet("POI",self.poiNames)
 
 
@@ -178,9 +178,10 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
       
         for operator in range(0, self.numOperators):
           if process == "linear_"+ str(self.Operators[operator]) :    return "linear_func_"+ str(self.Operators[operator]) 
-          for operator_sub in range(operator+1, self.numOperators):
-            if process == "linear_mixed_"+ str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]):    return "linear_func_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])
           if process == "quadratic_"+ str(self.Operators[operator]) :    return "quadratic_func_"+ str(self.Operators[operator]) 
+          for operator_sub in range(operator+1, self.numOperators):
+            if (process == "linear_mixed_"+ str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])) or (process == "linear_mixed_"+ str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])):    
+              return "linear_func_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])
             
         return 1
 
