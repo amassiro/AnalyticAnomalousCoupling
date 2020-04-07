@@ -65,8 +65,7 @@ class Scythe:
         self._outFile.cd    ( "./" )
         
         TCanvas cc_all_together("cc_all_together", "", 800, 600)
-        sampleName = 'sm'
-        histo_sm  = fileIn.Get("FOLDER NAME" + "/histo_" + sampleName)
+        histo_sm  = fileIn.Get( self._folderName + "/histo_" + self._sampleNameSM)
         histo_sm.Draw();
         
         for nameHR, pair in self._pairs.iteritems():
@@ -74,17 +73,19 @@ class Scythe:
           self._outFile.mkdir ( nameHR )
           self._outFile.cd    ( nameHR )
 
-          histo_bsm_x = fileIn.Get("FOLDER NAME" + "/histo_" + sampleName + "BLA BLA")
-          histo_int_x = fileIn.Get("FOLDER NAME" + "/histo_" + sampleName + "BLA BLA")
-          histo_bsm_y = fileIn.Get("FOLDER NAME" + "/histo_" + sampleName + "BLA BLA")
-          histo_int_y = fileIn.Get("FOLDER NAME" + "/histo_" + sampleName + "BLA BLA")
+          histo_bsm_x  = fileIn.Get( self._folderName + "/histo_" + "_quadratic_" + pair['xName'] )
+          histo_int_x  = fileIn.Get( self._folderName + "/histo_" + "_linear_"    + pair['xName'] )
+          histo_bsm_y  = fileIn.Get( self._folderName + "/histo_" + "_quadratic_" + pair['yName'] )
+          histo_int_y  = fileIn.Get( self._folderName + "/histo_" + "_linear_"    + pair['yName'] )
+          histo_int_xy = fileIn.Get( self._folderName + "/histo_" + "_linear_mixed_" + pair['xName'] + "_" + pair['yName'] )
           
-          histo_varied = histo_sm.Clone ("histo_" + sampleName + "_varied_" + pair['xName'] + "_" + pair['xValue'] + "_" + pair['yName'] + "_" + pair['yValue'])
+          histo_varied = histo_sm.Clone ("histo_" + self._sampleNameSM + "_varied_" + pair['xName'] + "_" + pair['xValue'] + "_" + pair['yName'] + "_" + pair['yValue'] )
                     
           histo_varied.Add(histo_bsm_x, pair['xValue']*pair['xValue'] )
           histo_varied.Add(histo_int_x, pair['xValue'] )
           histo_varied.Add(histo_bsm_y, pair['yValue']*pair['yValue'] )
           histo_varied.Add(histo_int_y, pair['yValue'] )
+          histo_varied.Add(histo_int_xy, pair['xValue']*pair['yValue'] )
           
           #histo_varied.SetName  ('histo_' + cardName)
           #histo_varied.SetTitle ('histo_' + cardName)
@@ -116,9 +117,11 @@ if __name__ == '__main__':
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
 
-    parser.add_option('--inputFileROOT'         , dest='inputFileROOT'         , help='input file with histograms'                              , default='input.root')
-    parser.add_option('--inputFilePairs'        , dest='inputFilePairs'        , help='input file with pair of operators values to be plotted'  , default='pairs.py')
-    parser.add_option('--outputFile'            , dest='outputFile'            , help='output file with TCanvas'                                , default='output.root')
+    parser.add_option('--inputFileROOT'         , dest='inputFileROOT'         , help='input file with histograms'                                   , default='input.root')
+    parser.add_option('--inputFilePairs'        , dest='inputFilePairs'        , help='input file with pair of operators values to be plotted'       , default='pairs.py')
+    parser.add_option('--outputFile'            , dest='outputFile'            , help='output file with TCanvas'                                     , default='output.root')
+    parser.add_option('--sampleNameSM'          , dest='sampleNameSM'          , help='sample name in as in histogram for SM contribution'           , default='sm')
+    parser.add_option('--folderName'            , dest='folderName'            , help='folder name inside the root file where histograms are stored' , default='mll')
           
     # read default parsing options as well
     addOptions(parser)
@@ -130,10 +133,15 @@ if __name__ == '__main__':
 
     print " inputFilePairs        =          ", opt.inputFilePairs
     print " outputFile            =          ", opt.outputFile
+    print " sampleNameSM          =          ", opt.sampleNameSM
+    print " folderName            =          ", opt.folderName
+
 
     factory = Scythe()
     factory._outputFileName    = opt.outputFile
     factory._inputFileROOT     = opt.inputFileROOT
+    factory._sampleNameSM      = opt.sampleNameSM
+    factory._folderName        = opt.folderName
 
 
     # ~~~~
