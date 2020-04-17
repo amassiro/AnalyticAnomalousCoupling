@@ -67,6 +67,7 @@ class Scythe:
         cc_all_together = ROOT.TCanvas("cc_all_together", "", 800, 600)
         histo_sm  = fileIn.Get( self._folderName + "histo_" + self._sampleNameSM)
         print " name histo = " , self._folderName + "histo_" + self._sampleNameSM
+        print " histo_sm --> " , histo_sm.Class()
         histo_sm.Draw();
         
         for nameHR, pair in self._pairs.iteritems():
@@ -74,19 +75,20 @@ class Scythe:
           self._outFile.mkdir ( nameHR )
           self._outFile.cd    ( nameHR )
 
-          histo_bsm_x  = ROOT.TH1F( fileIn.Get( self._folderName + "histo_" + "_quadratic_" + pair['xName'] ) )
-          histo_int_x  = ROOT.TH1F( fileIn.Get( self._folderName + "histo_" + "_linear_"    + pair['xName'] ) )
-          histo_bsm_y  = ROOT.TH1F( fileIn.Get( self._folderName + "histo_" + "_quadratic_" + pair['yName'] ) )
-          histo_int_y  = ROOT.TH1F( fileIn.Get( self._folderName + "histo_" + "_linear_"    + pair['yName'] ) )
-          histo_int_xy = ROOT.TH1F( fileIn.Get( self._folderName + "histo_" + "_linear_mixed_" + pair['xName'] + "_" + pair['yName'] ) )
+          histo_bsm_x  =  fileIn.Get( self._folderName + "histo_" + "quadratic_" + pair['xName'] ) 
+          histo_int_x  =  fileIn.Get( self._folderName + "histo_" + "linear_"    + pair['xName'] ) 
+          histo_bsm_y  =  fileIn.Get( self._folderName + "histo_" + "quadratic_" + pair['yName'] ) 
+          histo_int_y  =  fileIn.Get( self._folderName + "histo_" + "linear_"    + pair['yName'] ) 
+          histo_int_xy =  fileIn.Get( self._folderName + "histo_" + "interference_" + pair['xName'] + "_" + pair['yName'] ) 
+          #histo_int_xy =  fileIn.Get( self._folderName + "histo_" + "linear_mixed_" + pair['xName'] + "_" + pair['yName'] ) 
           
-          histo_varied = histo_sm.Clone ("histo_" + self._sampleNameSM + "_varied_" + pair['xName'] + "_" + str(pair['xValue']) + "_" + pair['yName'] + "_" + str(pair['yValue']) )
-                    
-          histo_varied.Add( histo_bsm_x,  1. * ( pair['xValue'] * pair['xValue'] ) )
-          histo_varied.Add( histo_int_x,  1. * ( pair['xValue']                  ) )
-          histo_varied.Add( histo_bsm_y,  1. * ( pair['yValue'] * pair['yValue'] ) )
-          histo_varied.Add( histo_int_y,  1. * ( pair['yValue']                  ) )
-          histo_varied.Add( histo_int_xy, 1. * ( pair['xValue'] * pair['yValue'] ) )
+          histo_varied =  ROOT.TH1F( histo_sm.Clone ("histo_" + self._sampleNameSM + "_varied_" + pair['xName'] + "_" + str(pair['xValue']) + "_" + pair['yName'] + "_" + str(pair['yValue']) ) )
+          
+          histo_varied.Add( histo_bsm_x  , ( pair['xValue'] * pair['xValue'] ) )
+          histo_varied.Add( histo_int_x  , ( pair['xValue']                  ) )
+          histo_varied.Add( histo_bsm_y  , ( pair['yValue'] * pair['yValue'] ) )
+          histo_varied.Add( histo_int_y  , ( pair['yValue']                  ) )
+          histo_varied.Add( histo_int_xy , ( pair['xValue'] * pair['yValue'] ) )
           
           #histo_varied.SetName  ('histo_' + cardName)
           #histo_varied.SetTitle ('histo_' + cardName)
