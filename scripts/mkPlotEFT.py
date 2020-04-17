@@ -20,7 +20,6 @@ import math
 #import os.path
 
 
-
 # ----------------------------------------------------- Scythe --------------------------------------
 
 class Scythe:
@@ -33,6 +32,15 @@ class Scythe:
         self._variables = variables
 
         
+    # _____________________________________________________________________________
+    def defineStyle(self):
+    
+        print "=================="
+        import HiggsAnalysis.AnalyticAnomalousCoupling.tdrStyle as tdrStyle
+        tdrStyle.setTDRStyle()
+        
+        ROOT.TGaxis.SetExponentOffset(-0.08, 0.00,"y")
+
  
     # _____________________________________________________________________________
     def makePlotEFT(self):
@@ -43,6 +51,7 @@ class Scythe:
         
         print " self._pairs " , self._pairs
         
+        self.defineStyle()
         
         #
         #  self._pairs = {
@@ -61,15 +70,23 @@ class Scythe:
         fileIn = ROOT.TFile(self._inputFileROOT, "READ")
         
         self._outFile = ROOT.TFile.Open( self._outputFileName, 'update')  # need to append in an existing file if more cuts/variables are wanted
-       
-        #self._outFile.cd    ( "./" )
-        
+               
         cc_all_together = ROOT.TCanvas("cc_all_together", "", 800, 600)
         histo_sm  = fileIn.Get( self._folderName + "histo_" + self._sampleNameSM)
         print " name histo = " , self._folderName + "histo_" + self._sampleNameSM
         print " histo_sm --> " , histo_sm.Class()
-        histo_sm.Draw();
+        histo_sm.SetLineColor( ROOT.kBlue )
+        histo_sm.SetLineWidth( 2 )
+        histo_sm.Draw()
+        histo_sm.GetYaxis().SetTitle("Events")
+        histo_sm.Write()
+       
+        leg = ROOT.TLegend(0.60,0.70,0.90,0.90)
+        leg.AddEntry(histo_sm,"SM","L")
+  
+        histos_varied = {}
         
+        counter = 0
         for nameHR, pair in self._pairs.iteritems():
         
           self._outFile.mkdir ( nameHR )
@@ -79,26 +96,36 @@ class Scythe:
           histo_int_x  =  fileIn.Get( self._folderName + "histo_" + "linear_"    + pair['xName'] ) 
           histo_bsm_y  =  fileIn.Get( self._folderName + "histo_" + "quadratic_" + pair['yName'] ) 
           histo_int_y  =  fileIn.Get( self._folderName + "histo_" + "linear_"    + pair['yName'] ) 
-          histo_int_xy =  fileIn.Get( self._folderName + "histo_" + "interference_" + pair['xName'] + "_" + pair['yName'] ) 
-          #histo_int_xy =  fileIn.Get( self._folderName + "histo_" + "linear_mixed_" + pair['xName'] + "_" + pair['yName'] ) 
+          #histo_int_xy =  fileIn.Get( self._folderName + "histo_" + "interference_" + pair['xName'] + "_" + pair['yName'] ) 
+          histo_int_xy =  fileIn.Get( self._folderName + "histo_" + "linear_mixed_" + pair['xName'] + "_" + pair['yName'] ) 
           
-          histo_varied =  ROOT.TH1F( histo_sm.Clone ("histo_" + self._sampleNameSM + "_varied_" + pair['xName'] + "_" + str(pair['xValue']) + "_" + pair['yName'] + "_" + str(pair['yValue']) ) )
+          histos_varied[counter] = ROOT.TH1F( histo_sm.Clone ("histo_" + self._sampleNameSM + "_varied_" + pair['xName'] + "_" + str(pair['xValue']) + "_" + pair['yName'] + "_" + str(pair['yValue']) ) )
           
-          histo_varied.Add( histo_bsm_x  , ( pair['xValue'] * pair['xValue'] ) )
-          histo_varied.Add( histo_int_x  , ( pair['xValue']                  ) )
-          histo_varied.Add( histo_bsm_y  , ( pair['yValue'] * pair['yValue'] ) )
-          histo_varied.Add( histo_int_y  , ( pair['yValue']                  ) )
-          histo_varied.Add( histo_int_xy , ( pair['xValue'] * pair['yValue'] ) )
+          histos_varied[counter].Add( histo_bsm_x  , ( pair['xValue'] * pair['xValue'] ) )
+          histos_varied[counter].Add( histo_int_x  , ( pair['xValue']                  ) )
+          histos_varied[counter].Add( histo_bsm_y  , ( pair['yValue'] * pair['yValue'] ) )
+          histos_varied[counter].Add( histo_int_y  , ( pair['yValue']                  ) )
+          histos_varied[counter].Add( histo_int_xy , ( pair['xValue'] * pair['yValue'] ) )
           
-          #histo_varied.SetName  ('histo_' + cardName)
-          #histo_varied.SetTitle ('histo_' + cardName)
-          histo_varied.Write()
+          histos_varied[counter].SetLineColor( ROOT.kRed + 2*counter )
+          histos_varied[counter].SetLineWidth( 2 )
           
-          histo_varied.Draw("same");
+          histos_varied[counter].Write()
+
+          leg.AddEntry(histos_varied[counter], pair['xName'] + " = " + str(pair['xValue']) + " ; " + pair['yName'] + " = " + str(pair['yValue']) ,"L")
+          
+          histos_varied[counter].Draw("same");
           
           self._outFile.cd    ( "../" )
+          
+          counter+=1
+
+        leg.Draw()
 
         cc_all_together.Write()
+
+        cc_all_together.SaveAs("plot.png")
+       
        
 
 
