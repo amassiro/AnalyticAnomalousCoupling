@@ -10,20 +10,22 @@ Example
 Plot
 ~~~
 
-    mkPlotEFT.py \
-          --inputFileROOT     SSWW_cHWB_cHl3_ptl2.root \
-          --inputFilePairs    test_pairs.py    \
-          --outputFile        mytest.root    \
-          --sampleNameSM      sm     \
-          --folderName        ""   
-     
-     
     ../scripts/mkPlotEFT.py \
-          --inputFileROOT     SSWW_cHWB_cHl3_ptl2.root \
+          --inputFileROOT     inWW_cHWB_cHl3_ptl1.root \
           --inputFilePairs    test_pairs.py    \
           --outputFile        mytest.root    \
           --sampleNameSM      sm     \
           --folderName        ""   
+
+          
+    mkPlotEFT.py \
+          --inputFileROOT     inWW_cHWB_cHl3_ptl1.root \
+          --inputFilePairs    test_pairs.py    \
+          --outputFile        mytest.root    \
+          --sampleNameSM      sm     \
+          --folderName        ""   
+     
+     
       
     
     

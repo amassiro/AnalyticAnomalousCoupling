@@ -79,6 +79,7 @@ class Scythe:
         histo_sm.SetLineWidth( 2 )
         histo_sm.Draw()
         histo_sm.GetYaxis().SetTitle("Events")
+        histo_sm.GetYaxis().SetRangeUser( 0.,  2 * histo_sm.GetMaximum())
         histo_sm.Write()
        
         leg = ROOT.TLegend(0.60,0.70,0.90,0.90)
@@ -96,7 +97,6 @@ class Scythe:
           histo_int_x  =  fileIn.Get( self._folderName + "histo_" + "linear_"    + pair['xName'] ) 
           histo_bsm_y  =  fileIn.Get( self._folderName + "histo_" + "quadratic_" + pair['yName'] ) 
           histo_int_y  =  fileIn.Get( self._folderName + "histo_" + "linear_"    + pair['yName'] ) 
-          #histo_int_xy =  fileIn.Get( self._folderName + "histo_" + "interference_" + pair['xName'] + "_" + pair['yName'] ) 
           histo_int_xy =  fileIn.Get( self._folderName + "histo_" + "linear_mixed_" + pair['xName'] + "_" + pair['yName'] ) 
           
           histos_varied[counter] = ROOT.TH1F( histo_sm.Clone ("histo_" + self._sampleNameSM + "_varied_" + pair['xName'] + "_" + str(pair['xValue']) + "_" + pair['yName'] + "_" + str(pair['yValue']) ) )
