@@ -40,3 +40,14 @@ pairs['cHWB_cHl3_20_20'] = {
     'yValue': 2.0,    
 }
 
+
+
+
+
+pairs['cHWB_20'] = {
+    'xName': 'cHWB',
+    'xValue': 2.0,
+}
+
+
+
