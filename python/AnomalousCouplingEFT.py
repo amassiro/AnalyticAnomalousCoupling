@@ -13,6 +13,7 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
 
         # NB: alphabetically sorted, do not reshuffle
         self.Operators = [
+             #'cDim8_k1',
              'cG',
              'cGtil',
              'cH',
@@ -177,11 +178,23 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
         if   process == "sm":          return "sm_func"
       
         for operator in range(0, self.numOperators):
-          if process == "linear_"+ str(self.Operators[operator]) :    return "linear_func_"+ str(self.Operators[operator]) 
-          if process == "quadratic_"+ str(self.Operators[operator]) :    return "quadratic_func_"+ str(self.Operators[operator]) 
+          if process == "lin_"+ str(self.Operators[operator]) :    return "linear_func_"+ str(self.Operators[operator]) 
+          if process == "quad_"+ str(self.Operators[operator]) :    return "quadratic_func_"+ str(self.Operators[operator]) 
           for operator_sub in range(operator+1, self.numOperators):
-            if (process == "linear_mixed_"+ str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])) or (process == "linear_mixed_"+ str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])):    
+            if (process == "lin_mixed_"+ str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])) or (process == "lin_mixed_"+ str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])):    
               return "linear_func_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])
+
+        #if   process == "SSWW":          return "sm_func"
+      
+        #for operator in range(0, self.numOperators):
+          #if process == str(self.Operators[operator]) + "_int" :    
+            #print " CACCA "
+            #return "linear_func_"+ str(self.Operators[operator]) 
+            
+          #if process == str(self.Operators[operator]) + "_bsm" :    return "quadratic_func_"+ str(self.Operators[operator]) 
+          #for operator_sub in range(operator+1, self.numOperators):
+            #if (process == "linear_mixed_"+ str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])) or (process == "linear_mixed_"+ str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])):    
+              #return "linear_func_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])
             
         return 1
 
