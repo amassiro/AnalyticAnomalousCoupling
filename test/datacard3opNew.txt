@@ -1,0 +1,23 @@
+----------------------------------------------------------------------------------------------------------------------------------
+imax *
+jmax *
+kmax *
+----------------------------------------------------------------------------------------------------------------------------------
+bin          test    
+observation     368.93  
+----------------------------------------------------------------------------------------------------------------------------------
+bin        test      test             test            test               test                  test                        test            test                    test                       test               
+process    sm        quad_cG   sm_lin_quad_cG       quad_cGtil     sm_lin_quad_cGtil     sm_lin_quad_mixed_cG_cGtil       quad_cH      sm_lin_quad_cH     sm_lin_quad_mixed_cG_cH      sm_lin_quad_mixed_cGtil_cH  
+process    0         1                    2          3                  4                       5                            6               7                        8                       9                                                                                                                                                                                                                  
+rate      36.93     13.6            47.6            17.6                 54.6                    2.4                        1               38                        9                       4
+---------------------------------------------                                                                                                                                  
+lumi    lnN     1.02     1.02     1.02              1.02                  1.02                   -                         -                 -                        -                   -
+bla     lnN     1.2      1.01     1.02              -                       -                   1.03                       -                 -                        -                   -
+
+
+#                                          
+#                                         
+#                      sm_lin_quad_mixed_AAA_BBB
+#                      sm_lin_quad_AAA
+#                      quad_AAA
+#
