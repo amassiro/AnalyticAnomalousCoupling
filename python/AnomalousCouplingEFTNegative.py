@@ -191,16 +191,34 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
         #
         
         print " Test = "
+        #print "expr::sm_func(\"@0*(1-(" +                                                                                                                                                                  \
+                         #"@" + "+@".join([str(i+1) for i in range(len(self.Operators))])  +                                                                                                               \
+                         #"-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j<i ]) +                                                     \
+                         #"))\",r," + "k_" + ", k_".join([str(self.Operators[i])+",k_"+str(self.Operators[j])  for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j<i ]  ) + ")"
+        
+        #self.modelBuilder.factory_(
+             #"expr::sm_func(\"@0*(1-(" + 
+                                      #"@" + "+@".join([str(i+1) for i in range(len(self.Operators))])  +
+                                      #"-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j<i ]) +
+                                      #"))\",r," + "k_" + ", k_".join([str(self.Operators[i])+",k_"+str(self.Operators[j])  for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j<i ]  ) + ")"
+             #)
+
+
+
+
+
+
+
         print "expr::sm_func(\"@0*(1-(" +                                                                                                                                                                  \
                          "@" + "+@".join([str(i+1) for i in range(len(self.Operators))])  +                                                                                                               \
-                         "-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j<i ]) +                                                     \
-                         "))\",r," + "k_" + ", k_".join([str(self.Operators[i])+",k_"+str(self.Operators[j])  for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j<i ]  ) + ")"
+                         "-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]) +                                                     \
+                         "))\",r," + "k_" + ", k_".join([str(self.Operators[i])+",k_"+str(self.Operators[j])  for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]  ) + ")"
         
         self.modelBuilder.factory_(
              "expr::sm_func(\"@0*(1-(" + 
                                       "@" + "+@".join([str(i+1) for i in range(len(self.Operators))])  +
-                                      "-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j<i ]) +
-                                      "))\",r," + "k_" + ", k_".join([str(self.Operators[i])+",k_"+str(self.Operators[j])  for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j<i ]  ) + ")"
+                                      "-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]) +
+                                      "))\",r," + "k_" + ", k_".join([str(self.Operators[i])+",k_"+str(self.Operators[j])  for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]  ) + ")"
              )
 
         for operator in range(0, self.numOperators):
