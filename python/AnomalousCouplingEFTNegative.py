@@ -16,7 +16,7 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
              #'cDim8_k1',
              'cG',
              'cGtil',
-             'cH',
+             #'cH',
              #'cHB',
              #'cHBtil',
              #'cHDD',
@@ -187,28 +187,13 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
         #
         
         #
-        # e.g. expr::sm_func("@0*(1-(@1+@2+@3-@2*@1-@3*@1-@3*@2))",r,k_cGtil,k_cG, k_cH,k_cG, k_cH,k_cGtil)
+        # e.g. expr::sm_func("@0*(1-(@1+@2+@3-@1*@2-@1*@3-@2*@1-@2*@3-@3*@1-@3*@2))",r,k_cG,k_cGtil, k_cG,k_cH, k_cGtil,k_cG, k_cGtil,k_cH, k_cH,k_cG, k_cH,k_cGtil)
         #
         
+        #
+        # sm
+        #
         print " Test = "
-        #print "expr::sm_func(\"@0*(1-(" +                                                                                                                                                                  \
-                         #"@" + "+@".join([str(i+1) for i in range(len(self.Operators))])  +                                                                                                               \
-                         #"-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j<i ]) +                                                     \
-                         #"))\",r," + "k_" + ", k_".join([str(self.Operators[i])+",k_"+str(self.Operators[j])  for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j<i ]  ) + ")"
-        
-        #self.modelBuilder.factory_(
-             #"expr::sm_func(\"@0*(1-(" + 
-                                      #"@" + "+@".join([str(i+1) for i in range(len(self.Operators))])  +
-                                      #"-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j<i ]) +
-                                      #"))\",r," + "k_" + ", k_".join([str(self.Operators[i])+",k_"+str(self.Operators[j])  for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j<i ]  ) + ")"
-             #)
-
-
-
-
-
-
-
         print "expr::sm_func(\"@0*(1-(" +                                                                                                                                                                  \
                          "@" + "+@".join([str(i+1) for i in range(len(self.Operators))])  +                                                                                                               \
                          "-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]) +                                                     \
@@ -222,8 +207,10 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
              )
 
         for operator in range(0, self.numOperators):
+          #
           # sm + linear + quadratic      
-          print " Test = "
+          # 
+          #print " Test = "
           print "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +                                           \
                              "(\"@0*(" +                                                                                      \
                              "@1 * (1-2*(" + "@" + "+@".join( [str(j+2) for j in range(len(self.Operators) -1) ] ) + ") )" +      \
@@ -244,12 +231,34 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
                              ")"
                   )
 
+          #
           # quadratic term in each Wilson coefficient
+          #
+          #
+          # e.g. expr::func_sm_linear_quadratic_cH("@0*(@1 * (1-2*(@2+@3) ))",r,k_cH, k_cG, k_cGtil)
+          #
+          
+          print "expr::func_quadratic_"+ str(self.Operators[operator]) + "(\"@0*(@1*@1-@1)\",r,k_" + str(self.Operators[operator]) + ")"
+          
+          
           self.modelBuilder.factory_("expr::func_quadratic_"+ str(self.Operators[operator]) + "(\"@0*(@1*@1-@1)\",r,k_" + str(self.Operators[operator]) + ")")
 
-          # interference between pairs of Wilson coefficients
+          #
+          # interference between pairs of Wilson coefficients + SM + linear + quadratic
+          #         
           for operator_sub in range(operator+1, self.numOperators):
-            self.modelBuilder.factory_("expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +"(\"@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) + ")")
+ 
+            #
+            # Since I have only Mij (and I do not define the sample Mji)
+            #
+            print "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +          \
+             "(\"@0*@1*@2*2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +                      \
+             ")"
+ 
+            self.modelBuilder.factory_(
+                     "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +
+                     "(\"@0*@1*@2*2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) + 
+                     ")")
 
         print " parameters of interest = ", self.poiNames
         self.modelBuilder.doSet("POI",self.poiNames)
