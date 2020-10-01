@@ -16,88 +16,90 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
              #'cDim8_k1',
              'cG',
              'cGtil',
-             #'cH',
-             #'cHB',
-             #'cHBtil',
-             #'cHDD',
-             #'cHG',
-             #'cHGtil',
-             #'cHW',
-             #'cHWB',
-             #'cHWBtil',
-             #'cHWtil',
-             #'cHbox',
-             #'cHd',
-             #'cHe',
-             #'cHl1',
-             #'cHl3',
-             #'cHq1',
-             #'cHq3',
-             #'cHu',
-             #'cHudAbs',
-             #'cHudPh',
-             #'cW',
-             #'cWtil',
-             #'cdBAbs',
-             #'cdBPh',
-             #'cdGAbs',
-             #'cdGPh',
-             #'cdHAbs',
-             #'cdHPh',
-             #'cdWAbs',
-             #'cdWPh',
-             #'cdd',
-             #'cdd1',
-             #'ceBAbs',
-             #'ceBPh',
-             #'ceHAbs',
-             #'ceHPh',
-             #'ceWAbs',
-             #'ceWPh',
-             #'ced',
-             #'cee',
-             #'ceu',
-             #'cld',
-             #'cle',
-             #'cledqAbs',
-             #'cledqPh',
-             #'clequ1Abs',
-             #'clequ1Ph',
-             #'clequ3Abs',
-             #'clequ3Ph',
-             #'cll',
-             #'cll1',
-             #'clq1',
-             #'clq3',
-             #'clu',
-             #'cqd1',
-             #'cqd8',
-             #'cqe',
-             #'cqq1',
-             #'cqq11',
-             #'cqq3',
-             #'cqq31',
-             #'cqu1',
-             #'cqu8',
-             #'cquqd1Abs',
-             #'cquqd1Ph',
-             #'cquqd8Abs',
-             #'cquqd8Ph',
-             #'cuBAbs',
-             #'cuBPh',
-             #'cuGAbs',
-             #'cuGPh',
-             #'cuHAbs',
-             #'cuHPh',
-             #'cuWAbs',
-             #'cuWPh',
-             #'cud1',
-             #'cud8',
-             #'cuu',
-             #'cuu1'
+             'cH',
+             'cHB',
+             'cHBtil',
+             'cHDD',
+             'cHG',
+             'cHGtil',
+             'cHW',
+             'cHWB',
+             'cHWBtil',
+             'cHWtil',
+             'cHbox',
+             'cHd',
+             'cHe',
+             'cHl1',
+             'cHl3',
+             'cHq1',
+             'cHq3',
+             'cHu',
+             'cHudAbs',
+             'cHudPh',
+             'cW',
+             'cWtil',
+             'cdBAbs',
+             'cdBPh',
+             'cdGAbs',
+             'cdGPh',
+             'cdHAbs',
+             'cdHPh',
+             'cdWAbs',
+             'cdWPh',
+             'cdd',
+             'cdd1',
+             'ceBAbs',
+             'ceBPh',
+             'ceHAbs',
+             'ceHPh',
+             'ceWAbs',
+             'ceWPh',
+             'ced',
+             'cee',
+             'ceu',
+             'cld',
+             'cle',
+             'cledqAbs',
+             'cledqPh',
+             'clequ1Abs',
+             'clequ1Ph',
+             'clequ3Abs',
+             'clequ3Ph',
+             'cll',
+             'cll1',
+             'clq1',
+             'clq3',
+             'clu',
+             'cqd1',
+             'cqd8',
+             'cqe',
+             'cqq1',
+             'cqq11',
+             'cqq3',
+             'cqq31',
+             'cqu1',
+             'cqu8',
+             'cquqd1Abs',
+             'cquqd1Ph',
+             'cquqd8Abs',
+             'cquqd8Ph',
+             'cuBAbs',
+             'cuBPh',
+             'cuGAbs',
+             'cuGPh',
+             'cuHAbs',
+             'cuHPh',
+             'cuWAbs',
+             'cuWPh',
+             'cud1',
+             'cud8',
+             'cuu',
+             'cuu1'
              ]
         
         self.numOperators = len(self.Operators)
+
+        print " Operators = ", self.Operators
 
 
     def setPhysicsOptions(self,physOptions):
@@ -109,7 +111,11 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
                     raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
 
- 
+            if po.startswith("eftOperators="):
+                self.Operators = po.replace("eftOperators=","").split(",")
+                print " Operators = ", self.Operators
+                self.numOperators = len(self.Operators)
+
 #
 # standard, not touched (end)
 #
@@ -197,40 +203,70 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
         print "expr::sm_func(\"@0*(1-(" +                                                                                                                                                                  \
                          "@" + "+@".join([str(i+1) for i in range(len(self.Operators))])  +                                                                                                               \
                          "-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]) +                                                     \
-                         "))\",r," + "k_" + ", k_".join([str(self.Operators[i])+",k_"+str(self.Operators[j])  for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]  ) + ")"
+                         "))\",r," + "k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators))]) + ")"
+        #print "expr::sm_func(\"@0*(1-(" +                                                                                                                                                                  \
+                         #"@" + "+@".join([str(i+1) for i in range(len(self.Operators))])  +                                                                                                               \
+                         #"-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]) +                                                     \
+                         #"))\",r," + "k_" + ", k_".join([str(self.Operators[i])+",k_"+str(self.Operators[j])  for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]  ) + ")"
         
-        self.modelBuilder.factory_(
-             "expr::sm_func(\"@0*(1-(" + 
-                                      "@" + "+@".join([str(i+1) for i in range(len(self.Operators))])  +
-                                      "-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]) +
-                                      "))\",r," + "k_" + ", k_".join([str(self.Operators[i])+",k_"+str(self.Operators[j])  for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]  ) + ")"
-             )
+        
+        if self.numOperators != 1:
+          self.modelBuilder.factory_(
+               "expr::sm_func(\"@0*(1-(" + 
+                                        "@" + "+@".join([str(i+1) for i in range(len(self.Operators))])  +
+                                        "-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]) +
+                                        "))\",r," + "k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators))]) + ")"
+               #"expr::sm_func(\"@0*(1-(" + 
+                                        #"@" + "+@".join([str(i+1) for i in range(len(self.Operators))])  +
+                                        #"-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]) +
+                                        #"))\",r," + "k_" + ", k_".join([str(self.Operators[i])+",k_"+str(self.Operators[j])  for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]  ) + ")"
+               )
+        else :
+          self.modelBuilder.factory_(
+               "expr::sm_func(\"@0*(1-(" + 
+                                        "@" + "+@".join([str(i+1) for i in range(len(self.Operators))])  +
+                                        "-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]) +
+                                        "))\",r," + "k_" + str(self.Operators[0]) + ")"
+               )
+          
+          
 
-        for operator in range(0, self.numOperators):
-          #
-          # sm + linear + quadratic      
-          # 
-          #print " Test = "
-          print "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +                                           \
-                             "(\"@0*(" +                                                                                      \
-                             "@1 * (1-2*(" + "@" + "+@".join( [str(j+2) for j in range(len(self.Operators) -1) ] ) + ") )" +      \
-                             ")\",r,k_" + str(self.Operators[operator]) +                                                     \
-                             ", k_" + ", k_".join( [str(self.Operators[j]) for j in range(len(self.Operators)) if operator!=j ] ) +            \
-                             ")"
-          #  
-          #
-          # expr::func_sm_linear_quadratic_cG("@0*(@1 * (1-2*(@2+@3) ))",r,k_cG, k_cGtil, k_cH)
-          #
-          #
+        if self.numOperators != 1:          
+          for operator in range(0, self.numOperators):
+            #
+            # sm + linear + quadratic      
+            # 
+            #print " Test = "
+            print "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +                                           \
+                               "(\"@0*(" +                                                                                      \
+                               "@1 * (1-2*(" + "@" + "+@".join( [str(j+2) for j in range(len(self.Operators) -1) ] ) + ") )" +      \
+                               ")\",r,k_" + str(self.Operators[operator]) +                                                     \
+                               ", k_" + ", k_".join( [str(self.Operators[j]) for j in range(len(self.Operators)) if operator!=j ] ) +            \
+                               ")"
+            #  
+            #
+            # expr::func_sm_linear_quadratic_cG("@0*(@1 * (1-2*(@2+@3) ))",r,k_cG, k_cGtil, k_cH)
+            #
+            #
+            self.modelBuilder.factory_(
+                    "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +
+                               "(\"@0*(" +
+                               "@1 * (1-2*(" + "@" + "+@".join( [str(j+2) for j in range(len(self.Operators) -1) ] ) + ") )" +
+                               ")\",r,k_" + str(self.Operators[operator]) +
+                               ", k_" + ", k_".join( [str(self.Operators[j]) for j in range(len(self.Operators)) if operator!=j ] ) + 
+                               ")"
+                    )
+        else :
           self.modelBuilder.factory_(
                   "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +
                              "(\"@0*(" +
-                             "@1 * (1-2*(" + "@" + "+@".join( [str(j+2) for j in range(len(self.Operators) -1) ] ) + ") )" +
-                             ")\",r,k_" + str(self.Operators[operator]) +
-                             ", k_" + ", k_".join( [str(self.Operators[j]) for j in range(len(self.Operators)) if operator!=j ] ) + 
+                             "@1" +
+                             ")\",r,k_" + str(self.Operators[0]) + 
                              ")"
                   )
-
+          
+          
+                    
           #
           # quadratic term in each Wilson coefficient
           #
@@ -246,22 +282,26 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
           #
           # interference between pairs of Wilson coefficients + SM + linear + quadratic
           #         
-          for operator_sub in range(operator+1, self.numOperators):
- 
-            #
-            # Since I have only Mij (and I do not define the sample Mji)
-            #
-            print "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +          \
-             "(\"@0*@1*@2*2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +                      \
-             ")"
- 
-            self.modelBuilder.factory_(
-                     "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +
-                     "(\"@0*@1*@2*2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) + 
-                     ")")
+          if self.numOperators != 1:          
+            for operator_sub in range(operator+1, self.numOperators):
+   
+              #
+              # Since I have only Mij (and I do not define the sample Mji)
+              #
+              print "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +          \
+               "(\"@0*@1*@2*2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +                      \
+               ")"
+   
+              self.modelBuilder.factory_(
+                       "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +
+                       "(\"@0*@1*@2*2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) + 
+                       ")")
 
         print " parameters of interest = ", self.poiNames
         self.modelBuilder.doSet("POI",self.poiNames)
+
+
+
 
 
 #
