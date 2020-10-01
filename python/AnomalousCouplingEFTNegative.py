@@ -267,37 +267,40 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
           
           
                     
-          #
-          # quadratic term in each Wilson coefficient
-          #
-          #
-          # e.g. expr::func_sm_linear_quadratic_cH("@0*(@1 * (1-2*(@2+@3) ))",r,k_cH, k_cG, k_cGtil)
-          #
-          
-          print "expr::func_quadratic_"+ str(self.Operators[operator]) + "(\"@0*(@1*@1-@1)\",r,k_" + str(self.Operators[operator]) + ")"
-          
-          
-          self.modelBuilder.factory_("expr::func_quadratic_"+ str(self.Operators[operator]) + "(\"@0*(@1*@1-@1)\",r,k_" + str(self.Operators[operator]) + ")")
+        #
+        # quadratic term in each Wilson coefficient
+        #
+        #
+        # e.g. expr::func_sm_linear_quadratic_cH("@0*(@1 * (1-2*(@2+@3) ))",r,k_cH, k_cG, k_cGtil)
+        #
+        
+        print "expr::func_quadratic_"+ str(self.Operators[operator]) + "(\"@0*(@1*@1-@1)\",r,k_" + str(self.Operators[operator]) + ")"
+        
+        
+        self.modelBuilder.factory_("expr::func_quadratic_"+ str(self.Operators[operator]) + "(\"@0*(@1*@1-@1)\",r,k_" + str(self.Operators[operator]) + ")")
 
-          #
-          # interference between pairs of Wilson coefficients + SM + linear + quadratic
-          #         
-          if self.numOperators != 1:          
+        #
+        # interference between pairs of Wilson coefficients + SM + linear + quadratic
+        #         
+        if self.numOperators != 1:          
+          for operator in range(0, self.numOperators):
             for operator_sub in range(operator+1, self.numOperators):
-   
+          
               #
               # Since I have only Mij (and I do not define the sample Mji)
               #
               print "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +          \
                "(\"@0*@1*@2*2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +                      \
                ")"
-   
+          
               self.modelBuilder.factory_(
                        "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +
                        "(\"@0*@1*@2*2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) + 
                        ")")
 
         print " parameters of interest = ", self.poiNames
+        print " self.numOperators = ", self.numOperators
+        
         self.modelBuilder.doSet("POI",self.poiNames)
 
 

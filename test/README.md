@@ -92,7 +92,32 @@ expr::func_quadratic_cG("@0*(@1*@1-@1)",r,k_cG)
  parameters of interest =  r,k_cG
 
  
+    text2workspace.py        datacard3opNew.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCouplingEFTNegative:analiticAnomalousCouplingEFTNegative   -o   model_test.root    --X-allow-no-signal  \
+          --PO eftOperators=cG,cGtil,cH
+    
+    combine -M MultiDimFit model_test.root  --algo=grid --points 2000  -m 125   -t -1     \
+        --redefineSignalPOIs k_cG \
+        --freezeParameters r,k_cGtil,k_cH  \
+        --setParameters r=1    --setParameterRanges k_cG=-10,10     \
+        --verbose -1
+          
+    r99t higgsCombineTest.MultiDimFit.mH125.root  higgsCombineTest.MultiDimFit.mH125.root   draw.cxx\(\"k_cG\"\)
  
+
+
+ 
+expr::sm_func("@0*(1-(@1+@2+@3-@1*@2-@1*@3-@2*@1-@2*@3-@3*@1-@3*@2))",r,k_cG, k_cGtil, k_cH)
+expr::func_sm_linear_quadratic_cG("@0*(@1 * (1-2*(@2+@3) ))",r,k_cG, k_cGtil, k_cH)
+expr::func_sm_linear_quadratic_cGtil("@0*(@1 * (1-2*(@2+@3) ))",r,k_cGtil, k_cG, k_cH)
+expr::func_sm_linear_quadratic_cH("@0*(@1 * (1-2*(@2+@3) ))",r,k_cH, k_cG, k_cGtil)
+expr::func_quadratic_cH("@0*(@1*@1-@1)",r,k_cH)
+expr::func_sm_linear_quadratic_mixed_cGtil_cG("@0*@1*@2*2",r,k_cG,k_cGtil)
+expr::func_sm_linear_quadratic_mixed_cH_cG("@0*@1*@2*2",r,k_cG,k_cH)
+expr::func_sm_linear_quadratic_mixed_cH_cGtil("@0*@1*@2*2",r,k_cGtil,k_cH)
+
+
+
+
 
 If in the model there are N-operators, ALL histograms should be provided.
 Otherwise I need a flag of the operators that I want IN THE MODEL BUILDING
