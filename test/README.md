@@ -87,6 +87,9 @@ Test new model
     
 
     
+    
+    
+    
 expr::sm_func("@0*(1-(@1-@))",r,k_cG)
 expr::func_quadratic_cG("@0*(@1*@1-@1)",r,k_cG)
  parameters of interest =  r,k_cG
@@ -128,6 +131,9 @@ Otherwise I need a flag of the operators that I want IN THE MODEL BUILDING
 
 
 
+    text2workspace.py        datacard3opNew.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCouplingEFTNegative:analiticAnomalousCouplingEFTNegative   -o   model_test.root    --X-allow-no-signal  \
+          --PO eftOperators=cG,cGtil,cH  \
+          --PO  eftAlternative
     
     
     
