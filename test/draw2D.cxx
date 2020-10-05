@@ -10,7 +10,7 @@
 #include "tdrstyle.C"
 
 
-void Draw2D(std::string xName = "r_{1}", std::string yName = "r_{3}", std::string xNameVar = "r1", std::string yNameVar = "r3" , int dimension = 2 , std::string cut = "1", int FillHighLL = 1,   float lumi = 15.2) {
+void draw2D(std::string xName = "r_{1}", std::string yName = "r_{3}", std::string xNameVar = "r1", std::string yNameVar = "r3" , int dimension = 2 , std::string cut = "1", int FillHighLL = 1,   float lumi = 15.2) {
 
 
   gStyle->SetOptStat(0);
@@ -79,15 +79,21 @@ void Draw2D(std::string xName = "r_{1}", std::string yName = "r_{3}", std::strin
 
   //   graphScan->Draw("surf1");
 
+//
+  //   Reference: http://pdg.lbl.gov/2018/reviews/rpp2018-rev-statistics.pdf
+//
+
   //---- 2D likelihood thresholds
   Double_t contours[2];
   if (dimension == 2) {
-    contours[0] = 2.41;
-    contours[1] = 5.99;
+    contours[0] = 2.30;  // 68.27%
+//     contours[0] = 2.41;  // 70%
+    contours[1] = 5.99;  // 95%
   }
   if (dimension == 3) {
-    contours[0] = 3.67;
-    contours[1] = 7.82;
+    contours[0] = 3.53;  // 68.27%
+//     contours[0] = 3.67;  // 70%
+    contours[1] = 7.82;  // 95%
   }
 
   //   graphScan->Draw("cont4z");
@@ -159,6 +165,7 @@ void Draw2D(std::string xName = "r_{1}", std::string yName = "r_{3}", std::strin
   //   gStyle->SetPadRightMargin(0.2);
 
   TGraph* cross11 = new TGraph();
+//   cross11->SetPoint(0,1,1);
   cross11->SetPoint(0,0,0);
   cross11->SetMarkerStyle(22);
   cross11->SetMarkerSize(2);
