@@ -15,6 +15,52 @@ Where:
     
 
     
+Model to be used:
+
+    AnomalousCouplingEFTNegative
+    
+    
+How to run it:
+
+    cd test 
+    
+    text2workspace.py      \
+            datacard1opNew.txt   \
+            -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCouplingEFTNegative:analiticAnomalousCouplingEFTNegative  \
+            -o   model_test.root    --X-allow-no-signal  \
+          --PO eftOperators=cG
+    
+    
+    combine -M MultiDimFit model_test.root  --algo=grid --points 2000  -m 125   -t -1     \
+        --redefineSignalPOIs k_cG \
+        --freezeParameters r  \
+        --setParameters r=1    --setParameterRanges k_cG=-10,10     \
+        --verbose -1
+          
+    r99t higgsCombineTest.MultiDimFit.mH125.root  higgsCombineTest.MultiDimFit.mH125.root   draw.cxx\(\"k_cG\"\)
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 Run:
 
     get the file:
