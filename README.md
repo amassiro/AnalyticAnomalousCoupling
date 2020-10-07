@@ -42,20 +42,8 @@ How to run it:
 
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+Older examples
+====
     
     
     
