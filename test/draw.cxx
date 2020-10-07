@@ -7,6 +7,7 @@ void draw(std::string variable = "k_my_1") {
   int n_data = 0;
   
   TTree* limit = (TTree*) _file0->Get("limit");  
+  std::cout << " expected = " << _file0->GetName() << std::endl;
   //   n = limit->Draw("2*deltaNLL:r","deltaNLL<10 && deltaNLL>-30","l");
   
   TString toDraw = Form("2*deltaNLL:%s", variable.c_str());
@@ -17,6 +18,7 @@ void draw(std::string variable = "k_my_1") {
   
   TGraph *graphScanData = 0;
   TTree* limitData = (TTree*) _file1->Get("limit");  
+  std::cout << " observed = " << _file1->GetName() << std::endl;
   //     n_data = limitData->Draw("2*deltaNLL:r","deltaNLL<40 && deltaNLL>-30","l");
   n_data = limitData->Draw(  toDraw.Data() , "deltaNLL<50 && deltaNLL>-30", "l");
   graphScanData = new TGraph(n_data,limitData->GetV2(),limitData->GetV1());
