@@ -150,8 +150,8 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
         #   quadratic_2 = Absm_2**2
         #
         
-        print "expr::sm_func(\"@0\",r)"
-        #self.modelBuilder.factory_("expr::sm_func(\"@0\",r)")
+        self.modelBuilder.factory_("expr::sm_func(\"@0\",r)")
+        #print "expr::sm_func(\"@0\",r)"
 
         for operator in range(0, self.numOperators):
 
