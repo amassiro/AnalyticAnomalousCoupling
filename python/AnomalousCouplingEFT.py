@@ -13,7 +13,6 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
 
         # NB: alphabetically sorted, do not reshuffle
         self.Operators = [
-             #'cDim8_k1',
              'cG',
              'cGtil',
              'cH',
@@ -150,20 +149,25 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
         #   quadratic_1 = Absm_1**2
         #   quadratic_2 = Absm_2**2
         #
-        self.modelBuilder.factory_("expr::sm_func(\"@0\",r)")
+        
+        print "expr::sm_func(\"@0\",r)"
+        #self.modelBuilder.factory_("expr::sm_func(\"@0\",r)")
 
         for operator in range(0, self.numOperators):
 
           # linear term in each Wilson coefficient
           self.modelBuilder.factory_("expr::linear_func_"+ str(self.Operators[operator]) + "(\"@0*@1\",r,k_" + str(self.Operators[operator]) + ")")
+          #print "expr::linear_func_"+ str(self.Operators[operator]) + "(\"@0*@1\",r,k_" + str(self.Operators[operator]) + ")"
 
           # quadratic term in each Wilson coefficient
           self.modelBuilder.factory_("expr::quadratic_func_"+ str(self.Operators[operator]) + "(\"@0*@1*@1\",r,k_" + str(self.Operators[operator]) + ")")
+          #print "expr::quadratic_func_"+ str(self.Operators[operator]) + "(\"@0*@1*@1\",r,k_" + str(self.Operators[operator]) + ")"
 
           # interference between pairs of Wilson coefficients
           for operator_sub in range(operator+1, self.numOperators):
             self.modelBuilder.factory_("expr::linear_func_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]) +"(\"@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) + ")")
-          
+            #print "expr::linear_func_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]) +"(\"@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) + ")"
+            
         print " parameters of interest = ", self.poiNames
         self.modelBuilder.doSet("POI",self.poiNames)
 
@@ -183,18 +187,6 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
           for operator_sub in range(operator+1, self.numOperators):
             if (process == "lin_mixed_"+ str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])) or (process == "lin_mixed_"+ str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])):    
               return "linear_func_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])
-
-        #if   process == "SSWW":          return "sm_func"
-      
-        #for operator in range(0, self.numOperators):
-          #if process == str(self.Operators[operator]) + "_int" :    
-            #print " CACCA "
-            #return "linear_func_"+ str(self.Operators[operator]) 
-            
-          #if process == str(self.Operators[operator]) + "_bsm" :    return "quadratic_func_"+ str(self.Operators[operator]) 
-          #for operator_sub in range(operator+1, self.numOperators):
-            #if (process == "linear_mixed_"+ str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])) or (process == "linear_mixed_"+ str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])):    
-              #return "linear_func_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])
             
         return 1
 

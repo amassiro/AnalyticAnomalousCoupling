@@ -88,7 +88,7 @@ Test new model
 
     
     
-    cp higgsCombineTest.MultiDimFit.mH125.root higgsCombineTest.MultiDimFit.mH125.NEW.root
+    cp higgsCombineTest.MultiDimFit.mH125.root higgsCombineTest.MultiDimFit.mH125.Negative.root
     
     text2workspace.py        datacard1opNew.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCouplingEFT:analiticAnomalousCouplingEFT   -o   model_test.root    --X-allow-no-signal
     
@@ -98,7 +98,20 @@ Test new model
         --setParameters r=1    --setParameterRanges k_cG=-10,10     \
         --verbose -1
           
-    r99t higgsCombineTest.MultiDimFit.mH125.NEW.root  higgsCombineTest.MultiDimFit.mH125.root   draw.cxx\(\"k_cG\"\)
+    r99t higgsCombineTest.MultiDimFit.mH125.Negative.root  higgsCombineTest.MultiDimFit.mH125.root   draw.cxx\(\"k_cG\"\)
+    
+    
+Negative:
+expr::sm_func("@0*(1-(@1))",r,k_cG)
+expr::func_sm_linear_quadratic_cG("@0*(@1)",r,k_cG)
+expr::func_quadratic_cG("@0*(@1*@1-@1)",r,k_cG)
+
+    
+Standard:
+expr::sm_func("@0",r)
+expr::linear_func_cG("@0*@1",r,k_cG)
+expr::quadratic_func_cG("@0*@1*@1",r,k_cG)
+    
     
     
     
