@@ -79,10 +79,10 @@ Test new model
     combine -M MultiDimFit model_test.root  --algo=grid --points 2000  -m 125   -t -1     \
         --redefineSignalPOIs k_cG \
         --freezeParameters r  \
-        --setParameters r=1    --setParameterRanges k_cG=-10,10     \
+        --setParameters r=1,k_cG=0    --setParameterRanges k_cG=-10,10     \
         --verbose -1
           
-    r99t higgsCombineTest.MultiDimFit.mH125.root  higgsCombineTest.MultiDimFit.mH125.root   draw.cxx\(\"k_cG\"\)
+    # r99t higgsCombineTest.MultiDimFit.mH125.root  higgsCombineTest.MultiDimFit.mH125.root   draw.cxx\(\"k_cG\"\)
     
     
 
@@ -90,12 +90,12 @@ Test new model
     
     cp higgsCombineTest.MultiDimFit.mH125.root higgsCombineTest.MultiDimFit.mH125.Negative.root
     
-    text2workspace.py        datacard1opNew.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCouplingEFT:analiticAnomalousCouplingEFT   -o   model_test.root    --X-allow-no-signal
+    text2workspace.py        datacard1op.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCouplingEFT:analiticAnomalousCouplingEFT   -o   model_test.root    --X-allow-no-signal
     
     combine -M MultiDimFit model_test.root  --algo=grid --points 2000  -m 125   -t -1     \
         --redefineSignalPOIs k_cG \
         --freezeParameters r  \
-        --setParameters r=1    --setParameterRanges k_cG=-10,10     \
+        --setParameters r=1,k_cG=0    --setParameterRanges k_cG=-10,10     \
         --verbose -1
           
     r99t higgsCombineTest.MultiDimFit.mH125.Negative.root  higgsCombineTest.MultiDimFit.mH125.root   draw.cxx\(\"k_cG\"\)

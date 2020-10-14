@@ -352,6 +352,8 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
 
     def getYieldScale(self,bin,process):
 
+        print "process = " , process
+
         if   process == "sm":          return "func_sm"
 
         for operator in range(0, self.numOperators):

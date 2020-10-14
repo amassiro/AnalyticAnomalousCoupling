@@ -240,8 +240,8 @@ void draw(std::string variable = "k_my_1") {
   leg->Draw();
   
   
-  std::cout << " data at minimum:   " << data_min_x << std::endl;
-  std::cout << " MC   at minimum:   " <<   mc_min_x << std::endl;
+  std::cout << " (expected) MC   at minimum:   " <<   mc_min_x << std::endl;
+  std::cout << " (observed) data at minimum:   " << data_min_x << std::endl;
   
   
   //   std::cout << " data at 0:   " << graphScanData->Eval(0) << std::endl;

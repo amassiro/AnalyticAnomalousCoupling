@@ -9,8 +9,8 @@ observation     368.93
 bin        test      test             test         
 process    sm        quad_cG         lin_cG      
 process    3         1                    2                                                                                                                                                                                          
-# rate        36.93     13.6           5.07        
-rate        36.93     13.6           0.01        
+rate        36.93     13.6           5.07        
+# rate        36.93     13.6           0.01        
 ---------------------------------------------                                                                                                                                  
 lumi    lnN     1.0002     1.0002     1.0002            
 #
