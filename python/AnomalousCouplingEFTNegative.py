@@ -267,25 +267,22 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
                     )
 
         else :
-          
-          print "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +                   \
-                    "(\"@0*(" +                                                                      \
-                    "@1" +                                                                           \
-                    ")\",r,k_" + str(self.Operators[0]) +                                           \
-                    ")"
+          for operator in range(0, self.numOperators):
+            print "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +                   \
+                      "(\"@0*(" +                                                                      \
+                      "@1" +                                                                           \
+                      ")\",r,k_" + str(self.Operators[operator]) +                                           \
+                      ")"
 
-          self.modelBuilder.factory_(
-                  "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +
-                             "(\"@0*(" +
-                             "@1" +
-                             ")\",r,k_" + str(self.Operators[0]) +
-                             ")"
-                  )
+            self.modelBuilder.factory_(
+                    "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +
+                                "(\"@0*(" +
+                                "@1" +
+                                ")\",r,k_" + str(self.Operators[operator]) +
+                                ")"
+                    )
           
           
-          
-          
-
         #
         # quadratic term in each Wilson coefficient
         #
@@ -301,18 +298,33 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
 
             self.modelBuilder.factory_("expr::func_quadratic_"+ str(self.Operators[operator]) + "(\"@0*(@1*@1-@1)\",r,k_" + str(self.Operators[operator]) + ")")
 
+
           else :
 
-            print "expr::func_quadratic_"+ str(self.Operators[operator]) +                                                                                              \
-                                       "(\"@0*(@1*@1-@1-4*(" +                                                                                                          \
-                                       "@" + "+@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]) +   \
-                                       "))\",r," + "k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators))]) + ")"
+            if self.numOperators != 1:
+              #for operator_sub in range(operator+1, self.numOperators):
 
-            self.modelBuilder.factory_("expr::func_quadratic_"+ str(self.Operators[operator]) +
-                                       "(\"@0*(@1*@1-@1-4*(" +
-                                       "@" + "+@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]) +
-                                       "))\",r," + "k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators))]) + ")"
-                                       )
+              print "expr::func_quadratic_"+ str(self.Operators[operator]) +                                                                                              \
+                                        "(\"@0*(@1*@1-@1-4*(" +                                                                                                          \
+                                        "@" + "+@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j<i ]) +   \
+                                        "))\",r," + "k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators))]) + ")"
+
+              self.modelBuilder.factory_("expr::func_quadratic_"+ str(self.Operators[operator]) +
+                                        "(\"@0*(@1*@1-@1-4*(" +
+                                        "@" + "+@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]) +
+                                        "))\",r," + "k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators))]) + ")"
+                                        )
+            else:
+
+              print "expr::func_quadratic_"+ str(self.Operators[0]) +                                                                                              \
+                                        "(\"@0*(@1*@1-@1" +   \
+                                        ")\",r,k_" + str(self.Operators[0]) + ")"
+
+              self.modelBuilder.factory_("expr::func_quadratic_"+ str(self.Operators[operator]) +                                                                                              \
+                                        "(\"@0*(@1*@1-@1" +   \
+                                        ")\",r,k_" + str(self.Operators[0]) + ")"
+                                        )
+
 
 
         #
