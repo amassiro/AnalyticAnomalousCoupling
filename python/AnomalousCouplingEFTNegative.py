@@ -221,33 +221,53 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
 
 
 
+        #
+        # sm + linear + quadratic
+        #
 
-        if self.numOperators != 1:
-          for operator in range(0, self.numOperators):
-            #
-            # sm + linear + quadratic
-            #
-            #print " Test = "
-            print "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +                                           \
-                               "(\"@0*(" +                                                                                      \
-                               "@1 * (1-2*(" + "@" + "+@".join( [str(j+2) for j in range(len(self.Operators) -1) ] ) + ") )" +      \
-                               ")\",r,k_" + str(self.Operators[operator]) +                                                     \
-                               ", k_" + ", k_".join( [str(self.Operators[j]) for j in range(len(self.Operators)) if operator!=j ] ) +            \
-                               ")"
-            #
-            #
-            # expr::func_sm_linear_quadratic_cG("@0*(@1 * (1-2*(@2+@3) ))",r,k_cG, k_cGtil, k_cH)
-            #
-            #
+        if not self.alternative :
+          if self.numOperators != 1:
+            for operator in range(0, self.numOperators):
+              #
+              # sm + linear + quadratic
+              #
+              #print " Test = "
+              print "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +                                           \
+                                 "(\"@0*(" +                                                                                      \
+                                 "@1 * (1-2*(" + "@" + "+@".join( [str(j+2) for j in range(len(self.Operators) -1) ] ) + ") )" +      \
+                                 ")\",r,k_" + str(self.Operators[operator]) +                                                     \
+                                 ", k_" + ", k_".join( [str(self.Operators[j]) for j in range(len(self.Operators)) if operator!=j ] ) +            \
+                                 ")"
+              #
+              #
+              # expr::func_sm_linear_quadratic_cG("@0*(@1 * (1-2*(@2+@3) ))",r,k_cG, k_cGtil, k_cH)
+              #
+              #
+              self.modelBuilder.factory_(
+                      "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +
+                                 "(\"@0*(" +
+                                 "@1 * (1-2*(" + "@" + "+@".join( [str(j+2) for j in range(len(self.Operators) -1) ] ) + ") )" +
+                                 ")\",r,k_" + str(self.Operators[operator]) +
+                                 ", k_" + ", k_".join( [str(self.Operators[j]) for j in range(len(self.Operators)) if operator!=j ] ) +
+                                 ")"
+                      )
+          else :
+            print "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +                   \
+                      "(\"@0*(" +                                                                      \
+                      "@1" +                                                                           \
+                      ")\",r,k_" + str(self.Operators[0]) +                                           \
+                      ")"
+  
             self.modelBuilder.factory_(
                     "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +
                                "(\"@0*(" +
-                               "@1 * (1-2*(" + "@" + "+@".join( [str(j+2) for j in range(len(self.Operators) -1) ] ) + ") )" +
-                               ")\",r,k_" + str(self.Operators[operator]) +
-                               ", k_" + ", k_".join( [str(self.Operators[j]) for j in range(len(self.Operators)) if operator!=j ] ) +
+                               "@1" +
+                               ")\",r,k_" + str(self.Operators[0]) +
                                ")"
                     )
+
         else :
+          
           print "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +                   \
                     "(\"@0*(" +                                                                      \
                     "@1" +                                                                           \
@@ -261,8 +281,10 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
                              ")\",r,k_" + str(self.Operators[0]) +
                              ")"
                   )
-
-
+          
+          
+          
+          
 
         #
         # quadratic term in each Wilson coefficient
