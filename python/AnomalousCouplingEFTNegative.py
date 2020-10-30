@@ -305,12 +305,12 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
               #for operator_sub in range(operator+1, self.numOperators):
 
               print "expr::func_quadratic_"+ str(self.Operators[operator]) +                                                                                              \
-                                        "(\"@0*(@1*@1-@1-4*(" +                                                                                                          \
-                                        "@" + "+@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j<i ]) +   \
+                                        "(\"@0*(@1*@1-@1-2*(" +                                                                                                          \
+                                        "@" + "+@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]) +   \
                                         "))\",r," + "k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators))]) + ")"
 
               self.modelBuilder.factory_("expr::func_quadratic_"+ str(self.Operators[operator]) +
-                                        "(\"@0*(@1*@1-@1-4*(" +
+                                        "(\"@0*(@1*@1-@1-2*(" +
                                         "@" + "+@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]) +
                                         "))\",r," + "k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators))]) + ")"
                                         )
