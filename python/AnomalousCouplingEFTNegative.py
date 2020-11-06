@@ -305,15 +305,14 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
               #for operator_sub in range(operator+1, self.numOperators):
 
               print "expr::func_quadratic_"+ str(self.Operators[operator]) +                                                                                              \
-                                        "(\"@0*(@1*@1-@1-2*(" +                                                                                                          \
-                                        "@" + "+@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]) +   \
-                                        "))\",r," + "k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators))]) + ")"
+                                        "(\"@0*(@1*@1-@1-2*@1*(" + "@" + "+@".join([str(j+1) for j in range(len(self.Operators)) if j != 0 ]) +   \
+                                        "))\",r," + "k_" +  str(self.Operators[operator]) + ", k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators)) if i != operator ]) + ")"
 
-              self.modelBuilder.factory_("expr::func_quadratic_"+ str(self.Operators[operator]) +
-                                        "(\"@0*(@1*@1-@1-2*(" +
-                                        "@" + "+@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if j!=i ]) +
-                                        "))\",r," + "k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators))]) + ")"
+              self.modelBuilder.factory_("expr::func_quadratic_"+ str(self.Operators[operator]) +                                                                                              \
+                                        "(\"@0*(@1*@1-@1-2*@1*(" + "@" + "+@".join([str(j+1) for j in range(len(self.Operators)) if j != 0 ]) +   \
+                                        "))\",r," + "k_" +  str(self.Operators[operator]) + ", k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators)) if i != operator ]) + ")"
                                         )
+
             else:
 
               print "expr::func_quadratic_"+ str(self.Operators[0]) +                                                                                              \
@@ -349,8 +348,8 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
                         ")")
 
         else:
-          
-          if self.numOperators != 1 and self.alternative:
+
+          if self.numOperators != 1:
             for operator in range(0, self.numOperators):
               for operator_sub in range(operator+1, self.numOperators):
 
