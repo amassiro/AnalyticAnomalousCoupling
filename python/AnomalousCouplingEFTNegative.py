@@ -330,43 +330,41 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
         #
         # interference between pairs of Wilson coefficients + SM + linear + quadratic
         #
-        if self.numOperators != 1:
-          for operator in range(0, self.numOperators):
-            for operator_sub in range(operator+1, self.numOperators):
+        if not self.alternative :
+          
+          if self.numOperators != 1:
+            for operator in range(0, self.numOperators):
+              for operator_sub in range(operator+1, self.numOperators):
 
-              #
-              # Since I have only Mij (and I do not define the sample Mji)
-              #
-              print "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +          \
-               "(\"@0*@1*@2*2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +                      \
-               ")"
+                #
+                # Since I have only Mij (and I do not define the sample Mji)
+                #
+                print "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +          \
+                "(\"@0*@1*@2*2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +                      \
+                ")"
 
-              self.modelBuilder.factory_(
-                       "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +
-                       "(\"@0*@1*@2*2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +
-                       ")")
+                self.modelBuilder.factory_(
+                        "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +
+                        "(\"@0*@1*@2*2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +
+                        ")")
 
+        else:
+          
+          if self.numOperators != 1 and self.alternative:
+            for operator in range(0, self.numOperators):
+              for operator_sub in range(operator+1, self.numOperators):
 
-        if self.numOperators != 1 and self.alternative:
-          for operator in range(0, self.numOperators):
-            for operator_sub in range(operator+1, self.numOperators):
+                #
+                # Since I have only Mij (and I do not define the sample Mji)
+                #
+                print "expr::func_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +          \
+                "(\"@0*@1*@2*2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +                      \
+                ")"
 
-              #
-              # Since I have only Mij (and I do not define the sample Mji)
-              #
-              print "expr::func_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +          \
-               "(\"@0*@1*@2*2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +                      \
-               ")"
-
-              self.modelBuilder.factory_(
-                       "expr::func_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +
-                       "(\"@0*@1*@2*2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +
-                       ")")
-
-
-
-
-
+                self.modelBuilder.factory_(
+                        "expr::func_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +
+                        "(\"@0*@1*@2*2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +
+                        ")")
 
 
 
