@@ -107,6 +107,10 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
                     raise RuntimeError, "Higgs mass range definition requires two extrema"
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
                     raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+            if po.startswith("eftOperators="):
+                self.Operators = po.replace("eftOperators=","").split(",")
+                print " Operators = ", self.Operators
+                self.numOperators = len(self.Operators)
 
  
 #
@@ -165,7 +169,7 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
 
           # interference between pairs of Wilson coefficients
           for operator_sub in range(operator+1, self.numOperators):
-            self.modelBuilder.factory_("expr::linear_func_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]) +"(\"@0*2*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) + ")")
+            self.modelBuilder.factory_("expr::linear_func_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]) +"(\"@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) + ")")
             #print "expr::linear_func_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]) +"(\"@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) + ")"
             
         print " parameters of interest = ", self.poiNames
