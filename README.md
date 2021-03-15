@@ -39,6 +39,20 @@ How to run it:
           
     r99t higgsCombineTest.MultiDimFit.mH125.root  higgsCombineTest.MultiDimFit.mH125.root   draw.cxx\(\"k_cG\"\)
     
+    
+Remember you need to specify the operators you are considering, because the more operators you want to consider
+the more inputs you need to provide in the datacard.
+
+You can also add the dim8 operators by
+
+    --PO  addDim8
+    
+but you can also just define the new operators by
+ 
+    --PO eftOperators=cS0,cS1,cT0
+    
+    
+    
 
     
     
