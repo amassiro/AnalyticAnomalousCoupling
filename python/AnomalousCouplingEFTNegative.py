@@ -16,9 +16,8 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
         self.poiNames = []
         self.numOperators = 82
         self.alternative = False
-
-        # NB: alphabetically sorted, do not reshuffle
-        self.Operators = [
+        self.addDim8 = False
+        self.OperatorsDim8 = [
              # dimension 8
              'cS0',
              'cS1',
@@ -38,6 +37,10 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
              'cT7',
              'cT8',
              'cT9',             
+        ]
+        
+        # NB: alphabetically sorted, do not reshuffle
+        self.Operators = [
              # dimension 6
              'cG',
              'cGtil',
@@ -143,6 +146,11 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
 
             if po.startswith("eftAlternative"):
                 self.alternative = True
+
+            if po.startswith("addDim8"):
+                self.Operators.extend ( self.OperatorsDim8 )
+                self.addDim8 = True
+
 
 #
 # standard, not touched (end)
