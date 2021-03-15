@@ -19,7 +19,26 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
 
         # NB: alphabetically sorted, do not reshuffle
         self.Operators = [
-             #'cDim8_k1',
+             # dimension 8
+             'cS0',
+             'cS1',
+             'cM0',
+             'cM1',
+             'cM2',
+             'cM3',
+             'cM4',
+             'cM6',
+             'cM7',
+             'cT0',
+             'cT1',
+             'cT2',
+             'cT3',
+             'cT4',
+             'cT6',
+             'cT7',
+             'cT8',
+             'cT9',             
+             # dimension 6
              'cG',
              'cGtil',
              'cH',
