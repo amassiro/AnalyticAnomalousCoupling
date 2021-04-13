@@ -141,26 +141,43 @@ void draw2D(std::string xName = "r_{1}", std::string yName = "r_{3}", std::strin
   TObjArray *conts = (TObjArray*) gROOT->GetListOfSpecials()->FindObject("contours");
   std::cout << " conts = " << conts << std::endl;
   std::cout << " conts->GetSize() = " << conts->GetSize() << std::endl;
-  TGraph* gr_1sigma = (TGraph*) ( ((TList*) conts->At(0))->First());
-  TGraph* gr_2sigma = (TGraph*) ( ((TList*) conts->At(1))->First());
+  TList* gr_1sigma =  ((TList*) conts->At(0));
+  TList* gr_2sigma =  ((TList*) conts->At(1));
+  // Only if you know that for each level you get one curve
+  //	TGraph* gr_1sigma = (TGraph*) ( ((TList*) conts->At(0))->First());
+  //	TGraph* gr_2sigma = (TGraph*) ( ((TList*) conts->At(1))->First());
 
 
-  gr_1sigma->SetLineWidth(2);
-  gr_1sigma->SetLineStyle(1);
-  gr_1sigma->SetLineColor(1);
+  //	gr_1sigma->SetLineWidth(2);
+  //	gr_1sigma->SetLineStyle(1);
+  //	gr_1sigma->SetLineColor(1);
 
 
-  gr_2sigma->SetLineWidth(2);
-  gr_2sigma->SetLineStyle(7);
-  gr_2sigma->SetLineColor(1);
-
-
-
+  //	gr_2sigma->SetLineWidth(2);
+  //	gr_2sigma->SetLineStyle(7);
+  //	gr_2sigma->SetLineColor(1);
 
   cc2->cd();
 
-  gr_1sigma->Draw("L");
-  gr_2sigma->Draw("L");
+  //	gr_1sigma->Draw("L");
+  //	gr_2sigma->Draw("L");
+  
+  for(const auto& tmp: *gr_1sigma){
+      TGraph* obj = (TGraph*) tmp;
+      obj->SetLineWidth(2);
+      obj->SetLineStyle(1);
+      obj->SetLineColor(1);
+      obj->Draw("L");
+  } 
+
+
+  for(const auto& tmp: *gr_2sigma){
+      TGraph* obj = (TGraph*) tmp;
+      obj->SetLineWidth(2);
+      obj->SetLineStyle(7);
+      obj->SetLineColor(1);
+      obj->Draw("L");
+  }
 
   //   gStyle->SetPadRightMargin(0.2);
 
