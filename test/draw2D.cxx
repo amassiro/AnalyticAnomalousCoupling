@@ -162,7 +162,7 @@ void draw2D(std::string xName = "r_{1}", std::string yName = "r_{3}", std::strin
   //	gr_1sigma->Draw("L");
   //	gr_2sigma->Draw("L");
   
-  for(const auto& tmp: *gr_1sigma){
+  for(const TObject* tmp: *gr_1sigma){
       TGraph* obj = (TGraph*) tmp;
       obj->SetLineWidth(2);
       obj->SetLineStyle(1);
@@ -171,7 +171,7 @@ void draw2D(std::string xName = "r_{1}", std::string yName = "r_{3}", std::strin
   } 
 
 
-  for(const auto& tmp: *gr_2sigma){
+  for(const TObject* tmp: *gr_2sigma){
       TGraph* obj = (TGraph*) tmp;
       obj->SetLineWidth(2);
       obj->SetLineStyle(7);
