@@ -2,6 +2,14 @@ from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 import ROOT, os
 
+#
+# See derivation and explanation, validation, tests in AN-20-204
+#
+# NB: this implementation works only IF interference is positive
+#     If the interference is negative, combine cannot currently handle it in this way
+#     and the model AnaliticAnomalousCouplingEFTNegative should be used
+#
+
 class AnaliticAnomalousCouplingEFT(PhysicsModel):
 
     "Float independently cross sections and branching ratios"
@@ -195,6 +203,17 @@ class AnaliticAnomalousCouplingEFT(PhysicsModel):
         return 1
 
 
+
+#
+#  Inputs:
+# 
+#     S
+#     Li
+#     Qi
+#     2*Mij
+#    
+#     NB: 2*Mij, not just Mij
+#
 
 analiticAnomalousCouplingEFT = AnaliticAnomalousCouplingEFT()
 
