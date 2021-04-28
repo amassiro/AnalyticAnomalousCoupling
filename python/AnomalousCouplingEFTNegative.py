@@ -125,6 +125,9 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
              'cuu1'
              ]
 
+
+        self.CompleteOperators = self.Operators + self.OperatorsDim8
+
         self.numOperators = len(self.Operators)
 
         print " Operators = ", self.Operators
@@ -437,6 +440,32 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
               if process == "quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) :    return "func_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])
               if process == "quad_mixed_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator]) :    return "func_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])
 
+        
+        
+        #
+        # sometimes we have complete datacards, with many operators, but we want to test 
+        # a model just with few operators, 
+        # for example if we need to combine a datacard with dependency only on 2 operators
+        # with another that depends on 3 (thus having many more components).
+        # If this is the case, compare the complete list of operators
+        # and if any of them appear in the "process" then this process is scaled to 0
+        # since it is NOT used by the model, and otherwise it would be treated as
+        # a background, thus being a mistake!
+        #
+        for complete_list_of_operators in CompleteOperators:
+          if complete_list_of_operators in process:
+            return 0
+            #
+            # No need to remove the list in "Operators"
+            # since if it was to be used there, the "return" would 
+            # have been already called.
+            # This option will be triggered only if no return was already called
+            # and if not "return 0" we would have "return 1" underneath,
+            # thus considering this as background
+            # NB: the names in "CompleteOperators" are wild cards
+            # and should not be used by other samples (real background!)
+            # but, com'on, a bit of rules!
+            #
 
 
         return 1
