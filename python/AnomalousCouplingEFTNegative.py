@@ -452,7 +452,7 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
         # since it is NOT used by the model, and otherwise it would be treated as
         # a background, thus being a mistake!
         #
-        for complete_list_of_operators in CompleteOperators:
+        for complete_list_of_operators in self.CompleteOperators:
           if complete_list_of_operators in process:
             return 0
             #
