@@ -162,5 +162,60 @@ Otherwise I need a flag of the operators that I want IN THE MODEL BUILDING
           --PO  eftAlternative
     
     
+
+    text2workspace.py        datacard_cHDD_mjj_1D.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCouplingEFTNegative:analiticAnomalousCouplingEFTNegative   -o   model_test_1_wrong.root    --X-allow-no-signal  \
+          --PO eftOperators=cHDD,cHWB  \    
+    
+    text2workspace.py        datacard_cHDD_mjj_1D.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCouplingEFTNegative:analiticAnomalousCouplingEFTNegative   -o   model_test_1.root    --X-allow-no-signal  \
+          --PO eftOperators=cHDD  \
+      
+    text2workspace.py        datacard_cHDD_cHWB_mjj_2D.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCouplingEFTNegative:analiticAnomalousCouplingEFTNegative   -o   model_test_2.root    --X-allow-no-signal  \
+          --PO eftOperators=cHDD,cHWB  \
+
+    text2workspace.py        datacard_cHDD_cHWB_mjj_2D.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCouplingEFTNegative:analiticAnomalousCouplingEFTNegative   -o   model_test_2_correct.root    --X-allow-no-signal  \
+          --PO eftOperators=cHDD  \
+          
+
+          
+          
+    combine -M MultiDimFit model_test_1_wrong.root  --algo=grid --points 2000  -m 125   -t -1     \
+        --redefineSignalPOIs k_cHDD \
+        --freezeParameters r  \
+        --setParameters r=1    --setParameterRanges k_cHDD=-10,10     \
+        --verbose -1
+    mv higgsCombineTest.MultiDimFit.mH125.root scan_model_test_1_wrong.root
+
+    
+    combine -M MultiDimFit model_test_1.root  --algo=grid --points 2000  -m 125   -t -1     \
+        --redefineSignalPOIs k_cHDD \
+        --freezeParameters r  \
+        --setParameters r=1    --setParameterRanges k_cHDD=-10,10     \
+        --verbose -1
+    mv higgsCombineTest.MultiDimFit.mH125.root scan_model_test_1.root
+    
+    
+    combine -M MultiDimFit model_test_2.root  --algo=grid --points 2000  -m 125   -t -1     \
+        --redefineSignalPOIs k_cHDD \
+        --freezeParameters r,k_cHWB  \
+        --setParameters r=1,k_cHWB=0    --setParameterRanges k_cHDD=-10,10     \
+        --verbose -1
+    mv higgsCombineTest.MultiDimFit.mH125.root scan_model_test_2.root
+    
+    
+    combine -M MultiDimFit model_test_2_correct.root  --algo=grid --points 2000  -m 125   -t -1     \
+        --redefineSignalPOIs k_cHDD \
+        --freezeParameters r  \
+        --setParameters r=1    --setParameterRanges k_cHDD=-10,10     \
+        --verbose -1
+    mv higgsCombineTest.MultiDimFit.mH125.root scan_model_test_2_correct.root
+     
+     
+    r99t scan_model_test_1.root  scan_model_test_1_wrong.root   draw.cxx\(\"k_cHDD\"\)    --> they are different, since missing pieces and formula is wrong
+    r99t scan_model_test_1.root  scan_model_test_2.root   draw.cxx\(\"k_cHDD\"\)          --> they are the same
+    r99t scan_model_test_1.root  scan_model_test_2_correct.root   draw.cxx\(\"k_cHDD\"\)  --> they are the same
+    r99t scan_model_test_2.root  scan_model_test_2_correct.root   draw.cxx\(\"k_cHDD\"\)  --> they are the same, thanks to the new fix (return 0) in the model
+
+    
+    
     
     
