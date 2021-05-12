@@ -6,13 +6,19 @@ kmax *
 bin          test    
 observation     368.93  
 ----------------------------------------------------------------------------------------------------------------------------------
-bin        test      test         test           test             test                test                    test         test                   test                      test               
-process    sm        linear_cG   quadratic_cG    linear_cGtil   quadratic_cGtil   linear_mixed_cG_cGtil       linear_cH   quadratic_cH        linear_mixed_cG_cH        linear_mixed_cGtil_cH  
-process    0         1            2              3                4                   5                         6                 7                         8                  9
+bin        test      test             test            test               test                  test                        test            test                    test                       test               
+process    sm        quad_cG   sm_lin_quad_cG       quad_cGtil     sm_lin_quad_cGtil     sm_lin_quad_mixed_cG_cGtil       quad_cH      sm_lin_quad_cH     sm_lin_quad_mixed_cG_cH      sm_lin_quad_mixed_cGtil_cH  
+process    0         1                    2          3                  4                       5                            6               7                        8                       9                                                                                                                                                                                                                  
+#rate        36.93     13.6            49.6               0                    0                      0                        0                0                        0                       0
+rate      36.93     13.6            49.6            17.6                 54.6                  70.4                         1               38                       39                     40
+---------------------------------------------                                                                                                                                  
+lumi    lnN     1.02     1.02     1.02              1.02                  1.02                   -                         -                 -                        -                   -
+bla     lnN     1.2      1.01     1.02              -                       -                   1.03                       -                 -                        -                   -
 
-rate      368.93     13.6       27.6           -17.6              34.6               2.4                        1                 42                    -9                    17
----------------------------------------------                                   
-lumi    lnN     1.02     1.02     1.02         1.02              1.02                -                         -                 -                      -                   -
-bla     lnN     1.2      1.01     1.02         -                   -                1.03                       -                 -                      -                   -
-                                                                                                                     
-                                                                                
+
+#                                          
+#                                         
+#                      sm_lin_quad_mixed_AAA_BBB
+#                      sm_lin_quad_AAA
+#                      quad_AAA
+#
