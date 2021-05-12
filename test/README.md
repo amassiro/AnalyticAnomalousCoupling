@@ -1,3 +1,15 @@
+Install
+----
+
+    cmsrel CMSSW_10_2_13
+    cd CMSSW_10_2_13/src
+    cmsenv
+    git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+    cd HiggsAnalysis/
+    git clone git@github.com:amassiro/AnalyticAnomalousCoupling.git
+    cd ../
+    scramv1 b -j 20
+
 Test model
 ----
 
