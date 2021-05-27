@@ -87,5 +87,16 @@ Plot
      
       
  
-    
+Datacards
+====
+
+In the datacards you can add all backgrounds as a standard combine datacards, and they will not scale with the EFT couplings.
+
+As an example, see datacard1opWithBkg.txt
+
+
+
+
+
+
     
