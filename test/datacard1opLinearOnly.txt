@@ -14,7 +14,6 @@ rate        36.93        13.6                55.6
 lumi    lnN     1.02     1.02                1.02            
 #
 #                                         
-#                      sm_lin_quad_mixed_AAA_BBB
-#                      sm_lin_quad_AAA
-#                      quad_AAA
+#                      sm
+#                      sm_lin
 #

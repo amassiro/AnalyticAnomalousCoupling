@@ -17,7 +17,6 @@ bla     lnN     1.2      1.01     1.02              -                       -   
 
 #                                          
 #                                         
-#                      sm_lin_quad_mixed_AAA_BBB
-#                      sm_lin_quad_AAA
-#                      quad_AAA
+#                      sm
+#                      sm_lin_AAA
 #
