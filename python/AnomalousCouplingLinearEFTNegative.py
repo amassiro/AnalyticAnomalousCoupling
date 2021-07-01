@@ -284,10 +284,11 @@ class AnaliticAnomalousCouplingLinearEFTNegative(PhysicsModel):
 
         #print "process = " , process
 
-        if   process == "sm":          return "func_sm"
+        if   process == "sm" or "_sm" in process:          return "func_sm"
 
         for operator in range(0, self.numOperators):
-          if process == "sm_lin_"+ str(self.Operators[operator]) :    return "func_sm_linear_"+ str(self.Operators[operator])
+          if process == "sm_lin_"+ str(self.Operators[operator]) or "_sm_lin_"+ str(self.Operators[operator]) in process:
+            return "func_sm_linear_"+ str(self.Operators[operator])
           
 
         #
@@ -307,7 +308,8 @@ class AnaliticAnomalousCouplingLinearEFTNegative(PhysicsModel):
             return 0
         else :
           for operator in range(0, self.numOperators):
-            if process == "sm_lin_quad_"+ str(self.Operators[operator]) :    return "func_sm_linear_quadratic_"+ str(self.Operators[operator])
+            if process == "sm_lin_quad_"+ str(self.Operators[operator]) or "sm_lin_quad_"+ str(self.Operators[operator]) in process :
+              return "func_sm_linear_quadratic_"+ str(self.Operators[operator])
             if process == "quad_"+ str(self.Operators[operator]) :           return "func_quadratic_"+ str(self.Operators[operator])
           
           
