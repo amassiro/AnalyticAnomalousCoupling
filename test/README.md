@@ -97,6 +97,55 @@ As an example, see datacard1opWithBkg.txt
 
 
 
+Test model with only linear component
+----
+
+1D
+
+    text2workspace.py        datacard1opLinearOnly.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCouplingLinearEFTNegative:analiticAnomalousCouplingLinearEFTNegative   -o   model_test.root    --X-allow-no-signal  \
+          --PO eftOperators=cG
+    
+
+    combine -M MultiDimFit model_test.root  --algo=grid --points 2000  -m 125   -t -1     \
+        --redefineSignalPOIs k_cG \
+        --freezeParameters r  \
+        --setParameters r=1    --setParameterRanges k_cG=-10,10     \
+        --verbose -1
+
+    r99t higgsCombineTest.MultiDimFit.mH125.root  higgsCombineTest.MultiDimFit.mH125.root   draw.cxx\(\"k_cG\"\)
+        
+
+3D
+
+    Both these two instructions, given how the datacards are built, shouldwork
+
+    text2workspace.py        datacard3opLinearOnly.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCouplingLinearEFTNegative:analiticAnomalousCouplingLinearEFTNegative   -o   model_test.root    --X-allow-no-signal  \
+          --PO eftOperators=cG,cGtil,cH 
+
+    text2workspace.py        datacard3op.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCouplingLinearEFTNegative:analiticAnomalousCouplingLinearEFTNegative   -o   model_test.root    --X-allow-no-signal  \
+          --PO eftOperators=cG,cGtil,cH    --PO reuseCompleteDatacards
+    
+
+    combine -M MultiDimFit model_test.root  --algo=grid --points 2000  -m 125   -t -1     \
+        --redefineSignalPOIs k_cG \
+        --freezeParameters r,k_cGtil,k_cH  \
+        --setParameters r=1    --setParameterRanges k_cG=-10,10     \
+        --verbose -1
+          
+    r99t higgsCombineTest.MultiDimFit.mH125.root  higgsCombineTest.MultiDimFit.mH125.root   draw.cxx\(\"k_cG\"\)
+ 
+ 
+ 
+
+    combine -M MultiDimFit model_test.root  --algo=grid --points 2000  -m 125   -t -1     \
+        --redefineSignalPOIs k_cG,k_cGtil \
+        --freezeParameters r,k_cH  \
+        --setParameters r=1    --setParameterRanges k_cG=-20,20:k_cGtil=-20,20    \
+        --verbose -1
+          
+    r99t higgsCombineTest.MultiDimFit.mH125.root  higgsCombineTest.MultiDimFit.mH125.root   draw2D.cxx\(\"cG\",\"Gtil\",\"k_cG\",\"k_cGtil\"\) 
+
+    
 
 
     
