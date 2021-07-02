@@ -299,16 +299,16 @@ class AnaliticAnomalousCouplingLinearEFTNegative(PhysicsModel):
         # However, in the datacard we MUST have sm_lin_OPERATOR, that is not there in the complete model (the one with quadratic)!
         #
         #
-        if "sm_lin_quad_mixed_" in process: 
+        if "sm_lin_quad_mixed_" in process or "_sm_lin_quad_mixed_" in process: 
           return 0
         if not self.reuseCompleteDatacards : 
-          if "sm_lin_quad_" in process: 
+          if "sm_lin_quad_" in process or "_sm_lin_quad_" in process: 
             return 0
           if "quad_" in process: 
             return 0
         else :
           for operator in range(0, self.numOperators):
-            if process == "sm_lin_quad_"+ str(self.Operators[operator]) or "sm_lin_quad_"+ str(self.Operators[operator]) in process :
+            if process == "sm_lin_quad_"+ str(self.Operators[operator]) or "_sm_lin_quad_"+ str(self.Operators[operator]) in process :
               return "func_sm_linear_quadratic_"+ str(self.Operators[operator])
             if process == "quad_"+ str(self.Operators[operator]) :           return "func_quadratic_"+ str(self.Operators[operator])
           

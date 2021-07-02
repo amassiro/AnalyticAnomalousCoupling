@@ -147,5 +147,34 @@ Test model with only linear component
 
     
 
+Test for different components of SM, e.g. EWK_sm, QCD_sm, ttbar_sm, ...
+Results should be identical to merging the samples (and treating properly the nuisances!), but splitting could be easier for analysers to prepare the datacards
 
+
+    text2workspace.py        datacard1opWithBkg_signalSplit.txt  -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCouplingEFTNegative:analiticAnomalousCouplingEFTNegative   -o   model_test_1.root    --X-allow-no-signal  \
+          --PO eftOperators=cG
+    text2workspace.py        datacard1opWithBkg_signalMerged.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnomalousCouplingEFTNegative:analiticAnomalousCouplingEFTNegative   -o   model_test_2.root    --X-allow-no-signal  \
+          --PO eftOperators=cG
     
+
+    combine -M MultiDimFit model_test_1.root  --algo=grid --points 2000  -m 125   -t -1     \
+        --redefineSignalPOIs k_cG \
+        --freezeParameters r  \
+        --setParameters r=1    --setParameterRanges k_cG=-10,10     \
+        --verbose -1
+
+    mv higgsCombineTest.MultiDimFit.mH125.root higgsCombineTest.MultiDimFit.mH125.1.root
+    
+
+    combine -M MultiDimFit model_test_1.root  --algo=grid --points 2000  -m 125   -t -1     \
+        --redefineSignalPOIs k_cG \
+        --freezeParameters r  \
+        --setParameters r=1    --setParameterRanges k_cG=-10,10     \
+        --verbose -1
+
+    r99t higgsCombineTest.MultiDimFit.mH125.1.root  higgsCombineTest.MultiDimFit.mH125.root   draw.cxx\(\"k_cG\"\)
+
+
+
+
+
