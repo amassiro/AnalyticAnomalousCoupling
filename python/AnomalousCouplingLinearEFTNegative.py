@@ -284,10 +284,11 @@ class AnaliticAnomalousCouplingLinearEFTNegative(PhysicsModel):
 
         #print "process = " , process
 
-        if   process == "sm":          return "func_sm"
+        if   process == "sm" or "_sm" in process:          return "func_sm"
 
         for operator in range(0, self.numOperators):
-          if process == "sm_lin_"+ str(self.Operators[operator]) :    return "func_sm_linear_"+ str(self.Operators[operator])
+          if process == "sm_lin_"+ str(self.Operators[operator]) or "_sm_lin_"+ str(self.Operators[operator]) in process:
+            return "func_sm_linear_"+ str(self.Operators[operator])
           
 
         #
@@ -298,16 +299,17 @@ class AnaliticAnomalousCouplingLinearEFTNegative(PhysicsModel):
         # However, in the datacard we MUST have sm_lin_OPERATOR, that is not there in the complete model (the one with quadratic)!
         #
         #
-        if "sm_lin_quad_mixed_" in process: 
+        if "sm_lin_quad_mixed_" in process or "_sm_lin_quad_mixed_" in process: 
           return 0
         if not self.reuseCompleteDatacards : 
-          if "sm_lin_quad_" in process: 
+          if "sm_lin_quad_" in process or "_sm_lin_quad_" in process: 
             return 0
           if "quad_" in process: 
             return 0
         else :
           for operator in range(0, self.numOperators):
-            if process == "sm_lin_quad_"+ str(self.Operators[operator]) :    return "func_sm_linear_quadratic_"+ str(self.Operators[operator])
+            if process == "sm_lin_quad_"+ str(self.Operators[operator]) or "_sm_lin_quad_"+ str(self.Operators[operator]) in process :
+              return "func_sm_linear_quadratic_"+ str(self.Operators[operator])
             if process == "quad_"+ str(self.Operators[operator]) :           return "func_quadratic_"+ str(self.Operators[operator])
           
           
