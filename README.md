@@ -52,9 +52,21 @@ but you can also just define the new operators by
     --PO eftOperators=cS0,cS1,cT0
     
     
-    
 
-    
+Negative bin yield    
+===
+
+It may happen that the expected yield (SM+EFT) in a bin evaluates negative. Combine will complain and return the maximum FCN value up to that point in the minimization to force MIGRAD to back out of the region. If one want to disable such behaviour and ignore the negative bin (setting its content to zero) add to the combine command the following run-time arguments
+
+   --X-rtd SIMNLL_NO_LEE --X-rtd NO_ADDNLL_FASTEXIT
+
+
+The partial sums will be set to one (so log is zero) and no error will be propagated to RooFit: 
+
+https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/7bffa8b8758a5dc6824b8b93c098ce9afb1c32a4/src/CachingNLL.cc#L691
+
+https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/7bffa8b8758a5dc6824b8b93c098ce9afb1c32a4/src/CachingNLL.cc#L692
+
     
 Older examples
 ====
