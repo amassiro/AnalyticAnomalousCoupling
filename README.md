@@ -1,6 +1,71 @@
 # AnalyticAnomalousCoupling
 
-Install:
+The AnalyticAnomalousCoupling provides a ***Combine-based model for EFT fits*** overcoming the issues of negative templates that may arise from interference terms.
+
+Suppose to expand the SM Lagrangian with the inclusion of a dimension 6 operator ($Q_{\alpha}$):
+
+$$ \mathcal{L}\_{SMEFT} = \mathcal{L}\_{SM} + \frac{c\_{\alpha}}{\Lambda^{2}} Q\_{\alpha} $$
+
+Then the scattering amplitude would be written as
+
+$$ \mathcal{A}\_{SMEFT} = \mathcal{A}\_{SM} + \frac{c\_{\alpha}}{\Lambda^{2}} \mathcal{A}\_{Q\_{\alpha}}  $$
+
+Where $\mathcal{A}\_{SM}$ is the Standard Model Amplitude and $\mathcal{A}\_{\alpha}$ is the total amplitude obtained with the insertion of the operatoer $Q\_{\alpha}$ 
+
+As a consequence, the expected number of events in a given phase-space region scales with the Wilson coefficient $c\_{\alpha}$ as:
+
+$$ N \propto |\mathcal{A}\_{SMEFT}|^{2} = |\mathcal{A}\_{SM}|^2 + \frac{c\_\alpha}{\Lambda^2} \cdot 2\Re(\mathcal{A}\_{SM}\mathcal{A}\_{Q\_\alpha}^{\dagger})
+    +   
+ \frac{c\_{\alpha}^{2}}{\Lambda^4}  \cdot |\mathcal{A}\_{Q\_{\alpha}}|^2 $$
+ 
+In order to fit the parameter $c\_{\alpha}$ one would need to provide combine with a SM template ($|\mathcal{A}\_{SM}|^2$), a template for the linear-scaling term $2\Re(\mathcal{A}\_{SM}\mathcal{A}\_{Q\_\alpha}^{\dagger})$ and the tempate for the quadratic term $|\mathcal{A}\_{Q\_{\alpha}}|^2$. The problem stands in the linear term that, being an interference between a dimension-6 and SM amplitudes, can be negative and cannot be interpreted as a p.d.f by combine.
+
+This package provides a workaround to this problem by rewriting the formula in terms of positive definite quantities (amplitude squared). For the simple example of the one-operator case the formule reads as:
+
+$$ 
+N = (1 − c\_{\alpha}) \cdot |\mathcal{A}\_{SM}|^2 + c\_{\alpha} \cdot (|\mathcal{A}\_{SM}|^2 + 2\Re(\mathcal{A}\_{SM}\mathcal{A}\_{Q\_\alpha}^{\dagger}) + |\mathcal{A}\_{Q\_{\alpha}}|^2) + (c\_{\alpha}^2 − c\_{\alpha}) \cdot |\mathcal{A}\_{Q\_{\alpha}}|^2 $$
+
+By renaming 
+
+**Sm** = $|\mathcal{A}\_{SM}|^2$,
+
+**Lin$\_\alpha$** = $2\Re(\mathcal{A}\_{SM}\mathcal{A}\_{Q\_\alpha}^{\dagger})$
+
+**Quad$\_\alpha$** = $|\mathcal{A}\_{Q\_{\alpha}}|^2$
+
+$$ N = (1 − c\_{\alpha}) \cdot \text{Sm} + c\_{\alpha} \cdot (\text{Sm} + \text{Lin}\_\alpha + \text{Quad}\_\alpha) + (c\_{\alpha}^2 − c\_{\alpha}) \cdot \text{Quad}\_\alpha $$
+
+Where the component **Sm** is the Standard Model amplitude squared, **Quad** is the dimmension-6 amplitude squared and **Sm + Lin + Quad** is given by the square of the sum of the SM and dimension-6 amplitudes $|\mathcal{A}\_{SMEFT}|^2 = | \mathcal{A}\_{SM} + \frac{1}{\Lambda^{2}} \mathcal{A}\_{Q\_{\alpha}} |^2$ for $c\_\alpha = 1$. All these terms are positive definite and are allowed to use in combine.
+
+This model generalises the previous strategy to an arbitrary number of operators where the expected nuber of events in a given phase-space can be now written as:
+
+$$ N \propto |\mathcal{A}\_{SMEFT}|^{2} = 
+    |\mathcal{A}\_{SM}|^2
+    + 
+    \sum\_\alpha\frac{c\_\alpha}{\Lambda^2} \cdot 2\Re(\mathcal{A}\_{SM}\mathcal{A}\_{Q\_\alpha}^{\dagger})
+    +   
+    \sum\_{\alpha,\beta}\frac{c\_\alpha c\_\beta}{\Lambda^4}  \cdot (\mathcal{A}\_{Q\_\alpha}\mathcal{A}\_{Q\_\beta}^\dagger) $$
+    
+    
+And the rewriting in terms of positive defined quantities reads as:
+
+$$N \propto  \text{Sm} \cdot \left( 1 - \sum\_{\alpha} c\_\alpha + \sum\_{\alpha, \alpha < \beta} \sum\_{\beta} c\_\alpha \cdot c\_\beta  \right) +   \sum\_{\alpha} \left[ \left( c\_\alpha - \sum\_{\alpha \neq \beta} c\_\alpha \cdot c\_\beta \right)  \cdot \left(  \text{Sm} + \text{Lin}\_\alpha + \text{Quad}\_\alpha  \right) \right] + \sum\_\alpha \left(c\_\alpha ^2 - c\_\alpha \right) \cdot \text{Quad}\_\alpha + $$
+
+$$ + \sum\_{\alpha, \alpha<\beta}\sum\_{\beta} c\_\alpha \cdot c\_\beta \cdot \left[ \text{Sm} + \text{Lin}\_\alpha + \text{Quad}\_\alpha + \text{Lin}\_\beta + \text{Quad}\_\beta + 2\cdot \text{Mix}\_{\alpha,\beta} \right] $$
+
+Where 
+
+**Sm** = $|\mathcal{A}\_{SM}|^2$,
+
+**Quad$\_\alpha$** = $|\mathcal{A}\_{Q\_{\alpha}}|^2$
+
+**Sm + Lin$\_\alpha$ + Quad$\_\alpha$** = $| \mathcal{A}\_{SM} + \frac{1}{\Lambda^{2}} \mathcal{A}\_{Q\_{\alpha}} |^2$
+
+**Sm + Lin$\_\alpha$ + Quad$\_\alpha$ + Lin$\_\beta$ + Quad$\_\beta$ + 2$\cdot$ Mix$\_{\alpha,\beta}$** = $| \mathcal{A}\_{SM} + \frac{1}{\Lambda^{2}} \mathcal{A}\_{Q\_{\alpha}} + \frac{1}{\Lambda^{2}} \mathcal{A}\_{Q\_{\beta}} |^2$
+
+---- 
+
+# Install:
 
     cmsrel CMSSW_10_2_13
     cd CMSSW_10_2_13/src
@@ -8,19 +73,17 @@ Install:
     git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
     cd HiggsAnalysis/
     git clone git@github.com:amassiro/AnalyticAnomalousCoupling.git
- 
-Where:
-
-    /afs/cern.ch/user/a/amassiro/work/Latinos/Framework/AnalyticAnomalousCoupling/CMSSW_10_2_13/src/HiggsAnalysis/AnalyticAnomalousCoupling
-    
 
     
-Model to be used:
+# Model to be used:
 
     AnomalousCouplingEFTNegative
     
+
+# Example Datacards
     
-How to run it:
+    
+# How to run it:
 
     cd test 
     
@@ -50,8 +113,20 @@ You can also add the dim8 operators by
 but you can also just define the new operators by
  
     --PO eftOperators=cS0,cS1,cT0
-    
-    
+
+
+# Plotting Tools
+
+This frameworks comes with plotting tools to support analyst with fast instruments to draw results of fits. For obvious reasons plots are available for 1D and 2D scans on the parameters of interests.
+
+For plots of likelihood profiles `scripts/mkEFTScan.py` supports both:
+
+```
+./scripts/mkEFTScan.py oned.root -p k_cqq3 -maxNLL 10 -lumi 138 -cms -preliminary -xlabel "c_{qq}^{(3)} [TeV^{-2}]"
+./scripts/mkEFTScan.py twod.root -p k_cqq3 k_cqq31 -maxNLL 10 -lumi 138 -cms -preliminary -xlabel "c_{qq}^{(3)} [TeV^{-2}]" -ylabel "c_{qq}^{(3,1)} [TeV^{-2}]"
+```
+
+
 
 Negative bin yield    
 ===
