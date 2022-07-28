@@ -127,7 +127,6 @@ For plots of likelihood profiles `scripts/mkEFTScan.py` supports both:
 ```
 
 
-
 Negative bin yield    
 ===
 
