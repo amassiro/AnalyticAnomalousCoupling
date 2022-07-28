@@ -126,9 +126,30 @@ For plots of likelihood profiles `scripts/mkEFTScan.py` supports both:
 ./scripts/mkEFTScan.py twod.root -p k_cqq3 k_cqq31 -maxNLL 10 -lumi 138 -cms -preliminary -xlabel "c_{qq}^{(3)} [TeV^{-2}]" -ylabel "c_{qq}^{(3,1)} [TeV^{-2}]"
 ```
 
+<div href="url">
+<img src="./images/1d.png" height="450" width="450" >
+<img src="./images/2d.png" height="450" width="450" >
+</div>
 
-Negative bin yield    
-===
+
+For profiled fits one usually scans one/two parameter of interest while leaving the others floating and free to maximse the likelihood at a specific POI. A debugging plotting tool can be useful to print the template (full BSM or single templates) at the fixed POI values on the scan. For plotting options can be concatenated to create a gif: `scan` will just draw the scan as a gif, `overall` will read the datacard and retrieve all templates for SM background and BSM EFT (as many operators as you want) and display the stacked distribution (this function also provides support for rateParameters). `signal` does the same without but backgrounds (only `sm` template from datacard). Lastly `templates` method will draw `signal` plus all the single templates that scale as a function of the various parameters.
+The process is repeated for all regions of the datacards.
+
+An example is provided in the following gif:
+```
+./scripts/mkEFTGifs.py -d datacard.txt -s higgsCombineTest.MultiDimFit.mH125.root -op k_cqq3 -rp top:CMS_hww_Topnorm2j WW:CMS_hww_WWnorm2j DY_hardJets:CMS_hww_DYnorm2j_hardJets DY_PUJets:CMS_hww_DYnorm2j_PUJets_2016 --frequency 2 -t scan overall signal templates --variables ewkz_2016_zjj_specified:"m_{jj} [GeV]" ewkz_2016_dycr:"m_{jj} [GeV]" --logy -drawSigma -lumi 138 -cms -preliminary
+```
+
+<div href="url">
+<img src="./images/gif.gif" height="650" width="650" >
+</div>
+
+
+
+
+
+# Negative bin yield    
+
 
 It may happen that the expected yield (SM+EFT) in a bin evaluates negative. Combine will complain and return the maximum FCN value up to that point in the minimization to force MIGRAD to back out of the region. If one want to disable such behaviour and ignore the negative bin (setting its content to zero) add to the combine command the following run-time arguments
 
