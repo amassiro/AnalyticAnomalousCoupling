@@ -2,7 +2,7 @@
 
 The AnalyticAnomalousCoupling provides a ***Combine-based model for EFT fits*** overcoming the issues of negative templates that may arise from interference terms.
 
-Suppose to expand the SM Lagrangian with the inclusion of a dimension 6 operator ($Q_{\alpha}$):
+Suppose to expand the SM Lagrangian with the inclusion of a dimension 6 operator ( $Q_{\alpha}$ ):
 
 $$ \mathcal{L}\_{SMEFT} = \mathcal{L}\_{SM} + \frac{c\_{\alpha}}{\Lambda^{2}} Q\_{\alpha} $$
 
@@ -80,7 +80,66 @@ Where
     AnomalousCouplingEFTNegative
     
 
-# Example Datacards
+# Providing shapes and building datacards
+
+So you might ask yourself how to build templates and datacards in a way compatible with the combine model.
+The model `AnomalousCouplingEFTNegative` accepts the following inputs positively defined:
+
+- SM
+- SM + Lin $\_{\alpha}$ + Quad $\_{\alpha}$
+- Quad $\_{\alpha}$
+- SM + Lin $\_{\alpha}$ + Quad $\_{\alpha}$ + Lin $\_{\beta}$ + Quad $\_{\beta}$ + 2 $\cdot$ Mix $\_{\alpha, \beta}$
+
+In the case of one operator, only the first three templates are expected, otherwise the last component has to be produced for each operator pair ( $\alpha, \beta , \forall \alpha \neq \beta$).
+
+From MC tools one can usually retrieve the single shapes for SM, Lin, Quad components. For more explanation on how to generate these shapes with amplitude decomposition and reweighting methods we refer to the chapter [Generating the shapes](#generating-the-shapes) below in this guide or to the overwhelming literature.
+
+Likely templates for a real-life situation are shown in figure as an example. Note how the linear component is negative and is not allowed in combine
+
+<div href="url">
+<img src="./images/shapes_after.png" width="1020" align="center" >
+</div>
+
+The templates for `SM` and `Quad` are already what you need for the `AnomalousCouplingEFTNegative` model. The linear shape should be substituted with `SM+Lin+Quad` simply by summing all the shapes in the previous figure. An example of the result is reported in the following image
+
+<div href="url">
+<img src="./images/shapes_before.png" width="1020" align="center" >
+</div>
+
+The datacard that can be built with those shapes reads as:
+
+```
+## Shape input card
+imax 1 number of channels
+jmax * number of background
+kmax * number of nuisance parameters
+----------------------------------------------------------------------------------------------------
+bin         inWW_cW
+observation 0
+shapes  *           * shapes/histos_inWW_cW.root     histo_$PROCESS histo_$PROCESS_$SYSTEMATIC
+shapes  data_obs           * shapes/histos_inWW_cW.root     histo_Data
+bin              inWW_cW                       inWW_cW                       inWW_cW                       
+process          sm                            sm_lin_quad_cW                quad_cW                            
+process          1                             2                             3                             
+rate             30611.7690                    34426.6029                    3957.9833               
+----------------------------------------------------------------------------------------------------
+lumi  lnN        1.02                          1.02                          1.02                          
+----------------------------------------------------------------------------------------------------
+
+```
+**The datacard name for the processes field should follow a precise convention** in order for the model to build the pdfs correctly. This table summarises a 2 operator case ( $c\_{W}, c\_{HW}$ )
+
+| Template | Datacard Name | Expression combine model |
+| ----- | ----------- | --------------- |
+| SM | `sm` | `func_sm("@0*(1-(@1+@2-@1*@2))",r,k_cW, k_cHW)` |
+| Quad $c\_W$ | `quad_cW` | `func_quadratic_cW("@0*(@1*@1-@1)",r,k_cW)`|
+| SM + Lin $c\_W$ + Quad $c\_W$| `sm_lin_quad_cW` | `func_sm_linear_quadratic_cW("@0*(@1 * (1-(@2) ))",r,k_cW, k_cHW)`|
+| Quad $c\_{HW}$| `quad_cHW` | `func_quadratic_cHW("@0*(@1*@1-@1)",r,k_cHW)`|
+| SM + Lin $c\_{HW}$ + Quad $c\_{HW}$| `quad_cHW` | `func_sm_linear_quadratic_cHW("@0*(@1 * (1-(@2) ))",r,k_cHW, k_cW)`|
+| SM + Lin $c\_W$ + Quad $c\_W$ + Lin $c\_{HW}$ + Quad $c\_{HW}$ + 2 $\cdot$ Mix $\_{c\_{W}, c\_{HW}}$| `sm_lin_quad_mixed_cW_cHW` | `func_sm_linear_quadratic_mixed_cW_cHW("@0*@1*@2",r,k_cW,k_cHW)`|
+
+
+
     
     
 # How to run it:
@@ -156,6 +215,101 @@ https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/7bffa8b8758a5dc
 https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/7bffa8b8758a5dc6824b8b93c098ce9afb1c32a4/src/CachingNLL.cc#L692
 
     
+    
+# Generating the shapes
+
+The templates needed can be generated in two complementary ways either by *amplitude decomposition* or with *reweighting*. 
+
+With amplitude decomposition the single components (SM, Lin $\_{\alpha}$, Quad $\_{\alpha}$, Mix $\_{\alpha, \beta}$) can be generated. For example exploiting [MadGraph](http://madgraph.phys.ucl.ac.be/) and [SMEFTsim](https://smeftsim.github.io/) one can do as follows:
+
+**SM**:
+```
+import model SMEFTsim_U35_MwScheme_UFO-SMlimit_massless
+generate p p > e+ ve mu- vm~
+output WW_SM
+```
+
+**Lin**:
+```
+import model SMEFTsim_U35_MwScheme_UFO-cW_massless
+generate p p > e+ ve mu- vm~ NP=1 NP^2==1
+output WW_LI
+```
+
+**Quad**:
+```
+import model SMEFTsim_U35_MwScheme_UFO-cW_massless
+generate p p > e+ ve mu- vm~ NP=1 NP^2==2
+output WW_QU
+```
+
+**Mix**:
+```
+import model SMEFTsim_U35_MwScheme_UFO-cW_cHW_massless
+generate p p > e+ ve mu- vm~ NP=1 NP^2==1
+output WW_Mix
+```
+
+With the reweighting method one can generatefrom the full Lagrangian + one operator and extract the components thanks to a reweighting procedure.
+Suppose we start our generation by including all terms, setting the coupling of $c\_{W}=1$
+
+**SM+Lin+Quad**:
+```
+import model SMEFTsim_U35_MwScheme_UFO-cW_massless
+generate p p > e+ ve mu- vm~ NP=1
+output WW_Reweight
+```
+
+We can now change at reweighting the coupling in order to generate different components
+
+**SM**:
+
+```
+change helicity False
+change rwgt_dir rwgt
+
+# SM: rwgt_1
+launch
+   set SMEFT 2 0
+```
+**SM-Lin+Quad**:
+
+```
+# SM - Lin + Quad: rwgt_2
+launch
+   set SMEFT 2 -1
+```
+
+Each event will now have two new reweighting - weights corresponding to the hypothesis $c\_W = 0$ ( $\omega(k=0)$ ) and $c\_W = -1$ ( $\omega(k=-1)$ ). The nominal weight corresponds to the hypothesis $c\_W = 1$ ( $\omega(k=1)$ ). 
+Event by event we can add these weights to obtain the Sm / Quadratic / Linear components:
+
+$$ 
+\begin{equation}
+\begin{cases}
+\omega\_{\text{Quad}} = 0.5 \cdot \left [ \omega(k=1) + \omega(k=-1) - 2 \cdot \omega(k=0) \right ] \\
+\omega\_{\text{SM}} = \omega(k=0)\\
+\omega\_{\text{Lin}} = 0.5 \cdot \left [ \omega(k=1) - \omega(k=-1) \right ]\\
+\end{cases}
+\end{equation}
+$$
+
+For more operators one can generate the components for a single operator by setting all the others at 0 and scanning the values -1,0,1 as described above. For the mixed term instead one should also generate the weight:
+
+```
+# SM + Lin + Quad + Lin + Quad + Mix: rwgt_3
+launch
+   set SMEFT 2 1
+   set SMEFT 7 1
+```
+
+And the algebra on the weights reads as follows 
+
+$$ 
+\omega\_{\text{Mix}} = \omega(1,1) + \omega(0,0) - \omega(1,0) - \omega(0,1)
+$$
+
+We stress that these weights should be computed on an event-by-event basis.
+
 Older examples
 ====
     
