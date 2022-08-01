@@ -130,7 +130,7 @@ lumi  lnN        1.02                          1.02                          1.0
 **The datacard name for the processes field should follow a precise convention** in order for the model to build the pdfs correctly. This table summarises a 2 operator case ( $c\_{W}, c\_{HW}$ )
 
 | Template | Datacard Name | Expression combine model |
-| ----- | ----------- | --------------- |
+| -------- | ----------- | ----------- |
 | SM | `sm` | `func_sm("@0*(1-(@1+@2-@1*@2))",r,k_cW, k_cHW)` |
 | Quad $c\_W$ | `quad_cW` | `func_quadratic_cW("@0*(@1*@1-@1)",r,k_cW)`|
 | SM + Lin $c\_W$ + Quad $c\_W$| `sm_lin_quad_cW` | `func_sm_linear_quadratic_cW("@0*(@1 * (1-(@2) ))",r,k_cW, k_cHW)`|
@@ -186,8 +186,8 @@ For plots of likelihood profiles `scripts/mkEFTScan.py` supports both:
 ```
 
 <div href="url">
-<img src="./images/1d.png" height="420" width="420" align="center" >
-<img src="./images/2d.png" height="420" width="420"align="center"  >
+<img src="./images/1d.png" height="320" width="320" align="center" >
+<img src="./images/2d.png" height="320" width="320"align="center"  >
 </div>
 
 
