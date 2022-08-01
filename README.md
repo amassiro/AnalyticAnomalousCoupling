@@ -29,9 +29,9 @@ By renaming
 
 **Sm** = $|\mathcal{A}\_{SM}|^2$,
 
-**Lin$\_\alpha$** = $2\Re(\mathcal{A}\_{SM}\mathcal{A}\_{Q\_\alpha}^{\dagger})$
+**Lin**$\_\alpha$ = $2\Re(\mathcal{A}\_{SM}\mathcal{A}\_{Q\_\alpha}^{\dagger})$
 
-**Quad$\_\alpha$** = $|\mathcal{A}\_{Q\_{\alpha}}|^2$
+**Quad**$\_\alpha$ = $|\mathcal{A}\_{Q\_{\alpha}}|^2$
 
 $$ N = (1 − c\_{\alpha}) \cdot \text{Sm} + c\_{\alpha} \cdot (\text{Sm} + \text{Lin}\_\alpha + \text{Quad}\_\alpha) + (c\_{\alpha}^2 − c\_{\alpha}) \cdot \text{Quad}\_\alpha $$
 
@@ -57,11 +57,11 @@ Where
 
 **Sm** = $|\mathcal{A}\_{SM}|^2$,
 
-**Quad$\_\alpha$** = $|\mathcal{A}\_{Q\_{\alpha}}|^2$
+**Quad**$\_\alpha$ = $|\mathcal{A}\_{Q\_{\alpha}}|^2$
 
-**Sm + Lin$\_\alpha$ + Quad$\_\alpha$** = $| \mathcal{A}\_{SM} + \frac{1}{\Lambda^{2}} \mathcal{A}\_{Q\_{\alpha}} |^2$
+**Sm + Lin**$\_\alpha$ **+ Quad**$\_\alpha$ = $| \mathcal{A}\_{SM} + \frac{1}{\Lambda^{2}} \mathcal{A}\_{Q\_{\alpha}} |^2$
 
-**Sm + Lin$\_\alpha$ + Quad$\_\alpha$ + Lin$\_\beta$ + Quad$\_\beta$ + 2$\cdot$ Mix$\_{\alpha,\beta}$** = $| \mathcal{A}\_{SM} + \frac{1}{\Lambda^{2}} \mathcal{A}\_{Q\_{\alpha}} + \frac{1}{\Lambda^{2}} \mathcal{A}\_{Q\_{\beta}} |^2$
+**Sm + Lin**$\_\alpha$ **+ Quad**$\_\alpha$ **+ Lin**$\_\beta$ **+ Quad**$\_\beta$ **+ 2**$\cdot$ **Mix**$\_{\alpha,\beta}$ = $| \mathcal{A}\_{SM} + \frac{1}{\Lambda^{2}} \mathcal{A}\_{Q\_{\alpha}} + \frac{1}{\Lambda^{2}} \mathcal{A}\_{Q\_{\beta}} |^2$
 
 ---- 
 
@@ -127,8 +127,8 @@ For plots of likelihood profiles `scripts/mkEFTScan.py` supports both:
 ```
 
 <div href="url">
-<img src="./images/1d.png" height="450" width="450" >
-<img src="./images/2d.png" height="450" width="450" >
+<img src="./images/1d.png" height="420" width="420" align="center" >
+<img src="./images/2d.png" height="420" width="420"align="center"  >
 </div>
 
 
@@ -137,15 +137,8 @@ The process is repeated for all regions of the datacards.
 
 An example is provided in the following gif:
 ```
-./scripts/mkEFTGifs.py -d datacard.txt -s higgsCombineTest.MultiDimFit.mH125.root -op k_cqq3 -rp top:CMS_hww_Topnorm2j WW:CMS_hww_WWnorm2j DY_hardJets:CMS_hww_DYnorm2j_hardJets DY_PUJets:CMS_hww_DYnorm2j_PUJets_2016 --frequency 2 -t scan overall signal templates --variables ewkz_2016_zjj_specified:"m_{jj} [GeV]" ewkz_2016_dycr:"m_{jj} [GeV]" --logy -drawSigma -lumi 138 -cms -preliminary
+./scripts/mkEFTGifs.py -d datacard.txt -s higgsCombineTest.MultiDimFit.mH125.root -op k_cqq3 -rp top:CMS_hww_Topnorm2j WW:CMS_hww_WWnorm2j DY_hardJets:CMS_hww_DYnorm2j_hardJets DY_PUJets:CMS_hww_DYnorm2j_PUJets_2016 --frequency 2 -t scan overall signal templates --variables ewkz_2016_zjj_specified:"m_{jj} [GeV]" ewkz_2016_dycr:"m_{jj} [GeV]" --logy -drawSigma -lumi 138
 ```
-
-<div href="url">
-<img src="./images/gif.gif" height="650" width="650" >
-</div>
-
-
-
 
 
 # Negative bin yield    
