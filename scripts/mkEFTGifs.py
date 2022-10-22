@@ -67,7 +67,7 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--datacard',     dest='datacard',     help='Path to the datacard you used in the fit', required = True)
     parser.add_argument('-s', '--scan',     dest='scan',     help='Path to the combine output of the profiled fit using the -d --datacaard argument datacard', required = True)
     parser.add_argument('-op', '--operators',     dest='operators',     help='Operators of interest separated by a white space e.g. k_cqq3 k_cqq31 ...', required = True, nargs="+")
-    parser.add_argument('-rp', '--rateparams',     dest='rateparams',     help='Map for rateparameters to background in the form name:param name:param (where name should match the name in the datacard', required = False, nargs="+")
+    parser.add_argument('-rp', '--rateparams',     dest='rateparams',     help='Map for rateparameters to background in the form name:param name:param (where name should match the name in the datacard', required = False, nargs="+", default=[])
     parser.add_argument('-t', '--type',     dest='type',     help='Gifs to be plotted, can choose between scan, overall, signal, templates. You can add more of them separated by a space', required = False, nargs="+", default=["scan", "overall", "signal", "templates"])
     parser.add_argument('-o', '--outfolder',   dest='outfolder',     help='output folder where plots will be saved', required = False, default = "plots")
     
@@ -90,9 +90,8 @@ if __name__ == "__main__":
     ROOT.TH1.SetDefaultSumw2(True)
     ROOT.gStyle.SetPalette(ROOT.kOcean)
 
-    datacard_name = args.datacard.split("/")[-1] 
+    datacard_name = args.datacard.split("/")[-1]
     datacard_folder = args.datacard.split(datacard_name)[0] 
-
     plot_name = "_".join(i for i in args.type)
 
     margins = 0.11
@@ -108,8 +107,7 @@ if __name__ == "__main__":
     vars = {i.split(":")[0]:i.split(":")[1] for i in args.variables }  # region : variable
 
     cwd = os.getcwd()
-
-    os.chdir(datacard_folder)
+    if datacard_folder != '': os.chdir(datacard_folder)
     dr = ch.CombineHarvester()
     dr.ParseDatacard(datacard_name)
     
@@ -262,6 +260,7 @@ if __name__ == "__main__":
                         bkg_shapes =ROOT.THStack("hs",";{};{}".format(v_, "Events"))
 
                         f = ROOT.TFile(file_)
+                        print(bkg)
                         for idx_, b in enumerate(bkg):
                             h = f.Get("histo_"+b)
                             h.SetLineWidth(0)
