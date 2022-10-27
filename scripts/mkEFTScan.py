@@ -56,13 +56,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='This script allows to draw different gif plots for profiled EFT Fits using AnalyticalAnomalousCoupling')
     parser.add_argument('-p', '--POI',   dest='POI',     help='POIs to be plotted, default is \"r\"', required = False, default = "r", type=str, nargs="+")
     parser.add_argument('-maxNLL', '--maxNLL',   dest='maxNLL',     help='Set the maximum of the NLL to be plotted, default is 5 (-2deltaNLL=10)', required = False, default = 5, type=float)
+    parser.add_argument('-o', '--output',   dest='output',     help='Path + filename + filetype for output. Default is scan.pdf', required = False, default = "scan.pdf", type=str)
     parser.add_argument('-lumi', '--lumi',   dest='lumi',     help='Draw this luminosity on the pad', required = False, default = "", type=str)
     parser.add_argument('-xlabel', '--xlabel',   dest='xlabel',     help='Fancy xlabel for the scan', required = False, default = "", type=str)
     parser.add_argument('-ylabel', '--ylabel',   dest='ylabel',     help='Fancy ylabel for the scan', required = False, default = "", type=str)
     parser.add_argument('-energy', '--energy',   dest='energy',     help='Draw this energy on the pad, default 13 TeV', required = False, default = 13, type=float)
     parser.add_argument('-cms', '--cms',   dest='cms',     help='Add cms label on top left', required = False, default = False, action="store_true")
     parser.add_argument('-preliminary', '--preliminary',   dest='preliminary',     help='Add preliminary label on top left', required = False, default = False, action="store_true")
-
+    parser.add_argument('-isNuis', '--isNuis',   dest='isNuis',     help='Option for a 3d draw with 2 POI on x-y and -2DeltaNLL on z. Useful if x is POI and y is a nuisance', required = False, default = False, action="store_true")
     args, _ = parser.parse_known_args()
 
     if len(sys.argv) < 2:
@@ -85,8 +86,8 @@ if __name__ == "__main__":
     scanUtil.setTree("limit")
     scanUtil.setPOI(pois)
     scanUtil.setupperNLLimit(args.maxNLL)
+    scanUtil.setNuisanceStyle(args.isNuis)
     
-
     gs = scanUtil.getScan()
 
     margins = 0.11
@@ -152,55 +153,95 @@ if __name__ == "__main__":
 
         colors = [ROOT.kRed, ROOT.kRed]
         linestyle = [1, 7]
-
-        for i in range(gs.GetHistogram().GetSize()):
-            if (gs.GetHistogram().GetBinContent(i+1) == 0):
-                gs.GetHistogram().SetBinContent(i+1, 100)
+        
 
         gs.GetZaxis().SetTitle("-2 #Delta LL")
 
-        xl = pois[0]
-        yl = pois[1]
-        if args.xlabel: xl = args.xlabel
-        if args.ylabel: yl = args.ylabel 
+        if args.isNuis:
+           gs.SetNpx(200)
+           gs.SetNpy(200)
+
+           hist = gs.GetHistogram().Clone("arb_hist")
+
+           for i in range(hist.GetSize()):
+              hist.SetBinContent(i+1, 0);
+
+           for i in range(gs.GetN()):
+              hist.Fill(gs.GetX()[i],  gs.GetY()[i],  gs.GetZ()[i] + 0.001)
 
 
-        gs.GetXaxis().SetTitle(xl)
-        gs.GetYaxis().SetTitle(yl)
-
-        gs.GetYaxis().SetTitleOffset(1.4)
-        gs.GetXaxis().SetTitleOffset(1.1)
-
-        gs.GetZaxis().SetRangeUser(0, float(args.maxNLL))
-        gs.GetHistogram().GetZaxis().SetRangeUser(0, float(args.maxNLL))
+           xl = pois[0]
+           yl = pois[1]
+           if args.xlabel: xl = args.xlabel
+           if args.ylabel: yl = args.ylabel
 
 
-        gs.GetHistogram().SetTitle("")
-        gs.GetHistogram().Draw("colz")
+           hist.GetXaxis().SetTitle(xl)
+           hist.GetYaxis().SetTitle(yl)
+           hist.GetZaxis().SetTitle("-2 #Delta LL")
+           hist.GetYaxis().SetTitleOffset(1.4)
+           hist.GetXaxis().SetTitleOffset(1.1)
+
+           hist.GetZaxis().SetRangeUser(0, float(args.maxNLL))
+
+
+           hist.SetTitle("")
+           hist.Draw("colz")
+
+
+        else:
+
+           for i in range(gs.GetHistogram().GetSize()):
+               if (gs.GetHistogram().GetBinContent(i+1) == 0):
+                   gs.GetHistogram().SetBinContent(i+1, 100)
+
+
+           xl = pois[0]
+           yl = pois[1]
+           if args.xlabel: xl = args.xlabel
+           if args.ylabel: yl = args.ylabel 
+
+
+           gs.GetXaxis().SetTitle(xl)
+           gs.GetYaxis().SetTitle(yl)
+
+           gs.GetYaxis().SetTitleOffset(1.4)
+           gs.GetXaxis().SetTitleOffset(1.1)
+
+           gs.GetZaxis().SetRangeUser(0, float(args.maxNLL))
+           gs.GetHistogram().GetZaxis().SetRangeUser(0, float(args.maxNLL))
+
+
+           gs.GetHistogram().SetTitle("")
+           gs.GetHistogram().Draw("colz")
+        
+
+
         c.Modified()
         c.Update()
 
         leg = ROOT.TLegend(0.82, 0.85, 0.67, 0.7)
         leg.AddEntry(exp, "Expected", "P")
         leg.SetBorderSize(0)
+       
+        if not args.isNuis:
+           for i, item_ in enumerate(cont_graphs):
+               # item_ here is a TList
+               l = list(item_)
+               for item in l:
+                   try:
+                       item.SetLineColor(colors[i])
+                       item.SetLineStyle(linestyle[i])
+                       item.SetLineWidth(2)
+                       item.Draw("L same")
+                   except:
+                       continue
+               #only add one legend entry, arbitrary
+               if len(l) > 0:
+                   leg.AddEntry(l[0], "#pm {}#sigma".format(i+1), "L")
 
-        for i, item_ in enumerate(cont_graphs):
-            # item_ here is a TList
-            l = list(item_)
-            for item in l:
-                try:
-                    item.SetLineColor(colors[i])
-                    item.SetLineStyle(linestyle[i])
-                    item.SetLineWidth(2)
-                    item.Draw("L same")
-                except:
-                    continue
-            #only add one legend entry, arbitrary
-            if len(l) > 0:
-                leg.AddEntry(l[0], "#pm {}#sigma".format(i+1), "L")
-
-        exp.Draw("P same")
-        leg.Draw()
+           exp.Draw("P same")
+           leg.Draw()
 
 
     if not args.cms:
@@ -218,5 +259,5 @@ if __name__ == "__main__":
         tex3.Draw()
 
     c.Draw()
-    c.Print("scan.pdf")
+    c.Print(args.output)
 

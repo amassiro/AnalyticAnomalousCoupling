@@ -10,6 +10,7 @@ class scanEFT:
         self.tree = "limit"
         self.upper = 5
         self.lower = -30
+        self.isNuis = False
 
     def setFile(self, file):
         self.file = file 
@@ -29,6 +30,9 @@ class scanEFT:
 
     def setlowerNLLimit(self, lower):
         self.lower = lower 
+    
+    def setNuisanceStyle(self, isnuis):
+        self.isNuis = isnuis
 
     def getScan(self):
         
@@ -70,16 +74,19 @@ class scanEFT:
 
             one_s_frac = 2.3 / self.upper
             two_s_frac = 5.99 / self.upper
-
+            
             __stops = array('d', [0.00, one_s_frac, two_s_frac, 1])
             __red = array('d', [1.0, 1.0, 0.145, 0.0])
             __green  = array('d', [1.0, 0.549, 0.459, 0.0])
             __blue  = array('d', [1.0, 0.0, 1.0, 1.0])
-
-
-            #ROOT.TColor.CreateGradientColorTable(3, __stops, __red, __green, __blue, 255)
-            ROOT.TColor.CreateGradientColorTable(4, __stops,__red, __green, __blue, 50, 0.8)
-            ROOT.gStyle.SetNumberContours(200)
+  
+            if not self.isNuis:
+               #ROOT.TColor.CreateGradientColorTable(3, __stops, __red, __green, __blue, 255)
+               ROOT.TColor.CreateGradientColorTable(4, __stops,__red, __green, __blue, 50, 0.8)
+               ROOT.gStyle.SetNumberContours(200)
+            
+            else:
+               ROOT.gStyle.SetPalette(109)
 
             to_draw = ROOT.TString("{}:{}:2*deltaNLL".format(self.poi[0], self.poi[1]))
             n = t.Draw( to_draw.Data() , "deltaNLL<{} && deltaNLL>{}".format(self.upper,self.lower), "l")
@@ -103,12 +110,34 @@ class scanEFT:
 
             graphScan.GetZaxis().SetRangeUser(0, self.upper)
             graphScan.GetHistogram().GetZaxis().SetRangeUser(0, self.upper)
-
+            
+           
             for i in range(graphScan.GetHistogram().GetSize()):
                 if (graphScan.GetHistogram().GetBinContent(i+1) == 0):
                     graphScan.GetHistogram().SetBinContent(i+1, 100)
 
-            hist = graphScan.GetHistogram().Clone("arb_hist")
+            hist = graphScan.GetHistogram().Clone("arb_hist") 
+            # if not self.isNuis:
+            #    
+            #    hist = graphScan.GetHistogram().Clone("arb_hist")
+            #    for i in range(hist.GetSize()):
+            #       if (hist.GetBinContent(i+1) == 0):
+            #          hist.SetBinContent(i+1, 100)
+            # 
+            # else:
+            #     
+            #    graphScan.SetNpx(200)
+            #    graphScan.SetNpy(200)
+    
+            #    hist = graphScan.GetHistogram().Clone("arb_hist")
+
+            #    for i in range(hist.GetSize()):
+            #       hist.SetBinContent(i+1, 0);
+            #    
+            #    for i in range(graphScan.GetN()):
+            #       hist.Fill(graphScan.GetX()[i],  graphScan.GetY()[i],  graphScan.GetZ()[i] + 0.001)
+            
+
             hist.SetContour(2, np.array([2.30, 5.99]))
             hist.Draw("CONT Z LIST")
             ROOT.gPad.Update()
