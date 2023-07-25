@@ -9,6 +9,7 @@ class HistoBuilder:
     def __init__(self):
         self.pois = []
         self.ppois = []
+        self.has_r_SignalStrength = False
         self.shapes = {}
         self.rateParam = {}
         
@@ -76,8 +77,10 @@ class HistoBuilder:
         t = f.Get(self.tree)
 
         self.pois = [ i.GetName() for i in t.GetListOfBranches() if i.GetName().startswith("k_") ]
-        #if hasattr(self, "interestPOI"):
-        #    self.pois = [i for i in self.pois if i != self.interestPOI]
+
+        # if also "r" was let free to float, also add it to the list of pois
+        if "r" in [ i.GetName() for i in t.GetListOfBranches() ]: self.has_r_SignalStrength = True
+
 
         c = dict.fromkeys(self.pois)
         self.pois = c.keys()
@@ -119,6 +122,7 @@ class HistoBuilder:
             poiPair_sum += self.minimPoisValue[pois[0]]*self.minimPoisValue[pois[1]]
 
         fact += poiPair_sum
+        fact *= self.minimPoisValue["r"]
 
         sm_bench.Scale(fact)
         
@@ -133,6 +137,8 @@ class HistoBuilder:
                 if j != poi:
                     fact -= poiVal * self.minimPoisValue[j]
 
+            fact *= self.minimPoisValue["r"]
+
             h.Scale(fact)
             self.historySingleHistos[poiVal]["sm_lin_quad_"+ poi.strip("k_")] = h
             
@@ -140,12 +146,18 @@ class HistoBuilder:
         #qu
         for poi in self.pois:
             h = deepcopy(self.shapes["histo_quad_" + poi.strip("k_")])
-            h.Scale(self.minimPoisValue[poi]*self.minimPoisValue[poi] - self.minimPoisValue[poi])
+            h.Scale( self.minimPoisValue["r"]*(self.minimPoisValue[poi]*self.minimPoisValue[poi] - self.minimPoisValue[poi]) )
             self.historySingleHistos[poiVal]["quad_"+ poi.strip("k_")] = h            
         
         
     def compute(self, poiInterest):
         
+        print("#####################")
+        print(poiInterest)
+        print("#####################")
+        print(self.minimPoisValue)
+        print("#####################")
+
         self.historySingleHistos[poiInterest] = {}
         #sm 
         bench = deepcopy(self.shapes["histo_sm"])
@@ -162,6 +174,9 @@ class HistoBuilder:
             poiPair_sum += self.minimPoisValue[pois[0]]*self.minimPoisValue[pois[1]]
 
         fact += poiPair_sum
+        fact *= self.minimPoisValue["r"]
+
+        print("--> SM fact " + str(fact))
 
         bench.Scale(fact)
         self.historySingleHistos[poiInterest]["SM"] = deepcopy(bench)
@@ -176,6 +191,10 @@ class HistoBuilder:
                 if j != poi:
                     fact -= poiVal * self.minimPoisValue[j]
 
+            fact*=self.minimPoisValue["r"]
+
+            print("--> Sm li qu {} fact ".format(poi) + str(fact))
+
             h.Scale(fact)
             self.historySingleHistos[poiInterest]["sm_lin_quad_"+ poi.strip("k_")] = h
             bench.Add(h)
@@ -183,7 +202,8 @@ class HistoBuilder:
         #qu
         for poi in self.pois:
             h = deepcopy(self.shapes["histo_quad_" + poi.strip("k_")])
-            h.Scale(self.minimPoisValue[poi]*self.minimPoisValue[poi] - self.minimPoisValue[poi])
+            print("--> qu {} fact ".format(poi) + str(self.minimPoisValue["r"]*(self.minimPoisValue[poi]*self.minimPoisValue[poi] - self.minimPoisValue[poi])))
+            h.Scale( self.minimPoisValue["r"]*(self.minimPoisValue[poi]*self.minimPoisValue[poi] - self.minimPoisValue[poi]) )
             self.historySingleHistos[poiInterest]["quad_"+ poi.strip("k_")] = h
             
             bench.Add(h)
@@ -201,7 +221,10 @@ class HistoBuilder:
                     continue
 
             h = deepcopy(self.shapes[name])
-            fact = self.minimPoisValue[ppair[0]] * self.minimPoisValue[ppair[1]]
+            fact = self.minimPoisValue["r"] * self.minimPoisValue[ppair[0]] * self.minimPoisValue[ppair[1]]
+
+            print("--> mixed {} {} fact ".format(ppair[0], ppair[1]) + str(fact))
+
             h.Scale(fact)
             self.historySingleHistos[poiInterest][name.split("histo_")[1]] = h
 
@@ -220,15 +243,15 @@ class HistoBuilder:
         
         f = ROOT.TFile(self.file)
         t = f.Get(self.tree)
-        
-        print([i.GetName() for i in t.GetListOfBranches()])
-        print(t.GetEntries())
-        
+                
         for event in t:
             for poi in self.pois:
                 self.minimPoisValue[poi] = getattr(event, poi)
             for key in self.rateParam.keys():
                 self.rateParam[key].append(getattr(event, key))
+
+            self.minimPoisValue["r"] = 1 if not self.has_r_SignalStrength else getattr(event, "r")
+            
             
             poiVal = getattr(event, self.interestPOI)
             self.interest_poi_value.append(poiVal)
