@@ -71,8 +71,12 @@ Where
     cd CMSSW_10_2_13/src
     cmsenv
     git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-    cd HiggsAnalysis/
+    cd HiggsAnalysis/CombinedLimit
+    git fetch origin
+    git checkout v8.2.0
+    cd ..
     git clone git@github.com:amassiro/AnalyticAnomalousCoupling.git
+    scramv1 b clean; scramv1 b # always make a clean build
 
     
 # Model to be used:
