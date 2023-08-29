@@ -154,6 +154,27 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
                 self.Operators.extend ( self.OperatorsDim8 )
                 self.addDim8 = True
 
+            #
+            # this is needed in the case the complete list of operators is not the one provided above,
+            # but for some reason, like a new model or a new basis, different or more operators are added.
+            # There could be also the possibility that one operator is removed from the complete list of operators,
+            # who knows why ... by it might happen, thus the method to remove it is given hereafter
+            #
+            if po.startswith("defineCompleteOperators="):
+                self.CompleteOperators = po.replace("defineCompleteOperators=","").split(",")
+                print " CompleteOperators = ", self.CompleteOperators
+
+            if po.startswith("addToCompleteOperators="):
+                toAddOperators = po.replace("addToCompleteOperators=","").split(",")
+                self.CompleteOperators.extend ( toAddOperators )
+                print " CompleteOperators = ", self.CompleteOperators
+
+            if po.startswith("removeFromCompleteOperators="):
+                toRemoveOperators = po.replace("removeFromCompleteOperators=","").split(",")
+                newlist = [i for i in self.CompleteOperators if i not in toRemoveOperators]
+                self.CompleteOperators = newlist
+                print " CompleteOperators = ", self.CompleteOperators
+
 
 #
 # standard, not touched (end)
