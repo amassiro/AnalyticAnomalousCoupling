@@ -122,14 +122,20 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
              'cud1',
              'cud8',
              'cuu',
-             'cuu1'
+             'cuu1',
+             'cjj11',
+             'cjj18',
+             'cjj31',
+             'cjj38',
+             'cHj1',
+             'cHQ1'
              ]
 
 
         self.CompleteOperators = self.Operators + self.OperatorsDim8
 
         self.numOperators = len(self.Operators)
-
+        print " Sono in AACEFTNeg"
         print " Operators = ", self.Operators
 
 

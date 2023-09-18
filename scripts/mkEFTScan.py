@@ -67,7 +67,7 @@ if __name__ == "__main__":
     parser.add_argument('-isNuis', '--isNuis',   dest='isNuis',     help='Option for a 3d draw with 2 POI on x-y and -2DeltaNLL on z. Useful if x is POI and y is a nuisance', required = False, default = False, action="store_true")
     parser.add_argument('-others', '--others',   dest='others',     help='Other scans on the same POI with <file>:<color int>:<linestyle int>:<label>', required = False, default =  [], nargs="+")
     parser.add_argument('-ml', '--main-label',   dest='main_label',     help='Main label for the plot. If not given no legend included', required = False, type=str)
-
+    parser.add_argument('-ff', '--fileFormat',   dest='fileFormat',     help='The format for the output default is png and pdf', required = False, default = ["png", "pdf"], nargs="+")
     args, _ = parser.parse_known_args()
 
     if len(sys.argv) < 2:
@@ -292,5 +292,6 @@ if __name__ == "__main__":
         tex3.Draw()
 
     c.Draw()
-    c.Print(args.output)
+    for ff_ in args.fileFormat:
+       c.Print(args.output + "." + ff_)
 
