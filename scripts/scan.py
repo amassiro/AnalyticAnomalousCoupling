@@ -103,6 +103,9 @@ class scanEFT:
             graphScan = ROOT.TGraph2D(n,x,y,z)
 
             graphScan.GetZaxis().SetTitle("-2 #Delta LL")
+            graphScan.GetHistogram().GetZaxis().SetTitle("-2 #Delta LL")
+            graphScan.GetHistogram().GetZaxis().SetTitleOffset(0.)
+
             graphScan.GetXaxis().SetTitle(self.poi[0])
             graphScan.GetYaxis().SetTitle(self.poi[1])
             graphScan.SetLineColor(ROOT.kRed)
