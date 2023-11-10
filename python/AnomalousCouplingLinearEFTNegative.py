@@ -144,7 +144,6 @@ class AnaliticAnomalousCouplingLinearEFTNegative(PhysicsModel):
 
         print " Operators = ", self.Operators
 
-        print " reuseCompleteDatacards = ", self.reuseCompleteDatacards
         
         
 
@@ -168,6 +167,8 @@ class AnaliticAnomalousCouplingLinearEFTNegative(PhysicsModel):
 
             if po.startswith("reuseCompleteDatacards"):
                 self.reuseCompleteDatacards = True
+                print " reuseCompleteDatacards = ", self.reuseCompleteDatacards
+                
 
 #
 # standard, not touched (end)

@@ -135,7 +135,6 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
         self.CompleteOperators = self.Operators + self.OperatorsDim8
 
         self.numOperators = len(self.Operators)
-        print " Sono in AACEFTNeg"
         print " Operators = ", self.Operators
 
 
