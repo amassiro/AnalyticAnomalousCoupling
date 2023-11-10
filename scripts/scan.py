@@ -74,7 +74,8 @@ class scanEFT:
 
             one_s_frac = 2.3 / self.upper
             two_s_frac = 5.99 / self.upper
-            
+            if self.upper < 2.3: one_s_frac = 1.0
+            if self.upper < 5.99: two_s_frac = 1.0 
             __stops = array('d', [0.00, one_s_frac, two_s_frac, 1])
             __red = array('d', [1.0, 1.0, 0.145, 0.0])
             __green  = array('d', [1.0, 0.549, 0.459, 0.0])

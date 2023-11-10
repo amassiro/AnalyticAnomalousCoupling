@@ -68,6 +68,7 @@ if __name__ == "__main__":
     parser.add_argument('-others', '--others',   dest='others',     help='Other scans on the same POI with <file>:<color int>:<linestyle int>:<label>', required = False, default =  [], nargs="+")
     parser.add_argument('-ml', '--main-label',   dest='main_label',     help='Main label for the plot. If not given no legend included', required = False, type=str)
     parser.add_argument('-ff', '--fileFormat',   dest='fileFormat',     help='The format for the output default is png and pdf', required = False, default = ["png", "pdf"], nargs="+")
+    parser.add_argument('-lh', '--hidelegend',   dest='hidelegend',     help='Do not plot the legend on the canvas', required = False, default = False, action="store_true")
     args, _ = parser.parse_known_args()
 
     if len(sys.argv) < 2:
@@ -113,7 +114,7 @@ if __name__ == "__main__":
               # gs.Draw("L same")    
 
 
-    margins = 0.11
+    margins = 0.13
     if args.xlabel: gs.GetXaxis().SetTitle(args.xlabel)
     if args.ylabel: gs.GetYaxis().SetTitle(args.ylabel)
 
@@ -126,7 +127,8 @@ if __name__ == "__main__":
 
     if len(args.POI) == 1: ROOT.gPad.SetRightMargin(margins)
     elif len(args.POI) == 2: ROOT.gPad.SetRightMargin(0.15)
-    
+   
+    ROOT.gPad.SetBottomMargin(margins) 
     ROOT.gPad.SetLeftMargin(margins)
 
     ROOT.gPad.SetTicks()
@@ -137,6 +139,9 @@ if __name__ == "__main__":
         gs.SetLineColor(ROOT.kBlack)
 
         if args.xlabel: gs.GetXaxis().SetTitle(args.xlabel)
+        gs.GetXaxis().SetTitleSize(0.05)
+        gs.GetYaxis().SetTitleSize(0.05)
+        gs.GetXaxis().SetTitleOffset(1.1)
 
         gs.Draw("AL")
         
@@ -171,7 +176,7 @@ if __name__ == "__main__":
         tis.SetTextSize(0.03)
         tis.DrawLatex( x_frac, 3.89, '95%' )
      
-        if args.main_label: leg.Draw()
+        if args.main_label and not args.hidelegend: leg.Draw()
 
     elif len(args.POI) == 2:
         
@@ -188,8 +193,29 @@ if __name__ == "__main__":
         linestyle = [1, 7]
         
 
-        gs.GetZaxis().SetTitle("-2 #Delta LL")
+        xl = pois[0]
+        yl = pois[1]
+        if args.xlabel: xl = args.xlabel
+        if args.ylabel: yl = args.ylabel
 
+        #gs.GetZaxis().SetTitle("-2 #Delta LL")
+        #gs.GetZaxis().SetTitleOffset(0.8)
+        gs.GetHistogram().GetZaxis().SetTitle("-2 #Delta lnL")
+        gs.GetHistogram().GetZaxis().SetTitleOffset(1)
+        gs.GetHistogram().GetZaxis().SetTitleSize(0.04)
+
+        gs.GetHistogram().GetXaxis().SetTitle(xl)
+        gs.GetHistogram().GetXaxis().SetTitleOffset(1)
+        gs.GetHistogram().GetXaxis().SetTitleSize(0.045)
+
+        gs.GetHistogram().GetYaxis().SetTitle(yl)
+        gs.GetHistogram().GetYaxis().SetTitleOffset(1)
+        gs.GetHistogram().GetYaxis().SetTitleSize(0.045)
+        
+        gs.GetHistogram().GetXaxis().SetLabelSize(0.041)
+        gs.GetHistogram().GetYaxis().SetLabelSize(0.041)
+
+ 
         if args.isNuis:
            gs.SetNpx(200)
            gs.SetNpy(200)
@@ -203,36 +229,32 @@ if __name__ == "__main__":
               hist.Fill(gs.GetX()[i],  gs.GetY()[i],  gs.GetZ()[i] + 0.001)
 
 
-           xl = pois[0]
-           yl = pois[1]
-           if args.xlabel: xl = args.xlabel
-           if args.ylabel: yl = args.ylabel
-
-
            hist.GetXaxis().SetTitle(xl)
            hist.GetYaxis().SetTitle(yl)
-           hist.GetZaxis().SetTitle("-2 #Delta LL")
+           # hist.GetZaxis().SetTitle("-2 #Delta LL")
+
            hist.GetYaxis().SetTitleOffset(1.4)
            hist.GetXaxis().SetTitleOffset(1.1)
+           # hist.GetZaxis().SetTitleOffset(0.8)
+         
+           hist.GetXaxis().SetTitleSize(0.07)
+           hist.GetYaxis().SetTitleSize(0.07)
+
 
            hist.GetZaxis().SetRangeUser(0, float(args.maxNLL))
 
 
            hist.SetTitle("")
            hist.Draw("colz")
-
+         
+           ROOT.gPad.Modified()
+           ROOT.gPad.Update()
 
         else:
 
            for i in range(gs.GetHistogram().GetSize()):
                if (gs.GetHistogram().GetBinContent(i+1) == 0):
                    gs.GetHistogram().SetBinContent(i+1, 100)
-
-
-           xl = pois[0]
-           yl = pois[1]
-           if args.xlabel: xl = args.xlabel
-           if args.ylabel: yl = args.ylabel 
 
 
            gs.GetXaxis().SetTitle(xl)
@@ -271,10 +293,10 @@ if __name__ == "__main__":
                        continue
                #only add one legend entry, arbitrary
                if len(l) > 0:
-                   leg.AddEntry(l[0], "#pm {}#sigma".format(i+1), "L")
+                   leg.AddEntry(l[0], "#pm {} s.d.".format(i+1), "L")
 
            exp.Draw("P same")
-           leg.Draw()
+           if not args.hidelegend: leg.Draw()
 
 
     if not args.cms:
