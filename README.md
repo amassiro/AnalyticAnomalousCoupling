@@ -177,7 +177,61 @@ but you can also just define the new operators by
  
     --PO eftOperators=cS0,cS1,cT0
 
+# Support for EFT2Obs and aTGCRooStat
 
+A model similar to AnomalousCouplingEFTNegative support different kind of EFT inputs: AnaliticAnomalousCouplingEFTNegativeExtended. In particular: [EFT2Obs](https://github.com/ajgilbert/EFT2Obs) EFT analyses use JSON containing the bin-by-bin EFT parametrization from fiducial bins as defined in reco-level datacards. On the other hand, old EFT analyses were based on the [aTGCRooStat] (https://twiki.cern.ch/twiki/bin/viewauth/CMS/ATGCRooStats) framework where the EFT parametrization is stored in root files as histograms (TH*F) or functions (TF).
+For the first kind of datacards, the combination works out of the box, one just needs to specify an additional command line argument while running ```text2workspace.py``` so that the model can parse the EFT2Obs json file with the parametrization:
+```
+text2workspace.py combined.txt -P HiggsAnalysis.AnalyticAnomalousCoupling.AnaliticAnomalousCouplingEFTNegativeExtended:analiticAnomalousCouplingEFTNegativeExtended --X-allow-no-signal -o combined.root --PO eftOperators=cW --X-allow-no-background --PO EFTJsonMap=converted_aTGC_EFT2Obs_Wg_SMEFT_cx_into_cw.json
+```
+
+For the second type of analyses, exploiting aTGCRooStat, the problem is more subtle. The main idea is to convert the information inside the root files with the signal parametrization into a json file such as the one from EFT2Obs so that the combine model can readily digest them. The signal parametrization should be provided for each bin of the fitted distribution and each bin should be defined as a different process in the datacard (this should always be the case for aTGCRooStat datacards). The downside of this method is that one needs not only the datacards and the shapes but also the signal parametrization files. A script is provided to convert the parametrization from ROOT files to JSON files: ```convertATGCRooStatToJson.py```.
+
+This script makes some assumptions: You should already have aTGCRooStat datacards and all root files should be available, those containing the EFT parametrization as TF(1,2,3) and those of the backgrounds. This scripts reads the parametrization files and converts it into a json file that can be read by AnalyticAnomalousCoupling EFT model.
+
+The EFT parametrization file names should follow this convention:
+```
+<whatever>_<name>.root
+```
+Where ```<name>``` is the one appearing in the datacard except for an arbitrary prefix that can be added 
+to all samples by specifying the c.l.a. -pp (or --processprefix) so that the datacard name reads as
+```
+<processprefix>_<name>
+```
+
+The parametrization should be know and should be the same for all the root input files. For example 
+the files could contain a TF3 function with following content:
+```
+[0]+[1]*x+[2]*y+[3]*z+[4]*x*y+[5]*x*z+[6]*y*z+[7]*x*x+[8]*y*y+[9]*z*z
+```
+
+We do not know what the `x` coeff., namely `[1]`, stands for so it should be provided as an input to this script.
+For example, we have multiple files containing the parametrization for each bin as:
+```
+signal_proc_ZVBF_ptZ_mu_3D_binx0.root, signal_proc_ZVBF_ptZ_mu_3D_binx1.root
+signal_proc_ZVBF_ptZ_mu_3D_binx2.root, signal_proc_ZVBF_ptZ_mu_3D_binx3.root, ...
+```
+
+And ```atGCRooStat``` compliant datacards with process names:
+```
+anoCoupl_process_ZVBF_ptZ_mu_3D_binx0, anoCoupl_process_ZVBF_ptZ_mu_3D_binx1
+anoCoupl_process_ZVBF_ptZ_mu_3D_binx2, anoCoupl_process_ZVBF_ptZ_mu_3D_binx3, ...
+```
+
+The EFT parametrization in the ```signal_proc_*``` files reads as (from a priori knowledge from analysts that developed the parametrization):
+```
+sm + x*lin_cx + y*lin_cw + z*lin_cb + x*y*mix_cx_cw + x*z*mix_cx_cb + y*z*mix_cw_cb + 
++ x*x*quad_cx + y*y*quad_cw + z*z*quad_cb
+```
+
+Therefore this script can be called as:
+```
+python convertToJson.py -fg signal_proc_*.root -pp anoCoupl_process -fp signal_proc
+                        -c sm:0,lin_cx:1,lin_cw:2,lin_cb:3,mix_cx_cw:4,mix_cx_cb:5,mix_cw_cb:6,quad_cx:7,quad_cw:8,quad_cb:9
+                        -mp 8 -o converted_aTGC_EFT2Obs.json
+```
+
+Both of the methods have been cross-checked with two analysis examples: [SMP-20-005](https://cms.cern.ch/iCMS/analysisadmin/cadilines?line=SMP-20-005&tp=an&id=2329&ancode=SMP-20-005) for the EFT2Obs part and [SMP-16-018](https://cms.cern.ch/iCMS/analysisadmin/cadilines?line=SMP-16-018&tp=an&id=1838&ancode=SMP-16-018) for the ```aTGCRooStat```. A perfect agreement is found on the likelihood profiles therefore fully validating the method. The datacards for both analyses can respectively be found [here-SMP-20-005](https://gitlab.cern.ch/cms-analysis/smp/SMP-20-005/datacards) and [here SMP-16-018](https://gitlab.cern.ch/cms-eft/thestand)
 # Plotting Tools
 
 This frameworks comes with plotting tools to support analyst with fast instruments to draw results of fits. For obvious reasons plots are available for 1D and 2D scans on the parameters of interests.
