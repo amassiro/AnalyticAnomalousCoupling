@@ -1,13 +1,13 @@
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
-import ROOT, os
+import ROOT, os, json
 
 #
 # See derivation and explanation, validation, tests in AN-20-204
 #
 
 
-class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
+class AnaliticAnomalousCouplingEFTNegativeExtended(PhysicsModel):
 
     "Float independently cross sections and branching ratios"
     def __init__(self):
@@ -17,6 +17,8 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
         self.numOperators = 82
         self.alternative = False
         self.addDim8 = False
+        self.UseEFT2Obs = False
+        self.json_map = {}
         self.OperatorsDim8 = [
              # dimension 8
              'cS0',
@@ -159,26 +161,26 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
                 self.Operators.extend ( self.OperatorsDim8 )
                 self.addDim8 = True
 
-            #
-            # this is needed in the case the complete list of operators is not the one provided above,
-            # but for some reason, like a new model or a new basis, different or more operators are added.
-            # There could be also the possibility that one operator is removed from the complete list of operators,
-            # who knows why ... by it might happen, thus the method to remove it is given hereafter
-            #
-            if po.startswith("defineCompleteOperators="):
-                self.CompleteOperators = po.replace("defineCompleteOperators=","").split(",")
-                print " CompleteOperators = ", self.CompleteOperators
+            if po.startswith("EFTJsonMap"):
+                # list of json files a la EFT2Obs with following keys
+                # [u'bin_labels', u'edges', u'parameters', u'bins', u'areas']
+                # with the parametrization stored
+                # Where:
+                #   - bin_labels: SM processes that should be present also in the datacard, can be a single process. 
+                #   - bins: Parmetrization, should be a list of lists with same length as bin_labels, each entry contains 
+                #           parametrization for the respective entry in bin_labels. If entry has length 3 then its a single op, 
+                #            if it has length 4 then two operators are considered
+                #   - parameters: list of operators considered
 
-            if po.startswith("addToCompleteOperators="):
-                toAddOperators = po.replace("addToCompleteOperators=","").split(",")
-                self.CompleteOperators.extend ( toAddOperators )
-                print " CompleteOperators = ", self.CompleteOperators
+                self.UseEFT2Obs = True
+                json_files = po.replace("EFTJsonMap=","").split(",")
+                for idx, jf in enumerate(json_files):
+                  self.json_map["json_file_{}".format(idx)] = json.load( open(jf, "r"))
 
-            if po.startswith("removeFromCompleteOperators="):
-                toRemoveOperators = po.replace("removeFromCompleteOperators=","").split(",")
-                newlist = [i for i in self.CompleteOperators if i not in toRemoveOperators]
-                self.CompleteOperators = newlist
-                print " CompleteOperators = ", self.CompleteOperators
+                  for par in self.json_map["json_file_{}".format(idx)]["parameters"]:
+                    if par not in self.CompleteOperators: self.CompleteOperators.append(par)
+
+
 
 
 #
@@ -433,7 +435,43 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
                         "(\"@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +
                         ")")
 
+        # Building PDF for EFT2Obs datacards only if specified by command line options
+        if self.UseEFT2Obs:
 
+          for an_ in self.json_map.keys():
+
+            # build the function 
+            op_dict = {k: {"par": "k_" + k, "at": "@"+str(idx+1)} for idx, k in enumerate(self.Operators)}
+
+            for proc_name, bins in zip(self.json_map[an_]["bin_labels"], self.json_map[an_]["bins"]):
+              # examples of bins entries
+              # linear [0.007629347491145017, 0.00024512376575084243, u'cwwwl2']
+              # quadratic [0.00185281662061399, 0.00019140132627043328, u'cwwwl2', u'cwwwl2']
+              # mixed [0.0004177896239257197, 8.264714093984246e-05, u'cwl2', u'cpwwwl2']
+              # mixed should be implemented only if numOperators > 1
+
+              # example of proc_names
+              # [u'WG_main_x_0_0', u'WG_main_x_0_1', u'WG_main_x_0_2', u'WG_main_x_1_0, ...]
+
+              # retain only entries of interest based on the oprators requested
+              func = "expr::func_EFT2Obs_" + proc_name + "(\"@0*(1"
+              for b in bins:
+                if not any(i in b for i in self.Operators): continue 
+                elif len(b) == 3: 
+                  # linear term
+                  func += " + {}*{} ".format(b[0], op_dict[b[2]]["at"])
+                elif len(b) == 4 and (b[2] == b[3]):
+                  # pure quadratic 
+                  func += " + {}*{}*{} ".format(b[0], op_dict[b[2]]["at"], op_dict[b[2]]["at"])
+                else:
+                  # for mixed term both of them should be in the op list
+                  if all(i in self.Operators for i in b[2:]):
+                    func += " + {}*{}*{} ".format(b[0], op_dict[b[2]]["at"], op_dict[b[3]]["at"])
+              
+              func += ")\",r,k_" + ",k_".join( it_[0] for it_ in sorted(op_dict.items(), key= lambda x: x[1] ) )  + ")"
+              print(func)
+              self.modelBuilder.factory_(func) 
+              
 
         print " parameters of interest = ", self.poiNames
         print " self.numOperators = ", self.numOperators
@@ -452,16 +490,20 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
     def getYieldScale(self,bin,process):
 
         #print "process = " , process
-
-        if   process == "sm" or "_sm" in process:          return "func_sm"
+        
+        if   process == "sm" or "_sm" in process:    
+          return "func_sm"
 
         for operator in range(0, self.numOperators):
           if process == "sm_lin_quad_"+ str(self.Operators[operator]) or "_sm_lin_quad_"+ str(self.Operators[operator]) in process : 
             return "func_sm_linear_quadratic_"+ str(self.Operators[operator])
-          if process == "quad_"+ str(self.Operators[operator]) :              return "func_quadratic_"+ str(self.Operators[operator])
+
+          if process == "quad_"+ str(self.Operators[operator]) :              
+            return "func_quadratic_"+ str(self.Operators[operator])
+
           for operator_sub in range(operator+1, self.numOperators):
             if not self.alternative :
-              if process == "sm_lin_quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) or "_sm_lin_quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) in process :   
+              if process == "sm_lin_quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) or "_sm_lin_quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) in process  :   
                 return "func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])
               if process == "sm_lin_quad_mixed_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator]) or "_sm_lin_quad_mixed_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator]) in process :  
                 return "func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])
@@ -470,6 +512,12 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
                 return "func_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])
               if process == "quad_mixed_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator]) :  
                 return "func_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])
+
+        if self.UseEFT2Obs:
+          for an_ in self.json_map.keys():
+            if process in self.json_map[an_]["bin_labels"]:
+              print("---> Will scale " + process + " with " + "func_EFT2Obs_" + process)
+              return "func_EFT2Obs_" + process
 
         
         
@@ -522,4 +570,4 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
 #  
 
 
-analiticAnomalousCouplingEFTNegative = AnaliticAnomalousCouplingEFTNegative()
+analiticAnomalousCouplingEFTNegativeExtended = AnaliticAnomalousCouplingEFTNegativeExtended()

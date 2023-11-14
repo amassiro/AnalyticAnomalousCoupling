@@ -128,7 +128,13 @@ class AnaliticAnomalousCouplingLinearEFTNegative(PhysicsModel):
              'cud1',
              'cud8',
              'cuu',
-             'cuu1'
+             'cuu1',
+             'cjj11',
+             'cjj18',
+             'cjj31',
+             'cjj38',
+             'cHj1',
+             'cHQ1'
              ]
 
 
@@ -138,7 +144,6 @@ class AnaliticAnomalousCouplingLinearEFTNegative(PhysicsModel):
 
         print " Operators = ", self.Operators
 
-        print " reuseCompleteDatacards = ", self.reuseCompleteDatacards
         
         
 
@@ -162,6 +167,8 @@ class AnaliticAnomalousCouplingLinearEFTNegative(PhysicsModel):
 
             if po.startswith("reuseCompleteDatacards"):
                 self.reuseCompleteDatacards = True
+                print " reuseCompleteDatacards = ", self.reuseCompleteDatacards
+                
 
 #
 # standard, not touched (end)

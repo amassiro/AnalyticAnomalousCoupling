@@ -82,13 +82,15 @@ if __name__ == "__main__":
     parser.add_argument('-energy', '--energy',   dest='energy',     help='Draw this energy on the pad, default 13 TeV', required = False, default = 13, type=float)
     parser.add_argument('-cms', '--cms',   dest='cms',     help='Add cms label on top left', required = False, default = False, action="store_true")
     parser.add_argument('-preliminary', '--preliminary',   dest='preliminary',     help='Add preliminary label on top left', required = False, default = False, action="store_true")
-
+    parser.add_argument('-blind', '--blind-regions',   dest='blindregions',     help='Blind these regions, nargs=+', required = False, default = [], nargs="+")
 
     args = parser.parse_args()
 
     ROOT.gROOT.SetBatch(1)
     ROOT.TH1.SetDefaultSumw2(True)
     ROOT.gStyle.SetPalette(ROOT.kOcean)
+    cols = ROOT.TColor.GetPalette()
+    ncols = len(cols)
 
     datacard_name = args.datacard.split("/")[-1]
     datacard_folder = args.datacard.split(datacard_name)[0] 
@@ -113,7 +115,6 @@ if __name__ == "__main__":
     
     regions = dr.bin_set()
     processes = dr.process_set()
-
 
     shapes_files = {k: "" for k in regions}
     f = open(datacard_name, "r")
@@ -160,7 +161,9 @@ if __name__ == "__main__":
 
         signals = hh.getExpectedSigNames()
         bkg = [i for i in processes if i not in signals]
-
+  
+        print("--> Signals: ", signals)
+        print("--> Background: ", bkg)
         colors = [ROOT.kRed, ROOT.kBlue, ROOT.kCyan, ROOT.kViolet, ROOT.kGray, ROOT.kMagenta, ROOT.kSpring, ROOT.kGreen, ROOT.kTeal, ROOT.kOrange, ROOT.kYellow, ROOT.kAzure, ROOT.kCyan+2, ROOT.kCyan+5]
         
         histos["sm"].SetFillColor(ROOT.kGray)
@@ -178,8 +181,6 @@ if __name__ == "__main__":
             if idx % args.frequency == 0:
 
 
-                print(idx)
-                
                 # If the likelihood scan at this point is greater than the required maximum then skip
                 # this point and don't plot it
                 y = scan.Eval(j)
@@ -245,7 +246,9 @@ if __name__ == "__main__":
 
 
                     if t_ == "overall":
-
+                          
+                        data = "histo_Data" 
+ 
                         leg = ROOT.TLegend(0.15, 0.89, 0.89, 0.7)
                         leg.SetNColumns(3)
                         leg.SetBorderSize(0)
@@ -257,26 +260,34 @@ if __name__ == "__main__":
                         if reg in vars.keys():
                             v_ = vars[reg]
             
-                        bkg_shapes =ROOT.THStack("hs",";{};{}".format(v_, "Events"))
+                        bkg_shapes = ROOT.THStack("hs",";{};{}".format(v_, "Events"))
 
                         f = ROOT.TFile(file_)
-                        print(bkg)
                         for idx_, b in enumerate(bkg):
                             h = f.Get("histo_"+b)
+                            # h.SetDirectory(0)
                             h.SetLineWidth(0)
                             h.SetMarkerSize(0)
-                            h.SetFillColor(colors[idx_])
+                            col_idx = int(float(ncols) / len(bkg) * idx_)
+                            # h.SetFillColor(colors[idx_])
+                            h.SetFillColor(cols[col_idx])
                             leg.AddEntry(h, b, "F")
                             if b in map.keys():
                                 h.Scale(rateParams[map[b]][idx])
                             bkgs[b] = deepcopy(h)
                             bkg_shapes.Add(h)
-
+  
+                        h_data = f.Get(data)
+                        h_data.SetLineColor(ROOT.kBlack)
+                        h_data.SetMarkerColor(ROOT.kBlack)
+                        h_data.SetMarkerStyle(8)
+ 
                         bkg_shapes.Add(histos["sm"])
                         leg.AddEntry(histos["sm"], "SM", "F")
 
                         bkg_shapes.SetMinimum(1e-1)
-                        max = bkg_shapes.GetStack().Last().GetMaximum()
+                        # max = bkg_shapes.GetStack().Last().GetMaximum()
+                        max = h_data.GetMaximum()
 
                         if args.logy:
                             bkg_shapes.SetMaximum(100*max)
@@ -288,18 +299,21 @@ if __name__ == "__main__":
                         bkg_shapes.Draw("hist")
 
                         fullBSM = deepcopy(histos[j])
-
+                       
                         for key in bkgs.keys():
                             fullBSM.Add(bkgs[key])
 
-                        
+                         
                         fullBSM.SetFillColor(0)
                         fullBSM.SetLineWidth(2)
                         fullBSM.SetLineColor(ROOT.kRed)
 
                         fullBSM.Draw("hist same")
-
                         leg.AddEntry(fullBSM, "SM+EFT {}={:.3f}".format(args.operators[0], j), "F")
+   
+                        if reg not in args.blindregions:
+                           h_data.Draw("PE same")
+                           leg.AddEntry(h_data, "Data", "PE")
 
                         if args.logy: ROOT.gPad.SetLogy()
 
