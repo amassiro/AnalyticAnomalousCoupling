@@ -231,7 +231,12 @@ python convertToJson.py -fg signal_proc_*.root -pp anoCoupl_process -fp signal_p
                         -mp 8 -o converted_aTGC_EFT2Obs.json
 ```
 
-Both of the methods have been cross-checked with two analysis examples: [SMP-20-005](https://cms.cern.ch/iCMS/analysisadmin/cadilines?line=SMP-20-005&tp=an&id=2329&ancode=SMP-20-005) for the EFT2Obs part and [SMP-16-018](https://cms.cern.ch/iCMS/analysisadmin/cadilines?line=SMP-16-018&tp=an&id=1838&ancode=SMP-16-018) for the ```aTGCRooStat```. A perfect agreement is found on the likelihood profiles therefore fully validating the method. The datacards for both analyses can respectively be found [here-SMP-20-005](https://gitlab.cern.ch/cms-analysis/smp/SMP-20-005/datacards) and [here SMP-16-018](https://gitlab.cern.ch/cms-eft/thestand)
+Both of the methods have been cross-checked with two analysis examples: [SMP-20-005](https://cms.cern.ch/iCMS/analysisadmin/cadilines?line=SMP-20-005&tp=an&id=2329&ancode=SMP-20-005) for the EFT2Obs part and [SMP-16-018](https://cms.cern.ch/iCMS/analysisadmin/cadilines?line=SMP-16-018&tp=an&id=1838&ancode=SMP-16-018) for the ```aTGCRooStat```. A perfect agreement is found on the likelihood profiles therefore fully validating the method. The datacards for both analyses can respectively be found [here-SMP-20-005](https://gitlab.cern.ch/cms-analysis/smp/SMP-20-005/datacards) and [here SMP-16-018](https://gitlab.cern.ch/cms-eft/thestand).
+
+Datacard combination works out of the box by specifying more than one json file in the ```--PO EFTJsonMap``` separated by a comma, for example:
+```
+text2workspace.py combined.txt -P HiggsAnalysis.AnalyticAnomalousCoupling2.AnaliticAnomalousCouplingEFTNegativeExtended:analiticAnomalousCouplingEFTNegativeExtended --X-allow-no-signal -o combined.root --PO eftOperators=cW --X-allow-no-background --PO EFTJsonMap=thestand/VBFdatacards/converted_aTGC_EFT2Obs_VBFZ_SMEFT_cx_into_cw.json,SMP-20-005/puppi_phi_f_binned_AAC/converted_aTGC_EFT2Obs_VBFZ_SMEFT_cx_into_cw.json
+```
 # Plotting Tools
 
 This frameworks comes with plotting tools to support analyst with fast instruments to draw results of fits. For obvious reasons plots are available for 1D and 2D scans on the parameters of interests.
