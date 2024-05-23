@@ -163,7 +163,7 @@ if __name__ == "__main__":
         hh.setShapes(file_)
         hh.setScan(args.scan, "limit")
         hh.setScanMaxNLL(args.maxNLL)
-        hh.setRateParam(map.values())
+        hh.setRateParam(list(map.values()))
         hh.runHistoryEFTNeg()
 
         builders[reg] = hh
@@ -290,7 +290,7 @@ if __name__ == "__main__":
                 bkgs = {}
 
                 v_ = ""
-                if reg in vars.keys():
+                if reg in list(vars.keys()):
                     v_ = vars[reg]
     
                 bkg_shapes = ROOT.THStack("hs_{}",";{};{}".format(reg, v_, "Events"))
@@ -305,7 +305,7 @@ if __name__ == "__main__":
                     # h.SetFillColor(colors[idx_])
                     h.SetFillColor(cols[col_idx])
                     leg.AddEntry(h, b, "F")
-                    if b in map.keys():
+                    if b in list(map.keys()):
                         h.Scale(rateParams[map[b]][idx])
                     bkgs[b] = deepcopy(h)
                     bkg_shapes.Add(h)
@@ -335,7 +335,7 @@ if __name__ == "__main__":
 
                 fullBSM = deepcopy(histos[j])
                 
-                for key in bkgs.keys():
+                for key in list(bkgs.keys()):
                     fullBSM.Add(bkgs[key])
 
                     

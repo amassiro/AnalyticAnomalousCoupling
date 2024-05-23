@@ -165,12 +165,12 @@ if __name__ == "__main__":
    ops = args.operators
 
    if not args.nodumping:
-      print("Removing all EFT templates from original datacard and dumping in {}".format(sys.argv[3]))
+      print(("Removing all EFT templates from original datacard and dumping in {}".format(sys.argv[3])))
       dumpEFT(args.input, args.output)
 
    if not args.noscaling: 
 
-      print("Running the scaling for {}".format(" ".join(ops)))
+      print(("Running the scaling for {}".format(" ".join(ops))))
       shapefiles = {}
       f = open(args.input, "r")
       lines = f.readlines()
@@ -187,7 +187,7 @@ if __name__ == "__main__":
 
 
       scaling = []
-      for channel in shapefiles.keys():
+      for channel in list(shapefiles.keys()):
          sd = {}
          sd["process"] = "sm"
          sd["channel"] = channel
@@ -212,7 +212,7 @@ if __name__ == "__main__":
             elif shapefiles[channel]["nominal"] + "sm_lin_quad_mixed_" + c[1] + "_" + c[0] in [i.GetName() for i in f.GetListOfKeys()]:
                matrix["sm_lin_quad_mixed_" + c[1] + "_" + c[0]] = f.Get(shapefiles[channel]["nominal"] + "sm_lin_quad_mixed_" + c[1] + "_" + c[0])
             else:
-               print("Error {} {}".format(shapefiles[channel]["path"], "sm_lin_quad_mixed_" + c[1] + "_" + c[0]))
+               print(("Error {} {}".format(shapefiles[channel]["path"], "sm_lin_quad_mixed_" + c[1] + "_" + c[0])))
 
          # add lin and mixed after we filled the matrix
          for op in ops:  
@@ -225,7 +225,7 @@ if __name__ == "__main__":
 
          for c in combo:
 
-            if "sm_lin_quad_mixed_" + c[1] + "_" + c[0] in matrix.keys():
+            if "sm_lin_quad_mixed_" + c[1] + "_" + c[0] in list(matrix.keys()):
                name = "mix_" + c[0] + "_" + c[1]
                matrix[name] = matrix["sm_lin_quad_mixed_" + c[1] + "_" + c[0]].Clone(name)
                matrix[name].Add(matrix["sm"])
@@ -233,7 +233,7 @@ if __name__ == "__main__":
                matrix[name].Add(matrix["sm_lin_quad_" + c[1]], -1)
                # divide by 2 linears
                matrix[name].Scale(1./2)
-            elif "sm_lin_quad_mixed_" + c[0] + "_" + c[1] in matrix.keys():
+            elif "sm_lin_quad_mixed_" + c[0] + "_" + c[1] in list(matrix.keys()):
                name = "mix_" + c[1] + "_" + c[0]
                matrix[name] = matrix["sm_lin_quad_mixed_" + c[0] + "_" + c[1]].Clone(name)
                matrix[name].Add(matrix["sm"])
@@ -256,7 +256,7 @@ if __name__ == "__main__":
             for i in range(len(ops)+1):
                for j in range(i + 1 ):
                   if fact == 0:
-                     print("[WARNING] sm bin count for bin {} in region {} is ZERO. Will set all EFT to ZERO".format(ibin+1, channel)) 
+                     print(("[WARNING] sm bin count for bin {} in region {} is ZERO. Will set all EFT to ZERO".format(ibin+1, channel))) 
 		     scale_bin.append(0)
                      continue
                   try:

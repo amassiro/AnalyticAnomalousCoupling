@@ -16,9 +16,9 @@ class AnaliticAnomalousCoupling(PhysicsModel):
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
 
             if po.startswith("numOperators="):
                self.numOperators = int ( po.replace("numOperators=","") )
@@ -75,8 +75,8 @@ class AnaliticAnomalousCoupling(PhysicsModel):
           self.modelBuilder.factory_("expr::quadratic_func_"+ str(operator) + "(\"@0*@1*@1\",r,k_my_" + str(operator) + ")")
           
           
-        print " parameters of interesst = "
-        print self.poiNames
+        print(" parameters of interesst = ")
+        print(self.poiNames)
         self.modelBuilder.doSet("POI",self.poiNames)
 
 

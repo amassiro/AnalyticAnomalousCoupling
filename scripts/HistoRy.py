@@ -83,7 +83,7 @@ class HistoBuilder:
 
 
         c = dict.fromkeys(self.pois)
-        self.pois = c.keys()
+        self.pois = list(c.keys())
 
         self.ppois = list(combinations(self.pois, 2))
 
@@ -155,7 +155,7 @@ class HistoBuilder:
         print("#####################")
         print(poiInterest)
         print("#####################")
-        print(self.minimPoisValue)
+        print((self.minimPoisValue))
         print("#####################")
 
         self.historySingleHistos[poiInterest] = {}
@@ -176,7 +176,7 @@ class HistoBuilder:
         fact += poiPair_sum
         fact *= self.minimPoisValue["r"]
 
-        print("--> SM fact " + str(fact))
+        print(("--> SM fact " + str(fact)))
 
         bench.Scale(fact)
         self.historySingleHistos[poiInterest]["SM"] = deepcopy(bench)
@@ -193,7 +193,7 @@ class HistoBuilder:
 
             fact*=self.minimPoisValue["r"]
 
-            print("--> Sm li qu {} fact ".format(poi) + str(fact))
+            print(("--> Sm li qu {} fact ".format(poi) + str(fact)))
 
             h.Scale(fact)
             self.historySingleHistos[poiInterest]["sm_lin_quad_"+ poi.strip("k_")] = h
@@ -202,7 +202,7 @@ class HistoBuilder:
         #qu
         for poi in self.pois:
             h = deepcopy(self.shapes["histo_quad_" + poi.strip("k_")])
-            print("--> qu {} fact ".format(poi) + str(self.minimPoisValue["r"]*(self.minimPoisValue[poi]*self.minimPoisValue[poi] - self.minimPoisValue[poi])))
+            print(("--> qu {} fact ".format(poi) + str(self.minimPoisValue["r"]*(self.minimPoisValue[poi]*self.minimPoisValue[poi] - self.minimPoisValue[poi]))))
             h.Scale( self.minimPoisValue["r"]*(self.minimPoisValue[poi]*self.minimPoisValue[poi] - self.minimPoisValue[poi]) )
             self.historySingleHistos[poiInterest]["quad_"+ poi.strip("k_")] = h
             
@@ -213,17 +213,17 @@ class HistoBuilder:
 
             name = "histo_sm_lin_quad_mixed_" + ppair[0].strip("k_") + "_" + ppair[1].strip("k_")
 
-            if name not in  self.shapes.keys():
+            if name not in  list(self.shapes.keys()):
                 name = "histo_sm_lin_quad_mixed_" + ppair[1].strip("k_") + "_" + ppair[0].strip("k_")
 
-                if name not in  self.shapes.keys():
-                    print ("No shape for {} {}".format(ppair[0], ppair[1]))
+                if name not in  list(self.shapes.keys()):
+                    print(("No shape for {} {}".format(ppair[0], ppair[1])))
                     continue
 
             h = deepcopy(self.shapes[name])
             fact = self.minimPoisValue["r"] * self.minimPoisValue[ppair[0]] * self.minimPoisValue[ppair[1]]
 
-            print("--> mixed {} {} fact ".format(ppair[0], ppair[1]) + str(fact))
+            print(("--> mixed {} {} fact ".format(ppair[0], ppair[1]) + str(fact)))
 
             h.Scale(fact)
             self.historySingleHistos[poiInterest][name.split("histo_")[1]] = h
@@ -233,7 +233,7 @@ class HistoBuilder:
 
         #print(bench.Integral(), self.shapes["histo_sm"].Integral())
         if bench.GetMinimum() < 0:
-            print ("foundBin < 0" + str(bench.GetMinimum()) )
+            print(("foundBin < 0" + str(bench.GetMinimum()) ))
             
         return bench
 
@@ -247,7 +247,7 @@ class HistoBuilder:
         for event in t:
             for poi in self.pois:
                 self.minimPoisValue[poi] = getattr(event, poi)
-            for key in self.rateParam.keys():
+            for key in list(self.rateParam.keys()):
                 self.rateParam[key].append(getattr(event, key))
 
             self.minimPoisValue["r"] = 1 if not self.has_r_SignalStrength else getattr(event, "r")

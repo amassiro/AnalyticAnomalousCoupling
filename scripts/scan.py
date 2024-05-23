@@ -45,7 +45,7 @@ class scanEFT:
             n = t.Draw( to_draw.Data() , "deltaNLL<{} && deltaNLL>{}".format(self.upper,self.lower), "l")
 
             if n <= 1: 
-                print("[ATTENTION] no likelihood for {}".format(self.poi))
+                print(("[ATTENTION] no likelihood for {}".format(self.poi)))
                 return
 
 
@@ -93,7 +93,7 @@ class scanEFT:
             n = t.Draw( to_draw.Data() , "deltaNLL<{} && deltaNLL>{}".format(self.upper,self.lower), "l")
 
             if n <= 1: 
-                print("[ATTENTION] no likelihood for {}".format(self.poi))
+                print(("[ATTENTION] no likelihood for {}".format(self.poi)))
                 return
 
             x = np.ndarray((n), 'd', t.GetV1())

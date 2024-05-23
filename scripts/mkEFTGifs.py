@@ -149,7 +149,7 @@ if __name__ == "__main__":
         hh.setShapes(file_)
         hh.setScan(args.scan, "limit")
         hh.setScanMaxNLL(args.maxNLL)
-        hh.setRateParam(map.values())
+        hh.setRateParam(list(map.values()))
         hh.runHistoryEFTNeg()
         
         scan = hh.getScan()
@@ -162,8 +162,8 @@ if __name__ == "__main__":
         signals = hh.getExpectedSigNames()
         bkg = [i for i in processes if i not in signals]
   
-        print("--> Signals: ", signals)
-        print("--> Background: ", bkg)
+        print(("--> Signals: ", signals))
+        print(("--> Background: ", bkg))
         colors = [ROOT.kRed, ROOT.kBlue, ROOT.kCyan, ROOT.kViolet, ROOT.kGray, ROOT.kMagenta, ROOT.kSpring, ROOT.kGreen, ROOT.kTeal, ROOT.kOrange, ROOT.kYellow, ROOT.kAzure, ROOT.kCyan+2, ROOT.kCyan+5]
         
         histos["sm"].SetFillColor(ROOT.kGray)
@@ -257,7 +257,7 @@ if __name__ == "__main__":
                         bkgs = {}
 
                         v_ = ""
-                        if reg in vars.keys():
+                        if reg in list(vars.keys()):
                             v_ = vars[reg]
             
                         bkg_shapes = ROOT.THStack("hs",";{};{}".format(v_, "Events"))
@@ -272,7 +272,7 @@ if __name__ == "__main__":
                             # h.SetFillColor(colors[idx_])
                             h.SetFillColor(cols[col_idx])
                             leg.AddEntry(h, b, "F")
-                            if b in map.keys():
+                            if b in list(map.keys()):
                                 h.Scale(rateParams[map[b]][idx])
                             bkgs[b] = deepcopy(h)
                             bkg_shapes.Add(h)
@@ -300,7 +300,7 @@ if __name__ == "__main__":
 
                         fullBSM = deepcopy(histos[j])
                        
-                        for key in bkgs.keys():
+                        for key in list(bkgs.keys()):
                             fullBSM.Add(bkgs[key])
 
                          
@@ -341,7 +341,7 @@ if __name__ == "__main__":
                         sm = deepcopy(histos["sm"])
 
                         v_ = ""
-                        if reg in vars.keys():
+                        if reg in list(vars.keys()):
                             v_ = vars[reg]
                         
                         max_ = sm.GetMaximum()
@@ -403,7 +403,7 @@ if __name__ == "__main__":
 
 
                         v_ = ""
-                        if reg in vars.keys():
+                        if reg in list(vars.keys()):
                             v_ = vars[reg]
 
                         
@@ -430,7 +430,7 @@ if __name__ == "__main__":
                         h_err2.Draw("E2 same")
 
 
-                        for template in hh.historySingleHistos[j].keys():
+                        for template in list(hh.historySingleHistos[j].keys()):
                             
                             hh.historySingleHistos[j][template].SetLineColorAlpha(ROOT.kAzure+1, 0.3)
                             hh.historySingleHistos[j][template].SetFillColor(0)

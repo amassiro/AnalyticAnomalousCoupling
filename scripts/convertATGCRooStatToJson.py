@@ -54,16 +54,16 @@ def readBinParab(arg):
     funcname = [i.GetName() for i in f.GetListOfKeys()][0]
     func = f.Get(funcname)
 
-    coeff_dict = {arg["sample"]: {k: func.GetParameter(paramMap[k]) for k in paramMap.keys()}}
+    coeff_dict = {arg["sample"]: {k: func.GetParameter(paramMap[k]) for k in list(paramMap.keys())}}
 
     # normalize by sm weight so that the algebra 
     # reads as EFT2Obs: 1 + Ax + Bxx + Cy + Dyy + Exy + ...
     sm = coeff_dict[arg["sample"]]["sm"]
 
-    for coef in coeff_dict[arg["sample"]].keys():
+    for coef in list(coeff_dict[arg["sample"]].keys()):
         coeff_dict[arg["sample"]][coef] /= sm
 
-    print("--> Parametrization for file {}".format(arg["file"]))
+    print(("--> Parametrization for file {}".format(arg["file"])))
     print(coeff_dict)
 
     return coeff_dict
@@ -144,9 +144,9 @@ if __name__ == "__main__":
 
     coeff_dict = {k: i for k,i in [it_.split(":") for it_ in args.coefficients.split(",")]}
     # need to retrieve the ops:
-    ops = [i.strip("quad_") for i in coeff_dict.keys() if i.startswith("quad_")]
+    ops = [i.strip("quad_") for i in list(coeff_dict.keys()) if i.startswith("quad_")]
 
-    print("--> Detected {} operators: {}".format(len(ops), ops))
+    print(("--> Detected {} operators: {}".format(len(ops), ops)))
 
     # name of the signal processes per bin: anoCoupl_process_ZVBF_ptZ_mu_3D_bin2
     # name of the parabola files : signal_proc_ZVBF_ptZ_el_3D_bin2.root
@@ -178,16 +178,16 @@ if __name__ == "__main__":
     toWrite = {k: [] for k in keys}
     toWrite["parameters"] = ops
     # the only key in the list of coeffs is the bin name as writtten in datacard
-    toWrite["bin_labels"] = [i.keys()[0] for i in coeffs]
+    toWrite["bin_labels"] = [list(i.keys())[0] for i in coeffs]
 
     # now contruct the parametrization in a compatible way
     bins = []
     for c in coeffs:
         ov = []
-        sample = c.keys()[0]
+        sample = list(c.keys())[0]
         coeff = c[sample]
 
-        for cv in coeff.keys():
+        for cv in list(coeff.keys()):
             if cv.startswith("lin"):
                 ov.append([coeff[cv], coeff[cv], cv.strip("lin_")])
             elif cv.startswith("quad"):
