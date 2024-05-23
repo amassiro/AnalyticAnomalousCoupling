@@ -137,7 +137,7 @@ class AnaliticAnomalousCouplingEFTNegativeExtended(PhysicsModel):
         self.CompleteOperators = self.Operators + self.OperatorsDim8
 
         self.numOperators = len(self.Operators)
-        print " Operators = ", self.Operators
+        print(" Operators = ", self.Operators)
 
 
     def setPhysicsOptions(self,physOptions):
@@ -145,13 +145,13 @@ class AnaliticAnomalousCouplingEFTNegativeExtended(PhysicsModel):
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
 
             if po.startswith("eftOperators="):
                 self.Operators = po.replace("eftOperators=","").split(",")
-                print " Operators = ", self.Operators
+                print(" Operators = ", self.Operators)
                 self.numOperators = len(self.Operators)
 
             if po.startswith("eftAlternative"):
@@ -438,7 +438,7 @@ class AnaliticAnomalousCouplingEFTNegativeExtended(PhysicsModel):
         # Building PDF for EFT2Obs datacards only if specified by command line options
         if self.UseEFT2Obs:
 
-          for an_ in self.json_map.keys():
+          for an_ in list(self.json_map.keys()):
 
             # build the function 
             op_dict = {k: {"par": "k_" + k, "at": "@"+str(idx+1)} for idx, k in enumerate(self.Operators)}
@@ -468,13 +468,13 @@ class AnaliticAnomalousCouplingEFTNegativeExtended(PhysicsModel):
                   if all(i in self.Operators for i in b[2:]):
                     func += " + {}*{}*{} ".format(b[0], op_dict[b[2]]["at"], op_dict[b[3]]["at"])
               
-              func += ")\",r,k_" + ",k_".join( it_[0] for it_ in sorted(op_dict.items(), key= lambda x: x[1] ) )  + ")"
+              func += ")\",r,k_" + ",k_".join( it_[0] for it_ in sorted(list(op_dict.items()), key= lambda x: x[1] ) )  + ")"
               print(func)
               self.modelBuilder.factory_(func) 
               
 
-        print " parameters of interest = ", self.poiNames
-        print " self.numOperators = ", self.numOperators
+        print(" parameters of interest = ", self.poiNames)
+        print(" self.numOperators = ", self.numOperators)
         
         self.modelBuilder.doSet("POI",self.poiNames)
 
@@ -514,9 +514,9 @@ class AnaliticAnomalousCouplingEFTNegativeExtended(PhysicsModel):
                 return "func_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])
 
         if self.UseEFT2Obs:
-          for an_ in self.json_map.keys():
+          for an_ in list(self.json_map.keys()):
             if process in self.json_map[an_]["bin_labels"]:
-              print("---> Will scale " + process + " with " + "func_EFT2Obs_" + process)
+              print(("---> Will scale " + process + " with " + "func_EFT2Obs_" + process))
               return "func_EFT2Obs_" + process
 
         

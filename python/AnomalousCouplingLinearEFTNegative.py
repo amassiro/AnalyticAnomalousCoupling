@@ -142,7 +142,7 @@ class AnaliticAnomalousCouplingLinearEFTNegative(PhysicsModel):
 
         self.numOperators = len(self.Operators)
 
-        print " Operators = ", self.Operators
+        print(" Operators = ", self.Operators)
 
         
         
@@ -152,13 +152,13 @@ class AnaliticAnomalousCouplingLinearEFTNegative(PhysicsModel):
             if po.startswith("higgsMassRange="):
                 self.mHRange = po.replace("higgsMassRange=","").split(",")
                 if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                    raise RuntimeError("Higgs mass range definition requires two extrema")
                 elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+                    raise RuntimeError("Extrema for Higgs mass range defined with inverterd order. Second must be larger the first")
 
             if po.startswith("eftOperators="):
                 self.Operators = po.replace("eftOperators=","").split(",")
-                print " Operators = ", self.Operators
+                print(" Operators = ", self.Operators)
                 self.numOperators = len(self.Operators)
 
             if po.startswith("addDim8"):
@@ -167,7 +167,7 @@ class AnaliticAnomalousCouplingLinearEFTNegative(PhysicsModel):
 
             if po.startswith("reuseCompleteDatacards"):
                 self.reuseCompleteDatacards = True
-                print " reuseCompleteDatacards = ", self.reuseCompleteDatacards
+                print(" reuseCompleteDatacards = ", self.reuseCompleteDatacards)
                 
 
 #
@@ -276,8 +276,8 @@ class AnaliticAnomalousCouplingLinearEFTNegative(PhysicsModel):
                        "(\"-@0*@1\",r," + "k_" + str(self.Operators[operator]) + ")"
                  )
           
-        print " parameters of interest = ", self.poiNames
-        print " self.numOperators = ", self.numOperators
+        print(" parameters of interest = ", self.poiNames)
+        print(" self.numOperators = ", self.numOperators)
         
         self.modelBuilder.doSet("POI",self.poiNames)
 

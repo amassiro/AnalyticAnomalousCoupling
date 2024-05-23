@@ -5,7 +5,7 @@ from array import array
 def _getColor(color):
       if type(color) == int:
         return color
-      elif type(color) == long:
+      elif type(color) == int:
         return int(color)
       elif type(color) == tuple:
         # RGB
@@ -17,11 +17,11 @@ def _getColor(color):
 def filter_common_ops_(d, limits="expected"):
     
     #print(d.keys())
-    if len(d.keys()) <= 1 :  return 
+    if len(list(d.keys())) <= 1 :  return 
 
     ops_ = []
-    for an in d.keys():
-         ops_.append(d[an]["constraints"][limits].keys())
+    for an in list(d.keys()):
+         ops_.append(list(d[an]["constraints"][limits].keys()))
     
     # select only the operators common to at least 2 analyses
     op_retained = []
@@ -33,25 +33,25 @@ def filter_common_ops_(d, limits="expected"):
             if op in op_retained: continue
             if any(op in j for j in to_scan): op_retained.append(op)
             else: 
-                print("--> Not considring " + op)
+                print(("--> Not considring " + op))
                 op_discarded.append(op)
     
     # now delete from original dictionary the discarded operators
-    for an in d.keys():
+    for an in list(d.keys()):
         for op in op_discarded:
-            if op in d[an]["constraints"][limits].keys(): del d[an]["constraints"][limits][op]
+            if op in list(d[an]["constraints"][limits].keys()): del d[an]["constraints"][limits][op]
 
 
 def filter_for_analysis_(d, analysis_key, limits="expected"):
     
     # these are the ops of interest
-    ops = d[analysis_key]["constraints"][limits].keys()
+    ops = list(d[analysis_key]["constraints"][limits].keys())
     
     # now cycle on all analyses and retain only ops of interest
-    for an in d.keys():
+    for an in list(d.keys()):
         if an == analysis_key: continue
         # check ops not present in baseline list
-        op_discarded = [i for i in d[an]["constraints"][limits].keys() if not i in ops]
+        op_discarded = [i for i in list(d[an]["constraints"][limits].keys()) if not i in ops]
         # and delete
         for op in op_discarded:
             del d[an]["constraints"][limits][op]
@@ -59,9 +59,9 @@ def filter_for_analysis_(d, analysis_key, limits="expected"):
             
     # if the analysis has no common operators with baseline, delete
     del_an = []
-    for an in d.keys():
-        if len(d[an]["constraints"][limits].keys())==0: 
-            print("-- Deleting analysis " + an)
+    for an in list(d.keys()):
+        if len(list(d[an]["constraints"][limits].keys()))==0: 
+            print(("-- Deleting analysis " + an))
             del_an.append(an)
     
     for d_an in del_an: del d[d_an]
@@ -70,9 +70,9 @@ def filter_for_analysis_(d, analysis_key, limits="expected"):
 def revert_dictionary(d, limits="expected"):
     # invert the logic: analyses: ops -> ops: analyses
     new_d = {}
-    for an in d.keys():
-        for op in d[an]["constraints"][limits].keys():
-            if op not in new_d.keys(): 
+    for an in list(d.keys()):
+        for op in list(d[an]["constraints"][limits].keys()):
+            if op not in list(new_d.keys()): 
                 new_d[op] = {"legend_names": [], "reference": [], "best_fit": [], "interval": [], "colors": []}
             
             #print(d[an])
@@ -82,13 +82,13 @@ def revert_dictionary(d, limits="expected"):
             new_d[op]["interval"].append(d[an]["constraints"][limits][op][1:])
             
             color = ROOT.kBlack
-            if "color" in d[an].keys(): color = d[an]["color"]
+            if "color" in list(d[an].keys()): color = d[an]["color"]
             new_d[op]["colors"].append(d[an]["color"])
             
     return new_d
 
 def scale_operator(plot_dict, op, factor):
-    if op not in plot_dict.keys(): return 
+    if op not in list(plot_dict.keys()): return 
     new_name = op + "#times" + str(factor)
     plot_dict[new_name] = plot_dict.pop(op)
     for idx in range(len(plot_dict[new_name]["interval"])):
@@ -98,14 +98,14 @@ def scale_operator(plot_dict, op, factor):
 
 def remove_analyses(d, keys):
     remove = []
-    for k in d.keys():
+    for k in list(d.keys()):
         if k in keys: remove.append(k)
     for i in remove:
         del d[i]
     
 def keep_analyses(d, keys):
     remove = []
-    for k in d.keys():
+    for k in list(d.keys()):
         if k not in keys: remove.append(k)
     for i in remove:
         del d[i]
@@ -256,7 +256,7 @@ def convert_dict_to_objects(d, h):
 def printTable(an, columns="ops"):
     ops = []
     analyses = []
-    for key in an.keys():
+    for key in list(an.keys()):
         analyses.append(an[key]["name"])
         for op in an[key]["constraints"]["expected"]: 
             if op not in ops: ops.append(op)
@@ -269,7 +269,7 @@ def printTable(an, columns="ops"):
         print("\\small")
         print("\\begin{center}")
         print("\\renewcommand{\\arraystretch}{1.2}")
-        print("\\begin{tabular}{" + l + "}")
+        print(("\\begin{tabular}{" + l + "}"))
         print("\\hline")
 
         line = "   \\textbf{Analyses / W.C. [TeV$^{-2}$] } & "
@@ -281,7 +281,7 @@ def printTable(an, columns="ops"):
         for an_ in analyses:
 
             l = " \\textbf{" + an_.replace("#", "\\") + "} & "
-            for key in an.keys():
+            for key in list(an.keys()):
                 if an[key]["name"] != an_: continue
                 else:
                     for op in ops:
@@ -310,7 +310,7 @@ def printTable(an, columns="ops"):
         print("\\small")
         print("\\begin{center}")
         print("\\renewcommand{\\arraystretch}{1.2}")
-        print("\\begin{tabular}{" + l + "}")
+        print(("\\begin{tabular}{" + l + "}"))
         print("\\hline")
 
         line = "   \\textbf{ W.C. [TeV$^{-2}$] / Analyses } & "
@@ -322,7 +322,7 @@ def printTable(an, columns="ops"):
         for coef in ops:
             l = "\\textbf{" + coef + "}& "
             for ana in analyses:
-                for key in an.keys():
+                for key in list(an.keys()):
                     if an[key]["name"] != ana: continue
                     else:
                         if coef in an[key]["constraints"]["expected"]:

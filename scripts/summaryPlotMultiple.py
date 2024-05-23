@@ -36,7 +36,7 @@ if __name__ == "__main__":
     # scale operators
     scale = [i.split(":") for i in args.scale.split(",") if i != ""]
     for sf in scale:
-        print("--> Will scale {} by {}".format(sf[0], sf[1]))
+        print(("--> Will scale {} by {}".format(sf[0], sf[1])))
         scale_operator(plot, sf[0], float(sf[1]))
 
     c = ROOT.TCanvas("c", "c", 2000, 1500)
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     import math as mt
     step = 0.5
     edges = [-1]
-    for key in plot.keys():
+    for key in list(plot.keys()):
         current = edges[-1]
         edges.append(mt.ceil(len(plot[key]["interval"])*0.3) + current)
 
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     h = ROOT.TH1F("labels", "labels", len(edges)-1, edges)
     for idx, i in enumerate(plot.keys()):
         label = i
-        if i in poi_to_label.keys(): label = poi_to_label[i]
+        if i in list(poi_to_label.keys()): label = poi_to_label[i]
         h.GetXaxis().SetBinLabel(idx+1, label) 
 
     h.SetTitle("")

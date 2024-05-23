@@ -35,7 +35,7 @@ class Scythe:
     # _____________________________________________________________________________
     def defineStyle(self):
     
-        print "=================="
+        print("==================")
         import HiggsAnalysis.AnalyticAnomalousCoupling.tdrStyle as tdrStyle
         tdrStyle.setTDRStyle()
         
@@ -45,11 +45,11 @@ class Scythe:
     # _____________________________________________________________________________
     def makePlotEFT(self):
 
-        print "==================="
-        print "==== mkPlotEFT ===="
-        print "==================="
+        print("===================")
+        print("==== mkPlotEFT ====")
+        print("===================")
         
-        print " self._pairs " , self._pairs
+        print(" self._pairs " , self._pairs)
         
         self.defineStyle()
         
@@ -83,8 +83,8 @@ class Scythe:
                
         cc_all_together = ROOT.TCanvas("cc_all_together", "", 800, 600)
         histo_sm  = fileIn.Get( self._folderName + "histo_" + self._sampleNameSM)
-        print " name histo = " , self._folderName + "histo_" + self._sampleNameSM
-        print " histo_sm --> " , histo_sm.Class()
+        print(" name histo = " , self._folderName + "histo_" + self._sampleNameSM)
+        print(" histo_sm --> " , histo_sm.Class())
         histo_sm.SetLineColor( ROOT.kBlue )
         histo_sm.SetLineWidth( 2 )
         histo_sm.Draw()
@@ -98,7 +98,7 @@ class Scythe:
         histos_varied = {}
         
         counter = 0
-        for nameHR, pair in self._pairs.iteritems():
+        for nameHR, pair in self._pairs.items():
         
           self._outFile.mkdir ( nameHR )
           self._outFile.cd    ( nameHR )
@@ -106,7 +106,7 @@ class Scythe:
           histo_bsm_x  =  fileIn.Get( self._folderName + "histo_" + "quadratic_" + pair['xName'] ) 
           histo_int_x  =  fileIn.Get( self._folderName + "histo_" + "linear_"    + pair['xName'] ) 
           
-          if 'yName' in pair.keys() :
+          if 'yName' in list(pair.keys()) :
             histo_bsm_y  =  fileIn.Get( self._folderName + "histo_" + "quadratic_" + pair['yName'] ) 
             histo_int_y  =  fileIn.Get( self._folderName + "histo_" + "linear_"    + pair['yName'] ) 
             histo_int_xy =  fileIn.Get( self._folderName + "histo_" + "linear_mixed_" + pair['xName'] + "_" + pair['yName'] ) 
@@ -118,7 +118,7 @@ class Scythe:
           histos_varied[counter].Add( histo_bsm_x  , ( pair['xValue'] * pair['xValue'] ) )
           histos_varied[counter].Add( histo_int_x  , ( pair['xValue']                  ) )
 
-          if 'yName' in pair.keys() :
+          if 'yName' in list(pair.keys()) :
             histos_varied[counter].Add( histo_bsm_y  , ( pair['yValue'] * pair['yValue'] ) )
             histos_varied[counter].Add( histo_int_y  , ( pair['yValue']                  ) )
             histos_varied[counter].Add( histo_int_xy , ( pair['xValue'] * pair['yValue'] ) )
@@ -128,7 +128,7 @@ class Scythe:
           
           histos_varied[counter].Write()
 
-          if 'yName' in pair.keys() :
+          if 'yName' in list(pair.keys()) :
             leg.AddEntry(histos_varied[counter], pair['xName'] + " = " + str(pair['xValue']) + " ; " + pair['yName'] + " = " + str(pair['yValue']) ,"L")
           else :
             leg.AddEntry(histos_varied[counter], pair['xName'] + " = " + str(pair['xValue'])  ,"L")
@@ -152,7 +152,7 @@ class Scythe:
 if __name__ == '__main__':
     sys.argv = argv
     
-    print '''
+    print('''
 ----------------------------------------------------------------------------------------------------------------------------------
 
        ____|  ____| __ __|             |         |         
@@ -162,7 +162,7 @@ if __name__ == '__main__':
                                _|                          
      
 ----------------------------------------------------------------------------------------------------------------------------------
-'''    
+''')    
 
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
@@ -181,11 +181,11 @@ if __name__ == '__main__':
     sys.argv.append( '-b' )
     ROOT.gROOT.SetBatch()
 
-    print " inputFileROOT         =          ", opt.inputFileROOT
-    print " inputFilePairs        =          ", opt.inputFilePairs
-    print " outputFile            =          ", opt.outputFile
-    print " sampleNameSM          =          ", opt.sampleNameSM
-    print " folderName            =          ", opt.folderName
+    print(" inputFileROOT         =          ", opt.inputFileROOT)
+    print(" inputFilePairs        =          ", opt.inputFilePairs)
+    print(" outputFile            =          ", opt.outputFile)
+    print(" sampleNameSM          =          ", opt.sampleNameSM)
+    print(" folderName            =          ", opt.folderName)
 
 
     factory = Scythe()
@@ -210,7 +210,7 @@ if __name__ == '__main__':
 
     factory.makePlotEFT()
     
-    print '... and now closing ...'
+    print('... and now closing ...')
         
        
        
