@@ -80,7 +80,7 @@ Where
 
     
     
-# Install: new CMSSW release and new el9 --> use "
+# Install: new CMSSW release and new el9 --> use branch el9-cmssw
 
     cmsrel CMSSW_14_1_0_pre4
     cd CMSSW_14_1_0_pre4/src
