@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import json
 import sys
@@ -7,11 +7,9 @@ argv = sys.argv
 sys.argv = argv[:1]
 import ROOT
 import optparse
-#import LatinoAnalysis.Gardener.hwwtools as hwwtools
 import os.path
 import string
 import logging
-#import LatinoAnalysis.Gardener.odict as odict
 import traceback
 from array import array
 from collections import OrderedDict
@@ -35,7 +33,7 @@ class Scythe:
     # _____________________________________________________________________________
     def defineStyle(self):
     
-        print "=================="
+        print("==================")
         import HiggsAnalysis.AnalyticAnomalousCoupling.tdrStyle as tdrStyle
         tdrStyle.setTDRStyle()
         
@@ -45,11 +43,11 @@ class Scythe:
     # _____________________________________________________________________________
     def makePlotEFT(self):
 
-        print "==================="
-        print "==== mkPlotEFT ===="
-        print "==================="
+        print ("===================")
+        print ("==== mkPlotEFT ====")
+        print ("===================")
         
-        print " self._pairs " , self._pairs
+        print (" self._pairs " , self._pairs)
         
         self.defineStyle()
         
@@ -83,8 +81,8 @@ class Scythe:
                
         cc_all_together = ROOT.TCanvas("cc_all_together", "", 800, 600)
         histo_sm  = fileIn.Get( self._folderName + "histo_" + self._sampleNameSM)
-        print " name histo = " , self._folderName + "histo_" + self._sampleNameSM
-        print " histo_sm --> " , histo_sm.Class()
+        print (" name histo = " , self._folderName + "histo_" + self._sampleNameSM)
+        print (" histo_sm --> " , histo_sm.Class())
         histo_sm.SetLineColor( ROOT.kBlue )
         histo_sm.SetLineWidth( 2 )
         histo_sm.Draw()
@@ -152,7 +150,7 @@ class Scythe:
 if __name__ == '__main__':
     sys.argv = argv
     
-    print '''
+    print ('''
 ----------------------------------------------------------------------------------------------------------------------------------
 
        ____|  ____| __ __|             |         |         
@@ -162,7 +160,7 @@ if __name__ == '__main__':
                                _|                          
      
 ----------------------------------------------------------------------------------------------------------------------------------
-'''    
+''')    
 
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
@@ -181,11 +179,11 @@ if __name__ == '__main__':
     sys.argv.append( '-b' )
     ROOT.gROOT.SetBatch()
 
-    print " inputFileROOT         =          ", opt.inputFileROOT
-    print " inputFilePairs        =          ", opt.inputFilePairs
-    print " outputFile            =          ", opt.outputFile
-    print " sampleNameSM          =          ", opt.sampleNameSM
-    print " folderName            =          ", opt.folderName
+    print (" inputFileROOT         =          ", opt.inputFileROOT)
+    print (" inputFilePairs        =          ", opt.inputFilePairs)
+    print (" outputFile            =          ", opt.outputFile)
+    print (" sampleNameSM          =          ", opt.sampleNameSM)
+    print (" folderName            =          ", opt.folderName)
 
 
     factory = Scythe()
@@ -210,7 +208,7 @@ if __name__ == '__main__':
 
     factory.makePlotEFT()
     
-    print '... and now closing ...'
+    print ('... and now closing ...')
         
        
        

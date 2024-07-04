@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import ROOT 
 from copy import deepcopy
@@ -6,7 +6,7 @@ import CombineHarvester.CombineTools.ch as ch
 import os
 import math as mt
 import argparse
-from HistoRy import HistoBuilder
+from HiggsAnalysis.AnalyticAnomalousCoupling.utils.HistoRy import HistoBuilder
 
 def getCanvas(n, reg):
     if n == 1:

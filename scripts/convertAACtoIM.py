@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import json 
@@ -256,8 +256,8 @@ if __name__ == "__main__":
             for i in range(len(ops)+1):
                for j in range(i + 1 ):
                   if fact == 0:
-                     print("[WARNING] sm bin count for bin {} in region {} is ZERO. Will set all EFT to ZERO".format(ibin+1, channel)) 
-		     scale_bin.append(0)
+                     print("[WARNING] sm bin count for bin {} in region {} is ZERO. Will set all EFT to ZERO".format(ibin+1, channel))
+                     scale_bin.append(0)
                      continue
                   try:
                      scale_bin.append(matrix[amplitude_squared_for(ops, i, j)].GetBinContent(ibin+1) / fact)

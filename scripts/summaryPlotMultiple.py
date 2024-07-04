@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-from utils.functions import *
+from HiggsAnalysis.AnalyticAnomalousCoupling.utils.functions import *
 import ROOT
 import json 
 import numpy as np

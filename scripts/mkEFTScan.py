@@ -1,13 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import argparse
 import ROOT
 import os
 import sys
-# from HiggsAnalysis.AnalyticAnomalousCoupling.scan import scanEFT
-path = os.environ["CMSSW_BASE"] + \
-    "/src/HiggsAnalysis/AnalyticAnomalousCoupling/scripts/"
-sys.path.append(path)
-from scan import scanEFT
+from HiggsAnalysis.AnalyticAnomalousCoupling.utils.scan import scanEFT
 
 def getLabel():
 
@@ -124,7 +120,7 @@ if __name__ == "__main__":
     gs = scanUtil.getScan()
     others = []
     labels = []
-    if len(args.others) is not 0:
+    if len(args.others) != 0:
 
         for file_, color_, line_, label_ in [i.split(":") for i in args.others]:
             scanUtil_ = scanEFT()
