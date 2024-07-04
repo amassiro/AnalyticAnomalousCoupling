@@ -93,6 +93,7 @@ Where
 
     cd ..
     git clone git@github.com:amassiro/AnalyticAnomalousCoupling.git
+    cd AnalyticAnomalousCoupling; git checkout el9-cmssw; cd -
     scramv1 b clean; scramv1 b # always make a clean build
 
     
