@@ -137,21 +137,21 @@ class AnaliticAnomalousCouplingEFTNegativeExtended(PhysicsModel):
         self.CompleteOperators = self.Operators + self.OperatorsDim8
 
         self.numOperators = len(self.Operators)
-        print " Operators = ", self.Operators
+        print (" Operators = ", self.Operators)
 
 
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
-            if po.startswith("higgsMassRange="):
-                self.mHRange = po.replace("higgsMassRange=","").split(",")
-                if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
-                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+            #if po.startswith("higgsMassRange="):
+                #self.mHRange = po.replace("higgsMassRange=","").split(",")
+                #if len(self.mHRange) != 2:
+                    #raise RuntimeError, "Higgs mass range definition requires two extrema"
+                #elif float(self.mHRange[0]) >= float(self.mHRange[1]):
+                    #raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
 
             if po.startswith("eftOperators="):
                 self.Operators = po.replace("eftOperators=","").split(",")
-                print " Operators = ", self.Operators
+                print (" Operators = ", self.Operators)
                 self.numOperators = len(self.Operators)
 
             if po.startswith("eftAlternative"):
@@ -473,8 +473,8 @@ class AnaliticAnomalousCouplingEFTNegativeExtended(PhysicsModel):
               self.modelBuilder.factory_(func) 
               
 
-        print " parameters of interest = ", self.poiNames
-        print " self.numOperators = ", self.numOperators
+        print (" parameters of interest = ", self.poiNames)
+        print (" self.numOperators = ", self.numOperators)
         
         self.modelBuilder.doSet("POI",self.poiNames)
 

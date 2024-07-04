@@ -17,13 +17,14 @@ class AnaliticAnomalousCouplingTwoOp(PhysicsModel):
         self.poiNames = []
 
     def setPhysicsOptions(self,physOptions):
-        for po in physOptions:
-            if po.startswith("higgsMassRange="):
-                self.mHRange = po.replace("higgsMassRange=","").split(",")
-                if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
-                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+        print ("next ...")
+        #for po in physOptions:
+            #if po.startswith("higgsMassRange="):
+                #self.mHRange = po.replace("higgsMassRange=","").split(",")
+                #if len(self.mHRange) != 2:
+                    #raise RuntimeError, "Higgs mass range definition requires two extrema"
+                #elif float(self.mHRange[0]) >= float(self.mHRange[1]):
+                    #raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
 
 #
 # standard, not touched (end)
@@ -63,7 +64,7 @@ class AnaliticAnomalousCouplingTwoOp(PhysicsModel):
         self.modelBuilder.factory_("expr::quadratic_func_1(\"@0*@1*@1\",r,k_my_1)")
         self.modelBuilder.factory_("expr::quadratic_func_2(\"@0*@1*@1\",r,k_my_2)")
 
-        print self.poiNames
+        print (self.poiNames)
         self.modelBuilder.doSet("POI",self.poiNames)
 
 

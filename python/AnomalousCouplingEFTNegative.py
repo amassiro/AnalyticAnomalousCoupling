@@ -135,21 +135,21 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
         self.CompleteOperators = self.Operators + self.OperatorsDim8
 
         self.numOperators = len(self.Operators)
-        print " Operators = ", self.Operators
+        print (" Operators = ", self.Operators)
 
 
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
-            if po.startswith("higgsMassRange="):
-                self.mHRange = po.replace("higgsMassRange=","").split(",")
-                if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
-                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+            #if po.startswith("higgsMassRange="):
+                #self.mHRange = po.replace("higgsMassRange=","").split(",")
+                #if len(self.mHRange) != 2:
+                    #raise RuntimeError, "Higgs mass range definition requires two extrema"
+                #elif float(self.mHRange[0]) >= float(self.mHRange[1]):
+                    #raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
 
             if po.startswith("eftOperators="):
                 self.Operators = po.replace("eftOperators=","").split(",")
-                print " Operators = ", self.Operators
+                print (" Operators = ", self.Operators)
                 self.numOperators = len(self.Operators)
 
             if po.startswith("eftAlternative"):
@@ -167,18 +167,18 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
             #
             if po.startswith("defineCompleteOperators="):
                 self.CompleteOperators = po.replace("defineCompleteOperators=","").split(",")
-                print " CompleteOperators = ", self.CompleteOperators
+                print (" CompleteOperators = ", self.CompleteOperators)
 
             if po.startswith("addToCompleteOperators="):
                 toAddOperators = po.replace("addToCompleteOperators=","").split(",")
                 self.CompleteOperators.extend ( toAddOperators )
-                print " CompleteOperators = ", self.CompleteOperators
+                print (" CompleteOperators = ", self.CompleteOperators)
 
             if po.startswith("removeFromCompleteOperators="):
                 toRemoveOperators = po.replace("removeFromCompleteOperators=","").split(",")
                 newlist = [i for i in self.CompleteOperators if i not in toRemoveOperators]
                 self.CompleteOperators = newlist
-                print " CompleteOperators = ", self.CompleteOperators
+                print (" CompleteOperators = ", self.CompleteOperators)
 
 
 #
@@ -435,8 +435,8 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
 
 
 
-        print " parameters of interest = ", self.poiNames
-        print " self.numOperators = ", self.numOperators
+        print (" parameters of interest = ", self.poiNames)
+        print (" self.numOperators = ", self.numOperators)
         
         self.modelBuilder.doSet("POI",self.poiNames)
 
