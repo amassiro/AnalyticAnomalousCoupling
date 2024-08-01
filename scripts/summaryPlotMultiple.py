@@ -18,6 +18,7 @@ if __name__ == "__main__":
     parser.add_argument("-k", "--keepan", dest="keepan", help="Keep only these AN, comma separated list", required=False, default = None)
     parser.add_argument("-c", "--common", dest="common", help="Keep only operators shared by more than one analysis. Default is false", required=False, default = False, action="store_true")
     parser.add_argument("-f", "--filter", dest="filter", help="Filter results for this analysis. Keep other analyses only if they share ops with this one", required=False, default = "")
+    parser.add_argument("-o", "--output", dest="output", help="Plot output name without extension. Default is summary", required=False, default = "summary")
     args, _ = parser.parse_known_args()
 
     # loading the analysis dictionary
@@ -201,5 +202,5 @@ if __name__ == "__main__":
     c.Update()
     c.Draw()
 
-    c.Print("/eos/user/g/gboldrin/www/prova/prova_total.png")
-    c.Print("/eos/user/g/gboldrin/www/prova/prova_total.pdf")
+    c.Print(f"{args.output}.png")
+    c.Print(f"{args.output}.pdf")
