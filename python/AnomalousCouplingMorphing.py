@@ -144,8 +144,6 @@ class AnaliticAnomalousCouplingMorphing(PhysicsModel):
                 self.Operators = po.replace("eftOperators=","").split(",")
                 self.numOperators = len(self.Operators)
                 print (" Operators = ", self.Operators)
-                if self.numOperators > 1:
-                  raise ValueError(f"for now only works with one operator, you specified {self.numOperators}")
                 
 
             if po.startswith("addDim8"):
@@ -187,7 +185,7 @@ class AnaliticAnomalousCouplingMorphing(PhysicsModel):
 
         # EFT scaling is implemented as follows:
 
-        # expected input template for w(0), w(1), w(-1)
+        # expected input template for w(0), w(1), w(-1), w(1,1)
 
         # SM = w(0)
         # SM + Li + Qi = w(1)
@@ -197,55 +195,94 @@ class AnaliticAnomalousCouplingMorphing(PhysicsModel):
         #      = (1-kk)w(0) + 0.5*k(1+k)w(1) + 0.5k*(k-1)w(-1)
 
 
-        # for now only one op
         for operator in range(0, self.numOperators):
           self.modelBuilder.doVar("k_" + str(self.Operators[operator]) + "[0,-200,200]")
           self.poiNames += ",k_" + str(self.Operators[operator])
 
-          # Sm scaling w(0)
-          if self.numOperators != 1:
-            # for now we do not enter here
-            self.modelBuilder.factory_(
-                 "expr::func_sm(\"@0*(1-(" +
-                                          "@" + "+@".join([str(i+1) for i in range(len(self.Operators))])  +
-                                          "-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if i<j ]) +
-                                          "))\",r," + "k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators))]) + ")"
-                 )
-          else :
-            self.modelBuilder.factory_(
-                 "expr::func_sm(\"@0*(1-(" +
-                                          "@1*@1" +
-                                          "))\",r," + "k_" + str(self.Operators[0]) + ")"
-                 )
+
+        if self.numOperators != 1:
+          # print(
+          #   "expr::func_sm(\"@0*(1-(" +
+          #                               "+".join(["@{}*@{}".format(i+1,i+1) for i in range(len(self.Operators))])  +
+          #                               "-@" + "-@".join([str(i+1)+"*@"+str(j+1) + "*0.5" for i in range(len(self.Operators)) for j in range(len(self.Operators)) if i<j ]) +
+          #                               "))\",r," + "k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators))]) + ")"
+          # )
+# 
+          # self.modelBuilder.factory_(
+          #       "expr::func_sm(\"@0*(1-(" +
+          #                               "+".join(["@{}*@{}".format(i+1,i+1) for i in range(len(self.Operators))])  +
+          #                               "-@" + "-@".join([str(i+1)+"*@"+str(j+1) + "*0.5" for i in range(len(self.Operators)) for j in range(len(self.Operators)) if i<j ]) +
+          #                               "))\",r," + "k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators))]) + ")"
+          #       )
+
+          print(
+            "expr::func_sm(\"@0*(1-(" +
+                                        "+".join(["@{}*@{}".format(i+1,i+1) for i in range(len(self.Operators))])  +
+                                        "-@" + "-@".join([str(i+1)+"*@"+str(j+1)  for i in range(len(self.Operators)) for j in range(len(self.Operators)) if i<j ]) +
+                                        "))\",r," + "k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators))]) + ")"
+          )
+
+          self.modelBuilder.factory_(
+                "expr::func_sm(\"@0*(1-(" +
+                                        "+".join(["@{}*@{}".format(i+1,i+1) for i in range(len(self.Operators))])  +
+                                        "-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if i<j ]) +
+                                        "))\",r," + "k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators))]) + ")"
+                )
+
+        else :
+          print(
+            "expr::func_sm(\"@0*(1-(" +
+                                        "@1*@1" +
+                                        "))\",r," + "k_" + str(self.Operators[0]) + ")"
+          )
+          self.modelBuilder.factory_(
+                "expr::func_sm(\"@0*(1-(" +
+                                        "@1*@1" +
+                                        "))\",r," + "k_" + str(self.Operators[0]) + ")"
+                )
 
 
         #
-        # this is the coefficient of "SM + Lin_i + Quad_i"
+        # this is the coefficient of "SM + Lin_i + Quad_i" (w(1))
         #
 
         if self.numOperators != 1:
-          # for now we do not enter here FIX ME
           for operator in range(0, self.numOperators):
-            #print " Test = "
-            #print "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +                                           \
-                                #"(\"@0*(" +                                                                                      \
-                                #"@1 * (1-(" + "@" + "+@".join( [str(j+2) for j in range(len(self.Operators) -1) ] ) + ") )" +      \
-                                #")\",r,k_" + str(self.Operators[operator]) +                                                     \
-                                #", k_" + ", k_".join( [str(self.Operators[j]) for j in range(len(self.Operators)) if operator!=j ] ) +            \
-                                #")"
-            #
-            #
-            # expr::func_sm_linear_quadratic_cG("@0*(@1 * (1-2*(@2+@3) ))",r,k_cG, k_cGtil, k_cH)
-            #
-            #
+
+            # print(
+            #   "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +
+            #                     "(\"@0*(" +
+            #                     "0.5*@1*(1+@1+" + "+".join(["@1*@{}".format(j+1) for j in range(1, len(self.Operators))]) +
+            #                     ")\",r,k_" + str(self.Operators[operator]) +
+            #                     ", k_" + ", k_".join( [str(self.Operators[j]) for j in range(len(self.Operators)) if operator!=j ] ) +
+            #                     ")"
+            # )
+            # self.modelBuilder.factory_(
+            #         "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +
+            #                     "(\"@0*(" +
+            #                     "0.5*@1*(1+@1+" + "+".join(["@1*@{}".format(j+1) for j in range(1, len(self.Operators))]) + ")" +
+            #                     ")\",r,k_" + str(self.Operators[operator]) +
+            #                     ", k_" + ", k_".join( [str(self.Operators[j]) for j in range(len(self.Operators)) if operator!=j ] ) +
+            #                     ")"
+            #         )
+
+            print(
+              "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +
+                                "(\"@0*(" +
+                                "0.5*@1*(1+@1-" + "-".join(["2*@{}".format(j+1) for j in range(1, len(self.Operators))]) + ")" +
+                                ")\",r,k_" + str(self.Operators[operator]) +
+                                ", k_" + ", k_".join( [str(self.Operators[j]) for j in range(len(self.Operators)) if operator!=j ] ) +
+                                ")"
+            )
             self.modelBuilder.factory_(
                     "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +
                                 "(\"@0*(" +
-                                "@1 * (1-(" + "@" + "+@".join( [str(j+2) for j in range(len(self.Operators) -1) ] ) + ") )" +
+                                "0.5*@1*(1+@1-" + "-".join(["2*@{}".format(j+1) for j in range(1, len(self.Operators))]) + ")" +
                                 ")\",r,k_" + str(self.Operators[operator]) +
                                 ", k_" + ", k_".join( [str(self.Operators[j]) for j in range(len(self.Operators)) if operator!=j ] ) +
                                 ")"
                     )
+              
         else :
           print ("expr::func_sm_linear_quadratic_" + str(self.Operators[0]) +
                               "(\"@0*(" +
@@ -268,28 +305,30 @@ class AnaliticAnomalousCouplingMorphing(PhysicsModel):
         #
 
         if self.numOperators != 1:
-          # for now we do not enter here FIX ME
           for operator in range(0, self.numOperators):
-            #print " Test = "
-            #print "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +                                           \
-                                #"(\"@0*(" +                                                                                      \
-                                #"@1 * (1-(" + "@" + "+@".join( [str(j+2) for j in range(len(self.Operators) -1) ] ) + ") )" +      \
-                                #")\",r,k_" + str(self.Operators[operator]) +                                                     \
-                                #", k_" + ", k_".join( [str(self.Operators[j]) for j in range(len(self.Operators)) if operator!=j ] ) +            \
-                                #")"
-            #
-            #
-            # expr::func_sm_linear_quadratic_cG("@0*(@1 * (1-2*(@2+@3) ))",r,k_cG, k_cGtil, k_cH)
-            #
-            #
-            self.modelBuilder.factory_(
-                    "expr::func_sm_linear_quadratic_" + str(self.Operators[operator]) +
+            # print(
+            #   "expr::func_sm_minuslinear_quadratic_" + str(self.Operators[operator]) +
+            #                     "(\"@0*(" +
+            #                     "0.5*@1*(@1-1)" + ")\",r,k_" + str(self.Operators[operator]) + ")"
+            # )
+            # 
+            # self.modelBuilder.factory_(
+            #         "expr::func_sm_minuslinear_quadratic_" + str(self.Operators[operator]) +
+            #                     "(\"@0*(" +
+            #                     "0.5*@1*(@1-1)" + ")\",r,k_" + str(self.Operators[operator]) + ")"
+            #         )
+            print(
+              "expr::func_sm_minuslinear_quadratic_" + str(self.Operators[operator]) +
                                 "(\"@0*(" +
-                                "@1 * (1-(" + "@" + "+@".join( [str(j+2) for j in range(len(self.Operators) -1) ] ) + ") )" +
-                                ")\",r,k_" + str(self.Operators[operator]) +
-                                ", k_" + ", k_".join( [str(self.Operators[j]) for j in range(len(self.Operators)) if operator!=j ] ) +
-                                ")"
+                                "0.5*@1*(@1-1)" + ")\",r,k_" + str(self.Operators[operator]) + ")"
+            )
+            
+            self.modelBuilder.factory_(
+                    "expr::func_sm_minuslinear_quadratic_" + str(self.Operators[operator]) +
+                                "(\"@0*(" +
+                                "0.5*@1*(@1-1)" + ")\",r,k_" + str(self.Operators[operator]) + ")"
                     )
+
         else :
           print ("expr::func_sm_minuslinear_quadratic_" + str(self.Operators[0]) +
                               "(\"@0*(" +
@@ -305,92 +344,44 @@ class AnaliticAnomalousCouplingMorphing(PhysicsModel):
                               ")"
                   )
 
-        # This is the old code for Quadratic Qi and mixed interferences
-        # We leave it here commented so that we can recycle in future
-        # for the time being we assume only one operator
-        """
-        for operator in range(0, self.numOperators):
-
-          #
-          # this is the coefficient of "Quad_i"
-          #
-          
-          if not self.alternative :
-
-            #print "expr::func_quadratic_"+ str(self.Operators[operator]) + "(\"@0*(@1*@1-@1)\",r,k_" + str(self.Operators[operator]) + ")"
-
-            self.modelBuilder.factory_("expr::func_quadratic_"+ str(self.Operators[operator]) + "(\"@0*(@1*@1-@1)\",r,k_" + str(self.Operators[operator]) + ")")
-
-
-          else :
-
-            if self.numOperators != 1:
-
-              #print "expr::func_quadratic_"+ str(self.Operators[operator]) +    \
-                                        #"(\"@0*(@1*@1-@1-@1*(" + "@" + "+@".join([str(j+1) for j in range(len(self.Operators)) if j != 0 ]) +   \
-                                        #"))\",r," + "k_" +  str(self.Operators[operator]) + ", k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators)) if i != operator ]) + ")"
-
-              self.modelBuilder.factory_("expr::func_quadratic_"+ str(self.Operators[operator]) +      \
-                                        "(\"@0*(@1*@1-@1-@1*(" + "@" + "+@".join([str(j+1) for j in range(len(self.Operators)) if j != 0 ]) +   \
-                                        "))\",r," + "k_" +  str(self.Operators[operator]) + ", k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators)) if i != operator ]) + ")"
-                                        )
-                                                                                                                                                                                
-
-            else:
-
-              #print "expr::func_quadratic_"+ str(self.Operators[0]) + \
-                                        #"(\"@0*(@1*@1-@1" +   \
-                                        #")\",r,k_" + str(self.Operators[0]) + ")"
-
-              self.modelBuilder.factory_("expr::func_quadratic_"+ str(self.Operators[operator]) +  \
-                                        "(\"@0*(@1*@1-@1" +   \
-                                        ")\",r,k_" + str(self.Operators[0]) + ")"
-                                        )
-
-
-
         #
-        # (SM + linear) + quadratic + interference between pairs of Wilson coefficients
+        # w(1,1)
         #
-        
-        if not self.alternative :
-          
-          if self.numOperators != 1:
-            for operator in range(0, self.numOperators):
-              for operator_sub in range(operator+1, self.numOperators):
+                  
+        if self.numOperators != 1:
+          for operator in range(0, self.numOperators):
+            for operator_sub in range(operator+1, self.numOperators):
 
-                #
-                # this is the coefficient of "SM + Lin_i + Lin_j + Quad_i + Quad_j + 2 * M_ij"
-                #
-                #print "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +          \
-                #"(\"@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +                      \
-                #")"
+              #
+              # this is the coefficient of "SM + Lin_i + Lin_j + Quad_i + Quad_j + 2 * M_ij"
+              #
+              #print "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +          \
+              #"(\"@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +                      \
+              #")"
 
-                self.modelBuilder.factory_(
-                        "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +
-                        "(\"@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +
-                        ")")
+              # print(
+              #   "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]) +
+              #         "(\"0.5*@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +
+              #         ")"
+              # )
+ 
+              # self.modelBuilder.factory_(
+              #         "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]) +
+              #         "(\"0.5*@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +
+              #         ")")
 
-        else:
+              print(
+                "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]) +
+                      "(\"@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +
+                      ")"
+              )
 
-          if self.numOperators != 1:
-            for operator in range(0, self.numOperators):
-              for operator_sub in range(operator+1, self.numOperators):
-
-                #
-                # this is the coefficient of "Quad_i + Quad_j + 2 * M_ij"
-                #
-                #print "expr::func_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +          \
-                #"(\"@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +                      \
-                #")"
-
-                self.modelBuilder.factory_(
-                        "expr::func_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator]) +
-                        "(\"@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +
-                        ")")
+              self.modelBuilder.factory_(
+                      "expr::func_sm_linear_quadratic_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]) +
+                      "(\"@0*@1*@2\",r,k_" + str(self.Operators[operator]) + ",k_" + str(self.Operators[operator_sub]) +
+                      ")")
 
 
-        """
 
         print (" parameters of interest = ", self.poiNames)
         print (" self.numOperators = ", self.numOperators)
@@ -426,24 +417,15 @@ class AnaliticAnomalousCouplingMorphing(PhysicsModel):
             print(f"scaling {process} with func_sm_minuslinear_quadratic_{self.Operators[operator]}")
             return "func_sm_minuslinear_quadratic_"+ str(self.Operators[operator])
           
-
-        """
-        for operator in range(0, self.numOperators):
-          if process == "sm_lin_quad_"+ str(self.Operators[operator]) or "_sm_lin_quad_"+ str(self.Operators[operator]) in process : 
-            return "func_sm_linear_quadratic_"+ str(self.Operators[operator])
-          if process == "quad_"+ str(self.Operators[operator]) :              return "func_quadratic_"+ str(self.Operators[operator])
+          # Mixed w(1,1)
           for operator_sub in range(operator+1, self.numOperators):
-            if not self.alternative :
-              if process == "sm_lin_quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) or "_sm_lin_quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) in process :   
-                return "func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])
-              if process == "sm_lin_quad_mixed_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator]) or "_sm_lin_quad_mixed_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator]) in process :  
-                return "func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])
-            else :
-              if process == "quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) : 
-                return "func_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])
-              if process == "quad_mixed_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator]) :  
-                return "func_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])
-        """
+            if process == "w11_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) or "_w11_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) in process :   
+              print(f"scaling {process} with " + "func_sm_linear_quadratic_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]))
+              return "func_sm_linear_quadratic_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])
+            if process == "w11_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator]) or "_w11_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator]) in process :  
+              print(f"scaling {process} with " + "func_sm_linear_quadratic_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]))
+              return "func_sm_linear_quadratic_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])
+
         
         #
         # sometimes we have complete datacards, with many operators, but we want to test 
