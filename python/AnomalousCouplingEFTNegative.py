@@ -453,7 +453,7 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
 
         #print "process = " , process
 
-        if   process == "sm" or "_sm" in process:          return "func_sm"
+        if   process == "sm" or process.endswith("sm") :          return "func_sm"
 
         for operator in range(0, self.numOperators):
           if process == "sm_lin_quad_"+ str(self.Operators[operator]) or "_sm_lin_quad_"+ str(self.Operators[operator]) in process : 
