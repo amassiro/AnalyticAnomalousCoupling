@@ -458,7 +458,8 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
         for operator in range(0, self.numOperators):
           if process == "sm_lin_quad_"+ str(self.Operators[operator]) or "_sm_lin_quad_"+ str(self.Operators[operator]) in process : 
             return "func_sm_linear_quadratic_"+ str(self.Operators[operator])
-          if process == "quad_"+ str(self.Operators[operator]) :              return "func_quadratic_"+ str(self.Operators[operator])
+          if process == "quad_"+ str(self.Operators[operator]) or  "_quad_"+ str(self.Operators[operator]) in process:    
+            return "func_quadratic_"+ str(self.Operators[operator])
           for operator_sub in range(operator+1, self.numOperators):
             if not self.alternative :
               if process == "sm_lin_quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) or "_sm_lin_quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) in process :   
