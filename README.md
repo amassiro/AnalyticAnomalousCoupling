@@ -1,3 +1,13 @@
+# Branches guidelines
+
+The AAC suite provides different Combine PhysicsModels compatible with different releases of Combine itself:
+
+- `el9-cmssw` (recommended): el9 compatible with Combine v10 and CMSSW_14_1_0_pre4
+- `template_morphing`: el9 compatible with Combine v10 and CMSSW_14_1_0_pre4. Same as `el9-cmssw` with an additional model (`AnomalousCouplingMorphing.py`) to account for correlated MC stat uncertainties on EFT predictions. To be used ***ONLY*** with a [modified Combine version](https://github.com/GiacomoBoldrini/HiggsAnalysis-CombinedLimit/tree/correlated_autoMCstat)
+- `master`: slc7 compatible with Combine v8 and CMSSW_10_2_X. Deprecated
+
+Before running the tool, be sure to git checkout to the correct AnalyticAnomalousCoupling branch compatible with the CMSSW and Combine version used.
+
 # AnalyticAnomalousCoupling
 
 The AnalyticAnomalousCoupling provides a ***Combine-based model for EFT fits*** overcoming the issues of negative templates that may arise from interference terms.
