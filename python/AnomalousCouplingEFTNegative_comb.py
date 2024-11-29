@@ -270,7 +270,7 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
         for bin_name in self.bin_ops_map:
             active_ops = self.bin_ops_map[bin_name]
             self.numOperators = len(active_ops)
-            print(active_ops)
+            print(active_ops, self.numOperators)
             if self.numOperators == 0:
                 self.modelBuilder.factory_(f'expr::func_sm_{bin_name}("@0",r)')
                 print(f'expr::func_sm_{bin_name}("@0",r)')
@@ -339,7 +339,7 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
 
                 self.modelBuilder.factory_(
                     f"expr::func_sm_linear_quadratic_{bin_name}_"
-                    + str(active_ops[operator])
+                    + str(active_ops[0])
                     + '("@0*('
                     + "@1"
                     + ')",r,k_'
@@ -348,7 +348,7 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
                 )
                 print(
                     f"expr::func_sm_linear_quadratic_{bin_name}_"
-                    + str(active_ops[operator])
+                    + str(active_ops[0])
                     + '("@0*('
                     + "@1"
                     + ')",r,k_'
