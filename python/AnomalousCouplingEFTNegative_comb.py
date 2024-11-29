@@ -493,6 +493,10 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
     def getYieldScale2(self, bin, process):
         # print "process = " , process
 
+
+        active_ops = self.bin_ops_map[bin]
+        self.numOperators = len(active_ops)
+
         if process == "sm" or process.endswith("sm"):
             return f"func_sm_{bin}"
 
