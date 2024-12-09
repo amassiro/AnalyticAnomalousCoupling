@@ -1,4 +1,6 @@
+import fnmatch
 import json
+import sys
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
 import ROOT, os
@@ -138,6 +140,7 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
 
         self.numOperators = len(self.Operators)
         print(" Operators = ", self.Operators)
+        self.verbose = True
 
     def setPhysicsOptions(self, physOptions):
         print(physOptions)
@@ -149,13 +152,12 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
             # elif float(self.mHRange[0]) >= float(self.mHRange[1]):
             # raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
 
-            print(po)
             if po.startswith("fileCombination="):
                 print("Doing filecombination")
                 fileCombination = po.replace("fileCombination=", "")
                 with open(fileCombination) as f:
-                    d = json.load(f)
-                self.bin_ops_map = d
+                    self.bin_ops_map = json.load(f)
+
             if po.startswith("eftOperators="):
                 self.Operators = po.replace("eftOperators=", "").split(",")
                 print(" Operators = ", self.Operators)
@@ -167,6 +169,9 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
             if po.startswith("addDim8"):
                 self.Operators.extend(self.OperatorsDim8)
                 self.addDim8 = True
+
+            if po.startswith("verbose="):
+                self.verbose = eval(po.replace("verbose=", ""))
 
             #
             # this is needed in the case the complete list of operators is not the one provided above,
@@ -194,10 +199,14 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
                 ]
                 self.CompleteOperators = newlist
                 print(" CompleteOperators = ", self.CompleteOperators)
-        for ibin in self.bin_ops_map:
-            self.bin_ops_map[ibin] = [
-                i for i in self.bin_ops_map[ibin] if i in self.Operators
-            ]
+
+        if not hasattr(self, "bin_ops_map"):
+            self.bin_ops_map = {"*": self.Operators}
+        else:
+            for ibin in self.bin_ops_map:
+                self.bin_ops_map[ibin] = [
+                    i for i in self.bin_ops_map[ibin] if i in self.Operators
+                ]
 
     #
     # standard, not touched (end)
@@ -206,11 +215,14 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
     #
     # Define parameters of interest
     #
+    def private_factory(self, func):
+        if self.verbose:
+            print(func)
+        self.modelBuilder.factory_(func)
 
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
 
-        # trilinear Higgs couplings modified
         self.modelBuilder.doVar("r[1,-10,10]")
         self.poiNames = "r"
 
@@ -252,144 +264,67 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
         #
         # sm
         #
-        # print " Test = "
 
         #
         # this is the coefficient of "SM"
         #
 
-        # if self.numOperators != 1:
-        # print "expr::func_sm(\"@0*(1-(" +                                                                                                                                                                  \
-        # "@" + "+@".join([str(i+1) for i in range(len(self.Operators))])  +                                                                                                               \
-        # "-@" + "-@".join([str(i+1)+"*@"+str(j+1) for i in range(len(self.Operators)) for j in range(len(self.Operators)) if i<j ]) +                                                     \
-        # "))\",r," + "k_" + ", k_".join([str(self.Operators[i]) for i in range(len(self.Operators))]) + ")"
-        # else:
-        # print "expr::func_sm(\"@0*(1-(" +                                                                     \
-        # "@1" +                                                                                          \
-        # "))\",r," + "k_" + str(self.Operators[0]) + ")"
-        for bin_name in self.bin_ops_map:
+        for _bin_name in self.bin_ops_map:
+            bin_name = _bin_name.replace("*", "WildCard")
             active_ops = self.bin_ops_map[bin_name]
             self.numOperators = len(active_ops)
-            print(active_ops, self.numOperators)
-            if self.numOperators == 0:
-                self.modelBuilder.factory_(f'expr::func_sm_{bin_name}("@0",r)')
-                print(f'expr::func_sm_{bin_name}("@0",r)')
+            if self.verbose:
+                print(f"Active ops for {bin_name}", active_ops)
 
+            sm_func_name = f"expr::func_sm_{bin_name}"
+
+            if self.numOperators == 0:
+                self.private_factory(f'{sm_func_name}("@0",r)')
             elif self.numOperators == 1:
-                self.modelBuilder.factory_(
-                    f'expr::func_sm_{bin_name}("@0*(1-('
+                self.private_factory(
+                    f'{sm_func_name}("@0*(1-('
                     + "@1"
                     + '))",r,'
                     + "k_"
                     + str(active_ops[0])
                     + ")"
                 )
-                print(
-                    f'expr::func_sm_{bin_name}("@0*(1-('
-                    + "@1"
+            else:
+                self.private_factory(
+                    f'{sm_func_name}("@0*(1-('
+                    + "@"
+                    + "+@".join([str(i + 1) for i in range(len(active_ops))])
+                    + "-@"
+                    + "-@".join(
+                        [
+                            str(i + 1) + "*@" + str(j + 1)
+                            for i in range(len(active_ops))
+                            for j in range(len(active_ops))
+                            if i < j
+                        ]
+                    )
                     + '))",r,'
                     + "k_"
+                    + ", k_".join([str(active_ops[i]) for i in range(len(active_ops))])
+                    + ")"
+                )
+            #
+            # Linear term e.g. expr::func_sm_linear_quadratic_cG("@0*(@1 * (1 - (@2+@3)))",r,k_cG, k_cGtil, k_cH)
+            #
+
+            if self.numOperators == 1:
+                self.private_factory(
+                    f"expr::func_sm_linear_quadratic_{bin_name}_"
+                    + str(active_ops[0])
+                    + '("@0*('
+                    + "@1"
+                    + ')",r,k_'
                     + str(active_ops[0])
                     + ")"
                 )
             elif self.numOperators > 1:
-                self.modelBuilder.factory_(
-                    f'expr::func_sm_{bin_name}("@0*(1-('
-                    + "@"
-                    + "+@".join([str(i + 1) for i in range(len(active_ops))])
-                    + "-@"
-                    + "-@".join(
-                        [
-                            str(i + 1) + "*@" + str(j + 1)
-                            for i in range(len(active_ops))
-                            for j in range(len(active_ops))
-                            if i < j
-                        ]
-                    )
-                    + '))",r,'
-                    + "k_"
-                    + ", k_".join([str(active_ops[i]) for i in range(len(active_ops))])
-                    + ")"
-                )
-                print(
-                    f'expr::func_sm_{bin_name}("@0*(1-('
-                    + "@"
-                    + "+@".join([str(i + 1) for i in range(len(active_ops))])
-                    + "-@"
-                    + "-@".join(
-                        [
-                            str(i + 1) + "*@" + str(j + 1)
-                            for i in range(len(active_ops))
-                            for j in range(len(active_ops))
-                            if i < j
-                        ]
-                    )
-                    + '))",r,'
-                    + "k_"
-                    + ", k_".join([str(active_ops[i]) for i in range(len(active_ops))])
-                    + ")"
-                )
-
-            if self.numOperators == 1:
-                # print "expr::func_sm_linear_quadratic_" + str(active_ops[operator]) +                   \
-                # "(\"@0*(" +                                                                      \
-                # "@1" +                                                                           \
-                # ")\",r,k_" + str(active_ops[0]) +                                           \
-                # ")"
-
-                self.modelBuilder.factory_(
-                    f"expr::func_sm_linear_quadratic_{bin_name}_"
-                    + str(active_ops[0])
-                    + '("@0*('
-                    + "@1"
-                    + ')",r,k_'
-                    + str(active_ops[0])
-                    + ")"
-                )
-                print(
-                    f"expr::func_sm_linear_quadratic_{bin_name}_"
-                    + str(active_ops[0])
-                    + '("@0*('
-                    + "@1"
-                    + ')",r,k_'
-                    + str(active_ops[0])
-                    + ")"
-                )
-            if self.numOperators > 1:
                 for operator in range(0, self.numOperators):
-                    # print " Test = "
-                    # print "expr::func_sm_linear_quadratic_" + str(active_ops[operator]) +                                           \
-                    # "(\"@0*(" +                                                                                      \
-                    # "@1 * (1-(" + "@" + "+@".join( [str(j+2) for j in range(len(active_ops) -1) ] ) + ") )" +      \
-                    # ")\",r,k_" + str(active_ops[operator]) +                                                     \
-                    # ", k_" + ", k_".join( [str(active_ops[j]) for j in range(len(active_ops)) if operator!=j ] ) +            \
-                    # ")"
-                    #
-                    #
-                    # expr::func_sm_linear_quadratic_cG("@0*(@1 * (1-2*(@2+@3) ))",r,k_cG, k_cGtil, k_cH)
-                    #
-                    #
-                    self.modelBuilder.factory_(
-                        f"expr::func_sm_linear_quadratic_{bin_name}_"
-                        + str(active_ops[operator])
-                        + '("@0*('
-                        + "@1 * (1-("
-                        + "@"
-                        + "+@".join([str(j + 2) for j in range(len(active_ops) - 1)])
-                        + ") )"
-                        + ')",r,k_'
-                        + str(active_ops[operator])
-                        + ", k_"
-                        + ", k_".join(
-                            [
-                                str(active_ops[j])
-                                for j in range(len(active_ops))
-                                if operator != j
-                            ]
-                        )
-                        + ")"
-                    )
-                    print(
+                    self.private_factory(
                         f"expr::func_sm_linear_quadratic_{bin_name}_"
                         + str(active_ops[operator])
                         + '("@0*('
@@ -413,25 +348,13 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
             #
             # quadratic term in each Wilson coefficient
             #
-            #
-            # e.g. expr::func_sm_linear_quadratic_cH("@0*(@1 * (1-2*(@2+@3) ))",r,k_cH, k_cG, k_cGtil)
-            #
 
             for operator in range(0, self.numOperators):
                 #
                 # this is the coefficient of "Quad_i"
                 #
 
-                # print "expr::func_quadratic_"+ str(active_ops[operator]) + "(\"@0*(@1*@1-@1)\",r,k_" + str(active_ops[operator]) + ")"
-
-                self.modelBuilder.factory_(
-                    f"expr::func_quadratic_{bin_name}_"
-                    + str(active_ops[operator])
-                    + '("@0*(@1*@1-@1)",r,k_'
-                    + str(active_ops[operator])
-                    + ")"
-                )
-                print(
+                self.private_factory(
                     f"expr::func_quadratic_{bin_name}_"
                     + str(active_ops[operator])
                     + '("@0*(@1*@1-@1)",r,k_'
@@ -449,22 +372,8 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
                         #
                         # this is the coefficient of "SM + Lin_i + Lin_j + Quad_i + Quad_j + 2 * M_ij"
                         #
-                        # print "expr::func_sm_linear_quadratic_mixed_" + str(active_ops[operator_sub]) + "_" + str(active_ops[operator]) +          \
-                        # "(\"@0*@1*@2\",r,k_" + str(active_ops[operator]) + ",k_" + str(active_ops[operator_sub]) +                      \
-                        # ")"
 
-                        self.modelBuilder.factory_(
-                            f"expr::func_sm_linear_quadratic_mixed_{bin_name}_"
-                            + str(active_ops[operator_sub])
-                            + "_"
-                            + str(active_ops[operator])
-                            + '("@0*@1*@2",r,k_'
-                            + str(active_ops[operator])
-                            + ",k_"
-                            + str(active_ops[operator_sub])
-                            + ")"
-                        )
-                        print(
+                        self.private_factory(
                             f"expr::func_sm_linear_quadratic_mixed_{bin_name}_"
                             + str(active_ops[operator_sub])
                             + "_"
@@ -476,8 +385,9 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
                             + ")"
                         )
 
-        print(" parameters of interest = ", self.poiNames)
-        print(" self.numOperators = ", self.numOperators)
+        if self.verbose:
+            print(" parameters of interest = ", self.poiNames)
+            print(" self.numOperators = ", self.numOperators)
 
         self.modelBuilder.doSet("POI", self.poiNames)
 
@@ -486,89 +396,101 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
     #
 
     def getYieldScale(self, bin, process):
-        func = self.getYieldScale2(bin, process)
-        print(f"Will scale {process} in bin {bin} with {func}")
+        func = self.getYieldScale_(bin, process)
+        if self.verbose:
+            print(f"Will scale {process} in bin {bin} with {func}")
         return func
 
-    def getYieldScale2(self, bin, process):
-        # print "process = " , process
+    def getYieldScale_(self, bin, process):
+        bin_name = None
+        for _bin_name in self.bin_ops_map:
+            if fnmatch.fnmatch(bin, _bin_name):
+                bin_name = _bin_name
+                break
+        if bin_name is None:
+            bin_name = bin
+
+        bin_name = bin_name.replace("*", "WildCard")
+
+        active_ops = self.bin_ops_map[bin_name]
+        self.numOperators = len(active_ops)
 
 
         active_ops = self.bin_ops_map[bin]
         self.numOperators = len(active_ops)
 
         if process == "sm" or process.endswith("sm"):
-            return f"func_sm_{bin}"
+            return f"func_sm_{bin_name}"
 
         for operator in range(0, self.numOperators):
             if (
-                process == "sm_lin_quad_" + str(self.Operators[operator])
-                or "_sm_lin_quad_" + str(self.Operators[operator]) in process
+                process == "sm_lin_quad_" + str(active_ops[operator])
+                or "_sm_lin_quad_" + str(active_ops[operator]) in process
             ):
-                return f"func_sm_linear_quadratic_{bin}_" + str(
-                    self.Operators[operator]
+                return f"func_sm_linear_quadratic_{bin_name}_" + str(
+                    active_ops[operator]
                 )
             if (
-                process == "quad_" + str(self.Operators[operator])
-                or "_quad_" + str(self.Operators[operator]) in process
+                process == "quad_" + str(active_ops[operator])
+                or "_quad_" + str(active_ops[operator]) in process
             ):
-                return f"func_quadratic_{bin}_" + str(self.Operators[operator])
+                return f"func_quadratic_{bin_name}_" + str(active_ops[operator])
             for operator_sub in range(operator + 1, self.numOperators):
                 if not self.alternative:
                     if (
                         process
                         == "sm_lin_quad_mixed_"
-                        + str(self.Operators[operator])
+                        + str(active_ops[operator])
                         + "_"
-                        + str(self.Operators[operator_sub])
+                        + str(active_ops[operator_sub])
                         or "_sm_lin_quad_mixed_"
-                        + str(self.Operators[operator])
+                        + str(active_ops[operator])
                         + "_"
-                        + str(self.Operators[operator_sub])
+                        + str(active_ops[operator_sub])
                         in process
                     ):
                         return (
-                            f"func_sm_linear_quadratic_mixed_{bin}_"
-                            + str(self.Operators[operator_sub])
+                            f"func_sm_linear_quadratic_mixed_{bin_name}_"
+                            + str(active_ops[operator_sub])
                             + "_"
-                            + str(self.Operators[operator])
+                            + str(active_ops[operator])
                         )
                     if (
                         process
                         == "sm_lin_quad_mixed_"
-                        + str(self.Operators[operator_sub])
+                        + str(active_ops[operator_sub])
                         + "_"
-                        + str(self.Operators[operator])
+                        + str(active_ops[operator])
                         or "_sm_lin_quad_mixed_"
-                        + str(self.Operators[operator_sub])
+                        + str(active_ops[operator_sub])
                         + "_"
-                        + str(self.Operators[operator])
+                        + str(active_ops[operator])
                         in process
                     ):
                         return (
-                            f"func_sm_linear_quadratic_mixed_{bin}_"
-                            + str(self.Operators[operator_sub])
+                            f"func_sm_linear_quadratic_mixed_{bin_name}_"
+                            + str(active_ops[operator_sub])
                             + "_"
-                            + str(self.Operators[operator])
+                            + str(active_ops[operator])
                         )
                 else:
-                    if process == "quad_mixed_" + str(
-                        self.Operators[operator]
-                    ) + "_" + str(self.Operators[operator_sub]):
+                    if process == "quad_mixed_" + str(active_ops[operator]) + "_" + str(
+                        active_ops[operator_sub]
+                    ):
                         return (
-                            f"func_quadratic_mixed_{bin}_"
-                            + str(self.Operators[operator_sub])
+                            f"func_quadratic_mixed_{bin_name}_"
+                            + str(active_ops[operator_sub])
                             + "_"
-                            + str(self.Operators[operator])
+                            + str(active_ops[operator])
                         )
                     if process == "quad_mixed_" + str(
-                        self.Operators[operator_sub]
-                    ) + "_" + str(self.Operators[operator]):
+                        active_ops[operator_sub]
+                    ) + "_" + str(active_ops[operator]):
                         return (
-                            f"func_quadratic_mixed_{bin}_"
-                            + str(self.Operators[operator_sub])
+                            f"func_quadratic_mixed_{bin_name}_"
+                            + str(active_ops[operator_sub])
                             + "_"
-                            + str(self.Operators[operator])
+                            + str(active_ops[operator])
                         )
 
         #
