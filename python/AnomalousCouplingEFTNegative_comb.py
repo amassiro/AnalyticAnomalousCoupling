@@ -160,6 +160,9 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
 
             if po.startswith("eftOperators="):
                 self.Operators = po.replace("eftOperators=", "").split(",")
+                self.Operators = list(
+                    set(self.Operators).intersection(self.CompleteOperators)
+                )
                 print(" Operators = ", self.Operators)
                 self.numOperators = len(self.Operators)
 
@@ -414,7 +417,6 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
 
         active_ops = self.bin_ops_map[bin_name]
         self.numOperators = len(active_ops)
-
 
         active_ops = self.bin_ops_map[bin]
         self.numOperators = len(active_ops)
