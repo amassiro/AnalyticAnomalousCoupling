@@ -398,4 +398,30 @@ if __name__ == "__main__":
 
     c.Draw()
     for ff_ in args.fileFormat:
+        if ff_ == "root": continue
         c.Print(args.output + "." + ff_)
+
+    if "root" in args.fileFormat:
+        f = ROOT.TFile(args.output + ".root", "RECREATE")
+
+        name = "Main" if not args.main_label else args.main_label
+        gs.Write(name)
+
+        for g, l in zip(others, labels):
+            g.Write(l)
+
+        if len(args.POI) == 2:
+
+            # first draw the main
+            for idx, level in enumerate([68, 95]):
+                levelContours = scanUtil.contours[idx]
+                # if scan is not close then we will have different graphs
+                for graph in levelContours:
+                    graph.Write(name + "_" + str(level))
+
+            for other, label in zip(others, labels):
+                for idx, level in enumerate([68, 95]):
+                    levelContours = other[idx]
+                    # if scan is not close then we will have different graphs
+                    for graph in levelContours:
+                        graph.Write(label + "_" + str(level))        

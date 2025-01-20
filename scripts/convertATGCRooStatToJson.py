@@ -179,13 +179,13 @@ if __name__ == "__main__":
     toWrite = {k: [] for k in keys}
     toWrite["parameters"] = ops
     # the only key in the list of coeffs is the bin name as writtten in datacard
-    toWrite["bin_labels"] = [i.keys()[0] for i in coeffs]
+    toWrite["bin_labels"] = [list(i.keys())[0] for i in coeffs]
 
     # now contruct the parametrization in a compatible way
     bins = []
     for c in coeffs:
         ov = []
-        sample = c.keys()[0]
+        sample = list(c.keys())[0]
         coeff = c[sample]
 
         for cv in coeff.keys():
