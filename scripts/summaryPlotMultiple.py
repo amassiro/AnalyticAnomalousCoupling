@@ -7,6 +7,7 @@ import numpy as np
 ROOT.gStyle.SetLineScalePS(1)
 from array import array
 import argparse
+ROOT.gROOT.SetBatch(0)
 
 poi_to_label = {}
 
@@ -23,6 +24,7 @@ if __name__ == "__main__":
 
     # loading the analysis dictionary
     an = {}
+    lumi = "138"
     exec(open(args.config,"r").read())
 
     # keep an if specified
@@ -158,7 +160,7 @@ if __name__ == "__main__":
     tex1.SetNDC()
     tex1.Draw()
 
-    tex3 = ROOT.TLatex(0.09, 0.2, "#sqrt{s} = 13 TeV, 35.9-137.0 fb^{-1}, #Lambda = 1 TeV")
+    tex3 = ROOT.TLatex(0.09, 0.2, "#sqrt{s} = 13 TeV, " + f"{lumi}" + " fb^{-1}, #Lambda = 1 TeV")
     tex3.SetTextFont(52)
     tex3.SetTextSize(0.04)
     tex3.SetLineWidth(2)
