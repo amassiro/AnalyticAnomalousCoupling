@@ -19,6 +19,7 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
         )  # not using 'super(x,self).__init__' since I don't understand it
         self.mHRange = []
         self.poiNames = []
+        self.excludePrefix = []
         self.numOperators = 82
         self.alternative = False
         self.addDim8 = False
@@ -165,6 +166,10 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
                 )
                 print(" Operators = ", self.Operators)
                 self.numOperators = len(self.Operators)
+
+            if po.startswith("excludeProcesses="):
+                self.excludePrefix = po.replace("excludeProcesses=", "").split(",")
+                print(" Exclude prefixes = ", self.excludePrefix)
 
             if po.startswith("eftAlternative"):
                 self.alternative = True
@@ -421,20 +426,29 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
         active_ops = self.bin_ops_map[bin]
         self.numOperators = len(active_ops)
 
+        # excluded prefixes
+
+        if any([process.startswith(i) for i in self.excludePrefix]):
+            for complete_list_of_operators in self.CompleteOperators:
+                if complete_list_of_operators in process:
+                    return 0
+            return 1
+
+
         if process == "sm" or process.endswith("sm"):
             return f"func_sm_{bin_name}"
 
         for operator in range(0, self.numOperators):
             if (
                 process == "sm_lin_quad_" + str(active_ops[operator])
-                or "_sm_lin_quad_" + str(active_ops[operator]) in process
+                or process.endswith("_sm_lin_quad_" + str(active_ops[operator]))
             ):
                 return f"func_sm_linear_quadratic_{bin_name}_" + str(
                     active_ops[operator]
                 )
             if (
                 process == "quad_" + str(active_ops[operator])
-                or "_quad_" + str(active_ops[operator]) in process
+                or process.endswith("_quad_" + str(active_ops[operator]))
             ):
                 return f"func_quadratic_{bin_name}_" + str(active_ops[operator])
             for operator_sub in range(operator + 1, self.numOperators):
@@ -445,11 +459,10 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
                         + str(active_ops[operator])
                         + "_"
                         + str(active_ops[operator_sub])
-                        or "_sm_lin_quad_mixed_"
+                        or process.endswith("_sm_lin_quad_mixed_"
                         + str(active_ops[operator])
                         + "_"
-                        + str(active_ops[operator_sub])
-                        in process
+                        + str(active_ops[operator_sub]))
                     ):
                         return (
                             f"func_sm_linear_quadratic_mixed_{bin_name}_"
@@ -463,11 +476,10 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
                         + str(active_ops[operator_sub])
                         + "_"
                         + str(active_ops[operator])
-                        or "_sm_lin_quad_mixed_"
+                        or process.endswith("_sm_lin_quad_mixed_"
                         + str(active_ops[operator_sub])
                         + "_"
-                        + str(active_ops[operator])
-                        in process
+                        + str(active_ops[operator]))
                     ):
                         return (
                             f"func_sm_linear_quadratic_mixed_{bin_name}_"
