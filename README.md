@@ -2,9 +2,8 @@
 
 The AAC suite provides different Combine PhysicsModels compatible with different releases of Combine itself:
 
-- `el9-cmssw` (recommended): el9 compatible with Combine v10 and CMSSW_14_1_0_pre4
+- `master` (recommended): el9 compatible with Combine v10 and CMSSW_14_1_0_pre4
 - `template_morphing`: el9 compatible with Combine v10 and CMSSW_14_1_0_pre4. Same as `el9-cmssw` with an additional model (`AnomalousCouplingMorphing.py`) to account for correlated MC stat uncertainties on EFT predictions. To be used ***ONLY*** with a [modified Combine version](https://github.com/GiacomoBoldrini/HiggsAnalysis-CombinedLimit/tree/correlated_autoMCstat)
-- `master`: slc7 compatible with Combine v8 and CMSSW_10_2_X. Deprecated
 
 Before running the tool, be sure to git checkout to the correct AnalyticAnomalousCoupling branch compatible with the CMSSW and Combine version used.
 
@@ -74,78 +73,22 @@ Where
 **Sm + Lin**$\_\alpha$ **+ Quad**$\_\alpha$ **+ Lin**$\_\beta$ **+ Quad**$\_\beta$ **+ 2**$\cdot$ **Mix**$\_{\alpha,\beta}$ = $| \mathcal{A}\_{SM} + \frac{1}{\Lambda^{2}} \mathcal{A}\_{Q\_{\alpha}} + \frac{1}{\Lambda^{2}} \mathcal{A}\_{Q\_{\beta}} |^2$
 
 ---- 
-
-# Install:
-
-    cmsrel CMSSW_10_2_13
-    cd CMSSW_10_2_13/src
-    cmsenv
-    git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-    cd HiggsAnalysis/CombinedLimit
-    git fetch origin
-    git checkout v8.2.0
-    cd ..
-    git clone git@github.com:amassiro/AnalyticAnomalousCoupling.git
-    scramv1 b clean; scramv1 b # always make a clean build
-
-
     
 # Install el9
 
     cmsrel CMSSW_14_1_0_pre4
     cd CMSSW_14_1_0_pre4/src
     cmsenv
-    git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-    cd HiggsAnalysis/CombinedLimit
- 
-    git fetch origin
-    git checkout v10.0.1
-
-    cd ..
+    git -c advice.detachedHead=false clone --depth 1 --branch v10.3.3 https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+    cd HiggsAnalysis
     git clone git@github.com:amassiro/AnalyticAnomalousCoupling.git
-    cd AnalyticAnomalousCoupling; git checkout el9-cmssw; cd -
-    scramv1 b clean; scramv1 b # always make a clean build
-
-    
-    
-# Install: new CMSSW release and new el9 --> use branch el9-cmssw
-
-    cmsrel CMSSW_14_1_0_pre4
-    cd CMSSW_14_1_0_pre4/src
-    cmsenv
-    git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-    cd HiggsAnalysis/CombinedLimit
- 
-    git fetch origin
-    git checkout v10.0.1
-
-    cd ..
-    git clone git@github.com:amassiro/AnalyticAnomalousCoupling.git
-    cd AnalyticAnomalousCoupling; git checkout el9-cmssw; cd -
-    scramv1 b clean; scramv1 b # always make a clean build
-
-    
-    
-# Install: new CMSSW release and new el9 --> use branch el9-cmssw
-
-    cmsrel CMSSW_14_1_0_pre4
-    cd CMSSW_14_1_0_pre4/src
-    cmsenv
-    git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
-    cd HiggsAnalysis/CombinedLimit
- 
-    git fetch origin
-    git checkout v10.0.1
-
-    cd ..
-    git clone git@github.com:amassiro/AnalyticAnomalousCoupling.git
-    cd AnalyticAnomalousCoupling; git checkout el9-cmssw; cd -
-    scramv1 b clean; scramv1 b # always make a clean build
+    scramv1 b clean; scramv1 b -j$(nproc --ignore=2) # always make a clean build, with n - 2 cores on the system
 
     
 # Model to be used:
 
-    AnomalousCouplingEFTNegative
+- AnomalousCouplingEFTNegative: basic model, presents some instabilities depending on operators names.
+- AnomalousCouplingEFTNegative_comb: robust implementation, relies on some config files that can be automatically produced with central tools (gitlab, ask) 
     
 
 # Providing shapes and building datacards
@@ -240,6 +183,38 @@ You can also add the dim8 operators by
 but you can also just define the new operators by
  
     --PO eftOperators=cS0,cS1,cT0
+
+# Postfits with Combine 
+
+The EFT parametrization in all AAC models is implemented as a process normalization (W.C. - dependent) of all the templates and processes defined in the datacard. That means that templates will be scaled by a normalization parameter according to the algebra (see *AnalyticAnomalousCoupling* section of this readme). For example, the SM nomial template in your root file will be scaled by $(1 − \sum_{\alpha} c\_{\alpha}))$. When you run ```FitDiagnostics``` with options ```--saveShapes --saveNormalizations --saveWithUncertainties```, for example to obtain post-fit distributions, the output shapes will be scaled according to the algebra using either the  prefit or postfit value of the Wilson coefficients. While post-fit distributions are ok, prefit distributions depend on the prefit value you assign to the POIs. In the physics model, by default ```r``` (scaling the overall EFT normalization) has a default value of ```1``` while all Wilson coefficients assume the SM value of zero. Unfortunately ```Combine``` routines for ```FitDiagnostics``` assign a default prefit value of 1 for the ```first``` POI in the list:
+- Default prefit value: [FitterAlgoBase.cc#50](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/47f8f8d38a8d6b8726f02aa26755b9260d162f82/src/FitterAlgoBase.cc#L50)
+- Retrieve POI to assign the prefit value: [FitDiagnostics.cc#159](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/47f8f8d38a8d6b8726f02aa26755b9260d162f82/src/FitDiagnostics.cc#L159)
+- Assign prefit value: [FitDiagnostics.cc#180](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/47f8f8d38a8d6b8726f02aa26755b9260d162f82/src/FitDiagnostics.cc#L180)
+
+That means that running with the following command, ```cW``` will have a prefit value of 1, leading to a zero SM prefit shape. Also the "total signal" will be computed with ```cW=1``` therefore it is ```SM+Lin+Quad```, while usually we report prefit with only SM. 
+
+```
+combine workspace.root -M FitDiagnostics \
+    --saveShapes --saveNormalizations --saveWithUncertainties -m 125      \
+    --redefineSignalPOIs k_cW \
+    --freezeParameters r,k_cHDD,k_cHWB,k_cHl3,k_cHq3,k_cll1  \
+    --setParameters k_cHDD=0,k_cHWB=0,k_cHl3=0,k_cHq3=0,k_cll1=0 \
+    --setParameterRanges k_cW=-2,2     
+    --verbose -1
+```
+
+A special flag is provided to change this behaviour, setting a user-defined prefit value, obtaining correct prefit normalizations: [--preFitValue](https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit/blob/47f8f8d38a8d6b8726f02aa26755b9260d162f82/src/FitterAlgoBase.cc#L72). Adding it to the previous example gives the desired prefit result:
+```
+combine workspace.root -M FitDiagnostics \
+    --saveShapes --saveNormalizations --saveWithUncertainties -m 125      \
+    --redefineSignalPOIs k_cW \
+    -—preFitValue=0 \
+    --freezeParameters r,k_cHDD,k_cHWB,k_cHl3,k_cHq3,k_cll1  \
+    --setParameters k_cHDD=0,k_cHWB=0,k_cHl3=0,k_cHq3=0,k_cll1=0 \
+    --setParameterRanges k_cW=-2,2     
+    --verbose -1
+```
+
 
 # Support for EFT2Obs and aTGCRooStat
 
@@ -436,6 +411,9 @@ $$
 $$
 
 We stress that these weights should be computed on an event-by-event basis.
+
+
+
 
 Older examples
 ====
