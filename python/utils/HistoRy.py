@@ -2,7 +2,7 @@ import ROOT
 from copy import deepcopy
 from itertools import combinations
 import numpy as np
-from scan import scanEFT
+from HiggsAnalysis.AnalyticAnomalousCoupling.utils.scan import scanEFT
 
 class HistoBuilder:
     

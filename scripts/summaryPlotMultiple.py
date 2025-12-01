@@ -1,12 +1,13 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-from utils.functions import *
+from HiggsAnalysis.AnalyticAnomalousCoupling.utils.functions import *
 import ROOT
 import json 
 import numpy as np
 ROOT.gStyle.SetLineScalePS(1)
 from array import array
 import argparse
+ROOT.gROOT.SetBatch(0)
 
 poi_to_label = {}
 
@@ -18,10 +19,12 @@ if __name__ == "__main__":
     parser.add_argument("-k", "--keepan", dest="keepan", help="Keep only these AN, comma separated list", required=False, default = None)
     parser.add_argument("-c", "--common", dest="common", help="Keep only operators shared by more than one analysis. Default is false", required=False, default = False, action="store_true")
     parser.add_argument("-f", "--filter", dest="filter", help="Filter results for this analysis. Keep other analyses only if they share ops with this one", required=False, default = "")
+    parser.add_argument("-o", "--output", dest="output", help="Plot output name without extension. Default is summary", required=False, default = "summary")
     args, _ = parser.parse_known_args()
 
     # loading the analysis dictionary
     an = {}
+    lumi = "138"
     exec(open(args.config,"r").read())
 
     # keep an if specified
@@ -157,7 +160,7 @@ if __name__ == "__main__":
     tex1.SetNDC()
     tex1.Draw()
 
-    tex3 = ROOT.TLatex(0.09, 0.2, "#sqrt{s} = 13 TeV, 35.9-137.0 fb^{-1}, #Lambda = 1 TeV")
+    tex3 = ROOT.TLatex(0.09, 0.2, "#sqrt{s} = 13 TeV, " + f"{lumi}" + " fb^{-1}, #Lambda = 1 TeV")
     tex3.SetTextFont(52)
     tex3.SetTextSize(0.04)
     tex3.SetLineWidth(2)
@@ -201,5 +204,5 @@ if __name__ == "__main__":
     c.Update()
     c.Draw()
 
-    c.Print("/eos/user/g/gboldrin/www/prova/prova_total.png")
-    c.Print("/eos/user/g/gboldrin/www/prova/prova_total.pdf")
+    c.Print(f"{args.output}.png")
+    c.Print(f"{args.output}.pdf")

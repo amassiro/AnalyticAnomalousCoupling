@@ -135,21 +135,21 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
         self.CompleteOperators = self.Operators + self.OperatorsDim8
 
         self.numOperators = len(self.Operators)
-        print " Operators = ", self.Operators
+        print (" Operators = ", self.Operators)
 
 
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
-            if po.startswith("higgsMassRange="):
-                self.mHRange = po.replace("higgsMassRange=","").split(",")
-                if len(self.mHRange) != 2:
-                    raise RuntimeError, "Higgs mass range definition requires two extrema"
-                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
-                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
+            #if po.startswith("higgsMassRange="):
+                #self.mHRange = po.replace("higgsMassRange=","").split(",")
+                #if len(self.mHRange) != 2:
+                    #raise RuntimeError, "Higgs mass range definition requires two extrema"
+                #elif float(self.mHRange[0]) >= float(self.mHRange[1]):
+                    #raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first"
 
             if po.startswith("eftOperators="):
                 self.Operators = po.replace("eftOperators=","").split(",")
-                print " Operators = ", self.Operators
+                print (" Operators = ", self.Operators)
                 self.numOperators = len(self.Operators)
 
             if po.startswith("eftAlternative"):
@@ -167,18 +167,18 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
             #
             if po.startswith("defineCompleteOperators="):
                 self.CompleteOperators = po.replace("defineCompleteOperators=","").split(",")
-                print " CompleteOperators = ", self.CompleteOperators
+                print (" CompleteOperators = ", self.CompleteOperators)
 
             if po.startswith("addToCompleteOperators="):
                 toAddOperators = po.replace("addToCompleteOperators=","").split(",")
                 self.CompleteOperators.extend ( toAddOperators )
-                print " CompleteOperators = ", self.CompleteOperators
+                print (" CompleteOperators = ", self.CompleteOperators)
 
             if po.startswith("removeFromCompleteOperators="):
                 toRemoveOperators = po.replace("removeFromCompleteOperators=","").split(",")
                 newlist = [i for i in self.CompleteOperators if i not in toRemoveOperators]
                 self.CompleteOperators = newlist
-                print " CompleteOperators = ", self.CompleteOperators
+                print (" CompleteOperators = ", self.CompleteOperators)
 
 
 #
@@ -435,8 +435,8 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
 
 
 
-        print " parameters of interest = ", self.poiNames
-        print " self.numOperators = ", self.numOperators
+        print (" parameters of interest = ", self.poiNames)
+        print (" self.numOperators = ", self.numOperators)
         
         self.modelBuilder.doSet("POI",self.poiNames)
 
@@ -453,12 +453,13 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
 
         #print "process = " , process
 
-        if   process == "sm" or "_sm" in process:          return "func_sm"
+        if   process == "sm" or process.endswith("sm") :          return "func_sm"
 
         for operator in range(0, self.numOperators):
           if process == "sm_lin_quad_"+ str(self.Operators[operator]) or "_sm_lin_quad_"+ str(self.Operators[operator]) in process : 
             return "func_sm_linear_quadratic_"+ str(self.Operators[operator])
-          if process == "quad_"+ str(self.Operators[operator]) :              return "func_quadratic_"+ str(self.Operators[operator])
+          if process == "quad_"+ str(self.Operators[operator]) or  "_quad_"+ str(self.Operators[operator]) in process:    
+            return "func_quadratic_"+ str(self.Operators[operator])
           for operator_sub in range(operator+1, self.numOperators):
             if not self.alternative :
               if process == "sm_lin_quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) or "_sm_lin_quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) in process :   

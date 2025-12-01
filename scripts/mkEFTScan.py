@@ -1,13 +1,61 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import argparse
 import ROOT
 import os
 import sys
-# from HiggsAnalysis.AnalyticAnomalousCoupling.scan import scanEFT
-path = os.environ["CMSSW_BASE"] + \
-    "/src/HiggsAnalysis/AnalyticAnomalousCoupling/scripts/"
-sys.path.append(path)
-from scan import scanEFT
+from HiggsAnalysis.AnalyticAnomalousCoupling.utils.scan import scanEFT
+
+def getBestFit(graphScan):
+    xings = []
+    n = graphScan.GetN ()
+    x = list(graphScan.GetX ())
+    y = list(graphScan.GetY ())
+    x, y = zip(*sorted(zip(x, y)))
+    found = False
+
+    # get best fit --> min value on y -2DeltaNLL
+    y_b, x_b = zip(*sorted(zip(y, x)))
+
+    x_b = x_b[0]
+
+    return x_b 
+
+def getLSintersections (graphScan, val):
+
+    xings = []
+    n = graphScan.GetN ()
+    x = list(graphScan.GetX ())
+    y = list(graphScan.GetY ())
+    x, y = zip(*sorted(zip(x, y)))
+    found = False
+
+    for i in range(n):
+        if (y[i] == val):
+            xings.append(x[i])
+            continue
+        if i > 0:
+            if ((y[i] - val) * (y[i-1] - val) < 0):
+                xings.append(x[i-1] +  abs ((y[i-1] - val) * (x[i] - x[i-1]) / (y[i] - y[i-1])) )
+
+    if len(xings) == 0:
+        print("@ @ @ WARNING @ @ @: returning graph x-axis range limits")
+        xings.append(graphScan.GetXaxis ().GetXmin ())
+        xings.append(graphScan.GetXaxis ().GetXmax ())
+
+    elif len(xings) == 1:
+        if (xings[0] < 0):
+            print("@ @ @ WARNING @ @ @: returning graph x-axis higher limit")
+            xings.append(graphScan.GetXaxis().GetXmax ())
+        else :
+            print("@ @ @ WARNING @ @ @: returning graph x-axis lower limit")
+            xings.append (xings[0])
+            xings[0] = graphScan.GetXaxis ().GetXmin ()
+
+    if len(xings) > 2:
+        print("@ @ @ WARNING @ @ @: more than two intersections found, returning the first two")
+        xings = xings[:2]
+
+    return xings
 
 def getLabel():
 
@@ -122,9 +170,14 @@ if __name__ == "__main__":
     scanUtil.setNuisanceStyle(args.isNuis)
 
     gs = scanUtil.getScan()
+    x_b = getBestFit(gs)
+    xings1s = getLSintersections(gs, 1.0)
+    xings2s = getLSintersections(gs, 1.0)
+    print(f"Main scan 68.27% C.L (1 s.d.)  {pois}<1: {xings1s} --> {x_b:.3f}+{abs(xings1s[1]-x_b):.3f}-{abs(x_b-xings1s[0]):.3f}")
+    print(f"Main scan 95.45% C.L (2 s.d.)  {pois}<4: {xings2s} --> {x_b:.3f}+{abs(xings2s[1]-x_b):.3f}-{abs(x_b-xings2s[0]):.3f}")
     others = []
     labels = []
-    if len(args.others) is not 0:
+    if len(args.others) != 0:
 
         for file_, color_, line_, label_ in [i.split(":") for i in args.others]:
             scanUtil_ = scanEFT()
@@ -134,6 +187,11 @@ if __name__ == "__main__":
             scanUtil_.setupperNLLimit(args.maxNLL)
             scanUtil_.setNuisanceStyle(args.isNuis)
             gs_ = scanUtil_.getScan()
+            x_b_ = getBestFit(gs_)
+            xings1s_ = getLSintersections(gs_, 1.0)
+            xings2s_ = getLSintersections(gs_, 1.0)
+            print(f"{label_} scan 68.27% C.L (1 s.d.)  {pois}<1: {xings1s_} --> {x_b_:.3f}+{abs(xings1s_[1]-x_b_):.3f}-{abs(x_b_-xings1s_[0]):.3f}")
+            print(f"{label_} scan 95.45% C.L (2 s.d.)  {pois}<4: {xings2s_} --> {x_b_:.3f}+{abs(xings2s_[1]-x_b_):.3f}-{abs(x_b_-xings2s_[0]):.3f}")
             gs_.SetLineWidth(4)
             gs_.SetLineColor(int(color_))
             gs_.SetLineStyle(int(line_))
@@ -277,12 +335,12 @@ if __name__ == "__main__":
             hist.GetYaxis().SetTitle(yl)
             # hist.GetZaxis().SetTitle("-2 #Delta LL")
 
-            hist.GetYaxis().SetTitleOffset(1.4)
-            hist.GetXaxis().SetTitleOffset(1.1)
+            hist.GetYaxis().SetTitleOffset(1.7)
+            hist.GetXaxis().SetTitleOffset(1.4)
             # hist.GetZaxis().SetTitleOffset(0.8)
 
-            hist.GetXaxis().SetTitleSize(0.07)
-            hist.GetYaxis().SetTitleSize(0.07)
+            hist.GetXaxis().SetTitleSize(0.04)
+            hist.GetYaxis().SetTitleSize(0.04)
 
             hist.GetZaxis().SetRangeUser(0, float(args.maxNLL))
 
@@ -402,4 +460,30 @@ if __name__ == "__main__":
 
     c.Draw()
     for ff_ in args.fileFormat:
+        if ff_ == "root": continue
         c.Print(args.output + "." + ff_)
+
+    if "root" in args.fileFormat:
+        f = ROOT.TFile(args.output + ".root", "RECREATE")
+
+        name = "Main" if not args.main_label else args.main_label
+        gs.Write(name)
+
+        for g, l in zip(others, labels):
+            g.Write(l)
+
+        if len(args.POI) == 2:
+
+            # first draw the main
+            for idx, level in enumerate([68, 95]):
+                levelContours = scanUtil.contours[idx]
+                # if scan is not close then we will have different graphs
+                for graph in levelContours:
+                    graph.Write(name + "_" + str(level))
+
+            for other, label in zip(others, labels):
+                for idx, level in enumerate([68, 95]):
+                    levelContours = other[idx]
+                    # if scan is not close then we will have different graphs
+                    for graph in levelContours:
+                        graph.Write(label + "_" + str(level))        

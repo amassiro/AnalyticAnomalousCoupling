@@ -73,7 +73,7 @@ def revert_dictionary(d, limits="expected"):
     for an in d.keys():
         for op in d[an]["constraints"][limits].keys():
             if op not in new_d.keys(): 
-                new_d[op] = {"legend_names": [], "reference": [], "best_fit": [], "interval": [], "colors": []}
+                new_d[op] = {"legend_names": [], "reference": [], "best_fit": [], "interval": [], "colors": [], "linestyle": []}
             
             #print(d[an])
             new_d[op]["legend_names"].append(d[an]["name"])
@@ -82,8 +82,11 @@ def revert_dictionary(d, limits="expected"):
             new_d[op]["interval"].append(d[an]["constraints"][limits][op][1:])
             
             color = ROOT.kBlack
+            linestyle = 1
             if "color" in d[an].keys(): color = d[an]["color"]
-            new_d[op]["colors"].append(d[an]["color"])
+            if "linestyle" in d[an].keys(): linestyle = d[an]["linestyle"]
+            new_d[op]["colors"].append(color)
+            new_d[op]["linestyle"].append(linestyle)
             
     return new_d
 
@@ -131,6 +134,7 @@ def convert_dict_to_objects(d, h):
     
     analyses_in_leg = []
     colors_in_leg = []
+    linestyle_in_leg = []
     ref_in_leg = []
     
     
@@ -151,6 +155,7 @@ def convert_dict_to_objects(d, h):
             sup = d[op]["interval"][an_idx][0]
             
             color = d[op]["colors"][an_idx] 
+            linestyle = d[op]["linestyle"][an_idx] 
             if not isinstance(color, int):
                 # color = ROOT.TColor.GetColor(*d[op]["colors"][an_idx])
                 color = _getColor(d[op]["colors"][an_idx])
@@ -166,7 +171,7 @@ def convert_dict_to_objects(d, h):
                 sup = converted_up
                 arr = ROOT.TArrow(ns[an_idx], 0.95*limit[1] , ns[an_idx], 0.99*limit[1], 0.005, "|>")
                 arr.SetLineColor(color)
-                arr.SetFillColor(color);
+                arr.SetFillColor(color)
                 arrows.append(arr)
             
             #print(ns[an_idx], inf , ns[an_idx], sup)
@@ -174,7 +179,7 @@ def convert_dict_to_objects(d, h):
             l = ROOT.TLine(ns[an_idx], inf , ns[an_idx], sup)
             
 
-            l.SetLineStyle(1)
+            l.SetLineStyle(linestyle)
             l.SetLineWidth(5)
             l.SetLineColor(color)
             
@@ -185,14 +190,14 @@ def convert_dict_to_objects(d, h):
             g.SetMarkerColor(color)
             g.SetLineWidth(5)
             g.SetLineColor(color)
+            g.SetLineStyle(linestyle)
             
             if d[op]["legend_names"][an_idx] not in analyses_in_leg:
                 leg.AddEntry(g, d[op]["legend_names"][an_idx])                
                 analyses_in_leg.append(d[op]["legend_names"][an_idx])
                 ref_in_leg.append(d[op]["reference"][an_idx])
                 colors_in_leg.append(color)
-                
-            
+                linestyle_in_leg.append(linestyle)
             
 
             lines.append(l)
@@ -221,13 +226,14 @@ def convert_dict_to_objects(d, h):
     
     
     #print(analyses_in_leg, colors_in_leg, ref_in_leg, x_values)
-    for name, color, ref, xs in zip(analyses_in_leg, colors_in_leg, ref_in_leg, x_values):
+    for name, color, ls, ref, xs in zip(analyses_in_leg, colors_in_leg, linestyle_in_leg, ref_in_leg, x_values):
         g_ = ROOT.TGraphErrors(1, array("f", [xs]), array("f", [graphs_y]), array("f", [0]), array("f", [abs(error)]))
         g_.SetMarkerStyle(8)
         g_.SetMarkerSize(1.3)
         g_.SetMarkerColor(color)
         g_.SetLineWidth(5)
         g_.SetLineColor(color)
+        g_.SetLineStyle(ls)
         
         
         legend_graphs.append(g_)

@@ -88,6 +88,42 @@ Where
     git clone git@github.com:amassiro/AnalyticAnomalousCoupling.git
     scramv1 b clean; scramv1 b # always make a clean build
 
+
+    
+# Install el9
+
+    cmsrel CMSSW_14_1_0_pre4
+    cd CMSSW_14_1_0_pre4/src
+    cmsenv
+    git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+    cd HiggsAnalysis/CombinedLimit
+ 
+    git fetch origin
+    git checkout v10.0.1
+
+    cd ..
+    git clone git@github.com:amassiro/AnalyticAnomalousCoupling.git
+    cd AnalyticAnomalousCoupling; git checkout el9-cmssw; cd -
+    scramv1 b clean; scramv1 b # always make a clean build
+
+    
+    
+# Install: new CMSSW release and new el9 --> use branch el9-cmssw
+
+    cmsrel CMSSW_14_1_0_pre4
+    cd CMSSW_14_1_0_pre4/src
+    cmsenv
+    git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+    cd HiggsAnalysis/CombinedLimit
+ 
+    git fetch origin
+    git checkout v10.0.1
+
+    cd ..
+    git clone git@github.com:amassiro/AnalyticAnomalousCoupling.git
+    cd AnalyticAnomalousCoupling; git checkout el9-cmssw; cd -
+    scramv1 b clean; scramv1 b # always make a clean build
+
     
     
 # Install: new CMSSW release and new el9 --> use branch el9-cmssw
@@ -254,7 +290,7 @@ sm + x*lin_cx + y*lin_cw + z*lin_cb + x*y*mix_cx_cw + x*z*mix_cx_cb + y*z*mix_cw
 
 Therefore this script can be called as:
 ```
-python convertToJson.py -fg signal_proc_*.root -pp anoCoupl_process -fp signal_proc
+python convertATGCRooStatToJson.py -fg signal_proc_*.root -pp anoCoupl_process -fp signal_proc
                         -c sm:0,lin_cx:1,lin_cw:2,lin_cb:3,mix_cx_cw:4,mix_cx_cb:5,mix_cw_cb:6,quad_cx:7,quad_cw:8,quad_cb:9
                         -mp 8 -o converted_aTGC_EFT2Obs.json
 ```
@@ -272,8 +308,8 @@ This frameworks comes with plotting tools to support analyst with fast instrumen
 For plots of likelihood profiles `scripts/mkEFTScan.py` supports both:
 
 ```
-./scripts/mkEFTScan.py oned.root -p k_cqq3 -maxNLL 10 -lumi 138 -cms -preliminary -xlabel "c_{qq}^{(3)} [TeV^{-2}]"
-./scripts/mkEFTScan.py twod.root -p k_cqq3 k_cqq31 -maxNLL 10 -lumi 138 -cms -preliminary -xlabel "c_{qq}^{(3)} [TeV^{-2}]" -ylabel "c_{qq}^{(3,1)} [TeV^{-2}]"
+mkEFTScan.py oned.root -p k_cqq3 -maxNLL 10 -lumi 138 -cms -preliminary -xlabel "c_{qq}^{(3)} [TeV^{-2}]"
+mkEFTScan.py twod.root -p k_cqq3 k_cqq31 -maxNLL 10 -lumi 138 -cms -preliminary -xlabel "c_{qq}^{(3)} [TeV^{-2}]" -ylabel "c_{qq}^{(3,1)} [TeV^{-2}]"
 ```
 
 <div href="url">
@@ -287,7 +323,7 @@ The process is repeated for all regions of the datacards.
 
 An example is provided in the following gif:
 ```
-./scripts/mkEFTGifs.py -d datacard.txt -s higgsCombineTest.MultiDimFit.mH125.root -op k_cqq3 -rp top:CMS_hww_Topnorm2j WW:CMS_hww_WWnorm2j DY_hardJets:CMS_hww_DYnorm2j_hardJets DY_PUJets:CMS_hww_DYnorm2j_PUJets_2016 --frequency 2 -t scan overall signal templates --variables ewkz_2016_zjj_specified:"m_{jj} [GeV]" ewkz_2016_dycr:"m_{jj} [GeV]" --logy -drawSigma -lumi 138
+mkEFTGifs.py -d datacard.txt -s higgsCombineTest.MultiDimFit.mH125.root -op k_cqq3 -rp top:CMS_hww_Topnorm2j WW:CMS_hww_WWnorm2j DY_hardJets:CMS_hww_DYnorm2j_hardJets DY_PUJets:CMS_hww_DYnorm2j_PUJets_2016 --frequency 2 -t scan overall signal templates --variables ewkz_2016_zjj_specified:"m_{jj} [GeV]" ewkz_2016_dycr:"m_{jj} [GeV]" --logy -drawSigma -lumi 138
 ```
 
 
