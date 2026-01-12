@@ -147,7 +147,7 @@ if __name__ == "__main__":
 
     if len(args.POI) > 2:
         print("[ERROR] Specified {} operators to be plotted but only 2 are supported for plotting purposes".format(
-            len(args.pois)))
+            len(args.POI)))
 
     ROOT.gROOT.SetBatch(1)
     ROOT.gStyle.SetOptStat(0000)
