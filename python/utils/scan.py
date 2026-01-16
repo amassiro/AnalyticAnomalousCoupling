@@ -95,6 +95,7 @@ class scanEFT:
             else:
                 ROOT.gStyle.SetPalette(109)
 
+            print(self.poi)
             to_draw = ROOT.TString(
                 "{}:{}:2*deltaNLL".format(self.poi[0], self.poi[1]))
 
