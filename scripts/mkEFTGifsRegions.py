@@ -59,7 +59,6 @@ def getCanvas(n, reg):
         if n % 2 != 0: n+=1
         divs = (int(n/2), 2) 
     
-    print(divs)
     c = ROOT.TCanvas("c_" + reg, "c", 1000*divs[0], 1000*divs[1])
     c.Divide(divs[0],divs[1])
     
@@ -139,7 +138,6 @@ if __name__ == "__main__":
     ROOT.TH1.SetDefaultSumw2(True)
     ROOT.gStyle.SetPalette(ROOT.kOcean)
     cols = list(ROOT.TColor.GetPalette())
-    print(cols)
     ncols = len(cols)
 
     datacard_name = args.datacard.split("/")[-1]
@@ -212,7 +210,6 @@ if __name__ == "__main__":
         hh.setPrefix(prefix_)
         hh.setScan(args.scan, "limit")
         hh.setScanMaxNLL(args.maxNLL)
-        print(map)
         hh.setRateParam(map.values())
         hh.runHistoryEFTNeg()
 
@@ -222,29 +219,113 @@ if __name__ == "__main__":
     scan = builders[reg].getScan()
     values = builders[reg].returnInterestPOIValues()
     
+    c = getCanvas(len(regions), "__CANV")
+    
     if isinstance(values[0], dict) and len(hh.pois) == 2 :
         # in this case the keys of the histos are integers (index in the tree)
         values = sorted(values, key=lambda x: (x[hh.pois[0]], x[hh.pois[1]]))
+        
+        scan.GetHistogram().GetZaxis().SetTitleOffset(1)
+        scan.GetHistogram().GetZaxis().SetTitleSize(0.04)
+
+        scan.GetHistogram().GetXaxis().SetTitle("x")
+        scan.GetHistogram().GetXaxis().SetTitleOffset(1)
+        scan.GetHistogram().GetXaxis().SetTitleSize(0.045)
+
+        scan.GetHistogram().GetYaxis().SetTitle("y")
+        scan.GetHistogram().GetYaxis().SetTitleOffset(1)
+        scan.GetHistogram().GetYaxis().SetTitleSize(0.045)
+
+        scan.GetHistogram().GetXaxis().SetLabelSize(0.041)
+        scan.GetHistogram().GetYaxis().SetLabelSize(0.041)
+        
+        for i in range(scan.GetHistogram().GetSize()+1):
+            if (scan.GetHistogram().GetBinContent(i) == 0):
+                scan.GetHistogram().SetBinContent(i, 100)
+
+        scan.GetXaxis().SetTitle("x")
+        scan.GetYaxis().SetTitle("y")
+        scan.GetYaxis().SetTitleOffset(1.4)
+        scan.GetXaxis().SetTitleOffset(1.1)
+        scan.GetZaxis().SetRangeUser(0, float(args.maxNLL))
+        scan.GetHistogram().GetZaxis().SetRangeUser(0, float(args.maxNLL))
+        scan.GetHistogram().SetTitle("")
+        
     else:
         values = sorted(values)
-
-    c = getCanvas(len(regions), "__CANV")
-
 
 
     tex_saver = []
     histo_saver = []
     legends = []
 
-    print(values)
     for idx, j in enumerate(values):
         canv_idx = 1
         # draw this point only if frequency is preserved
         if idx % args.frequency == 0:
             
             if isinstance(values[0], dict) and len(hh.pois) == 2 :
+                
+                x, y = [value for _, value in j.items()]
+                
                 # NEED TO PLOT IN 2D SCAN
-                pass
+                c.cd(canv_idx)
+                
+                # If the likelihood scan at this point is greater than the required maximum then skip
+                # this point and don't plot it
+                try:
+                    
+                    bin__ = scan.GetHistogram().FindBin(x, y)
+
+                    z = scan.GetHistogram().GetBinContent(bin__)
+                    
+                    if z > args.maxNLL: 
+                        print("continue")
+                        #continue
+                except: 
+                    # may fall here if the graph has no points
+                    z = None
+                    
+                scan.GetHistogram().Draw("colz")
+        
+
+                ROOT.gPad.SetFrameLineWidth(3)
+                ROOT.gPad.SetRightMargin(margins)
+                ROOT.gPad.SetLeftMargin(margins)
+
+                #scan.GetHistogram().GetZaxis().SetTitle("-2 #Delta lnL")
+                                
+                m = ROOT.TMarker(x, y, 20)
+                m.SetMarkerSize(2)
+                m.SetMarkerColor(ROOT.kBlack)
+                m.Draw("P SAME")
+                
+                
+                """
+                colors = [ROOT.kRed, ROOT.kRed]
+
+                for i, item_ in enumerate(builders[reg].contours):
+                    # item_ here is a TList
+                    l = list(item_)
+                    for item in l:
+                        try:
+                            item.SetLineColor(colors[i])
+                            item.SetLineStyle(linestyle[i])
+                            item.SetLineWidth(2)
+                            item.Draw("L same")
+                        except:
+                            continue
+                    # only add one legend entry, arbitrary
+                    if len(l) > 0:
+                        leg.AddEntry(l[0], "#pm {} s.d.".format(i+1), "L")
+
+                leg.Draw()
+                """
+                
+                c.Modified()
+                c.Update()
+                canv_idx+=1
+            
             else:
                 
                 # If the likelihood scan at this point is greater than the required maximum then skip
@@ -362,7 +443,6 @@ if __name__ == "__main__":
     
                 bkg_shapes = ROOT.THStack("hs_{}",";{};{}".format(reg, v_, "Events"))
                 
-                print(reg, shapes_files.keys(), reg in shapes_files.keys(), shapes_files[reg])
                 f = ROOT.TFile(shapes_files[reg]["file"])
                 for idx_, b in enumerate(bkg):
                     h = f.Get(shapes_files[reg]["prefix"]+b)
@@ -382,7 +462,13 @@ if __name__ == "__main__":
                 h_data.SetMarkerColor(ROOT.kBlack)
                 h_data.SetMarkerStyle(8)
 
-                bkg_shapes.Add(histos["sm"])
+                sm_name = [i for i in  signals if i.endswith("sm")][0]
+                sm_add = deepcopy(histos["sm"])
+                if sm_name in map.keys():
+                    sm_add = deepcopy(histos["sm"])
+                    sm_add.Scale(rateParams[map[sm_name]][idx])
+                    
+                bkg_shapes.Add(sm_add)
                 leg.AddEntry(histos["sm"], "SM", "F")
 
                 bkg_shapes.SetMinimum(1e-1)
@@ -405,8 +491,18 @@ if __name__ == "__main__":
                 else:
                     fullBSM = deepcopy(histos[j])
                 
+                # remove SM from the full BSM to avoid double counting
+                # Remove the unscaled version, later we will add the scaled one for consistency 
+                fullBSM.Add(histos["sm"], -1)
+                
+                #assuming that if the SM is scaled also the BSM has to be scaled
+                if sm_name in map.keys(): 
+                    fullBSM.Scale(rateParams[map[sm_name]][idx])
+                    
                 for key in bkgs.keys():
                     fullBSM.Add(bkgs[key])
+                    
+                fullBSM.Add(sm_add)
 
                     
                 fullBSM.SetFillColor(0)

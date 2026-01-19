@@ -95,7 +95,6 @@ class scanEFT:
             else:
                 ROOT.gStyle.SetPalette(109)
 
-            print(self.poi)
             to_draw = ROOT.TString(
                 "{}:{}:2*deltaNLL".format(self.poi[0], self.poi[1]))
 
@@ -118,7 +117,6 @@ class scanEFT:
             z = np.array([i-min(z_) for i in z_])
 
             # for i in z: print(i)
-            print(n)
             graphScan = ROOT.TGraph2D(n, x, y, z)
 
             hist = graphScan.GetHistogram()

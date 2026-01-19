@@ -172,7 +172,7 @@ if __name__ == "__main__":
     gs = scanUtil.getScan()
     x_b = getBestFit(gs)
     xings1s = getLSintersections(gs, 1.0)
-    xings2s = getLSintersections(gs, 1.0)
+    xings2s = getLSintersections(gs, 4.0)
     print(f"Main scan 68.27% C.L (1 s.d.)  {pois}<1: {xings1s} --> {x_b:.3f}+{abs(xings1s[1]-x_b):.3f}-{abs(x_b-xings1s[0]):.3f}")
     print(f"Main scan 95.45% C.L (2 s.d.)  {pois}<4: {xings2s} --> {x_b:.3f}+{abs(xings2s[1]-x_b):.3f}-{abs(x_b-xings2s[0]):.3f}")
     others = []
@@ -189,7 +189,7 @@ if __name__ == "__main__":
             gs_ = scanUtil_.getScan()
             x_b_ = getBestFit(gs_)
             xings1s_ = getLSintersections(gs_, 1.0)
-            xings2s_ = getLSintersections(gs_, 1.0)
+            xings2s_ = getLSintersections(gs_, 4.0)
             print(f"{label_} scan 68.27% C.L (1 s.d.)  {pois}<1: {xings1s_} --> {x_b_:.3f}+{abs(xings1s_[1]-x_b_):.3f}-{abs(x_b_-xings1s_[0]):.3f}")
             print(f"{label_} scan 95.45% C.L (2 s.d.)  {pois}<4: {xings2s_} --> {x_b_:.3f}+{abs(xings2s_[1]-x_b_):.3f}-{abs(x_b_-xings2s_[0]):.3f}")
             gs_.SetLineWidth(4)

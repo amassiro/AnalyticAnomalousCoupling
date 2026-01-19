@@ -11,6 +11,7 @@ class HistoBuilder:
         self.pois = []
         self.ppois = []
         self.has_r_SignalStrength = False
+        self.r_name = "r"
         self.shapes = {}
         self.rateParam = {}
         
@@ -107,7 +108,9 @@ class HistoBuilder:
 
         # if also "r" was let free to float, also add it to the list of pois
         if "r" in [ i.GetName() for i in t.GetListOfBranches() ]: self.has_r_SignalStrength = True
-
+        if "trackedParam_r" in [ i.GetName() for i in t.GetListOfBranches() ]: 
+            self.r_name = "trackedParam_r"
+            self.has_r_SignalStrength = True
 
         #c = dict.fromkeys(self.pois)
         #self.pois = c.keys()
@@ -273,15 +276,21 @@ class HistoBuilder:
         
         f = ROOT.TFile(self.file)
         t = f.Get(self.tree)
-            
+        print([i.GetName() for i in t.GetListOfBranches()])
         for event in t:
             
             for poi in self.pois:
                 self.minimPoisValue[poi] = getattr(event, poi)
             for key in self.rateParam.keys():
-                self.rateParam[key].append(getattr(event, key))
+                if hasattr(event, key):
+                    self.rateParam[key].append(getattr(event, key))
+                elif hasattr(event, "trackedParam_" + key):
+                    self.rateParam[key].append(getattr(event, "trackedParam_" + key))
+                else:
+                    print(f"[WARNING] rate param {key} not found in tree branches")
+                    sys.exit(0)
 
-            self.minimPoisValue["r"] = 1 if not self.has_r_SignalStrength else getattr(event, "r")
+            self.minimPoisValue["r"] = 1 if not self.has_r_SignalStrength else getattr(event, self.r_name)
             
             if len(self.pois) == 1:
                 poiVal = getattr(event, self.pois[0])
@@ -292,7 +301,6 @@ class HistoBuilder:
                 self.historyHistos[poiVal] = histo
                 
             else:
-                print("SONO QUI")
                 poiVal = {i: getattr(event, i) for i in self.pois}
                 name = "_".join([f"{i}_{j}".replace(".","p").replace("-","m") for i,j in poiVal.items()])
                 
