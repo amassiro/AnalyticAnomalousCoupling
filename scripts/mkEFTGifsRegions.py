@@ -280,8 +280,7 @@ if __name__ == "__main__":
                     z = scan.GetHistogram().GetBinContent(bin__)
                     
                     if z > args.maxNLL: 
-                        print("continue")
-                        #continue
+                        continue
                 except: 
                     # may fall here if the graph has no points
                     z = None
@@ -292,8 +291,6 @@ if __name__ == "__main__":
                 ROOT.gPad.SetFrameLineWidth(3)
                 ROOT.gPad.SetRightMargin(margins)
                 ROOT.gPad.SetLeftMargin(margins)
-
-                #scan.GetHistogram().GetZaxis().SetTitle("-2 #Delta lnL")
                                 
                 m = ROOT.TMarker(x, y, 20)
                 m.SetMarkerSize(2)
