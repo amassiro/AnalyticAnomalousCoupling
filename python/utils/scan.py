@@ -109,9 +109,29 @@ class scanEFT:
             # y = np.ndarray((n), 'f', t.GetV2())
             # z_ = np.ndarray((n), 'f', t.GetV3())
 
-            x = np.ndarray((n,), buffer=t.GetV1())
-            y = np.ndarray((n,), buffer=t.GetV2())
-            z_ = np.ndarray((n,), buffer=t.GetV3())
+            x = np.ndarray((n,), buffer=t.GetV1()).copy()
+            y = np.ndarray((n,), buffer=t.GetV2()).copy()
+            z_ = np.ndarray((n,), buffer=t.GetV3()).copy()
+
+            # A hadd'd split-job scan carries one duplicate best-fit marker
+            # row per split job (all landing at the exact same point), on
+            # top of the real grid points. Feeding every one of those
+            # coincident duplicates into TGraph2D degenerates its Delaunay
+            # triangulation right at the best-fit point -- dedupe exact
+            # (x, y, z) triples first, same idea as the np.unique done for
+            # the 1D case above.
+            stacked = np.stack([x, y, z_], axis=1)
+            _, uniq_idx = np.unique(stacked, axis=0, return_index=True)
+            uniq_idx = np.sort(uniq_idx)
+            x = x[uniq_idx]
+            y = y[uniq_idx]
+            z_ = z_[uniq_idx]
+            n = x.size
+
+            # best fit is wherever deltaNLL (hence z_) is actually minimal --
+            # read it from the file instead of assuming it sits at (0, 0).
+            best_idx = np.argmin(z_)
+            self.bestfit = (float(x[best_idx]), float(y[best_idx]))
 
             # shifting likelihood toward 0
             z = np.array([i-min(z_) for i in z_])

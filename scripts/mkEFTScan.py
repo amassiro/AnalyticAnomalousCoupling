@@ -224,7 +224,8 @@ if __name__ == "__main__":
     elif len(args.POI) == 2:
 
         exp = ROOT.TGraph()
-        exp.SetPoint(0, 0, 0)
+        bestfit_x, bestfit_y = getattr(scanUtil, "bestfit", (0, 0))
+        exp.SetPoint(0, bestfit_x, bestfit_y)
         exp.SetMarkerStyle(34)
         exp.SetMarkerSize(2)
         exp.SetMarkerColor(ROOT.kRed)
