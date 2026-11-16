@@ -10,6 +10,67 @@ import ROOT, os
 #
 
 
+
+#
+# Processes in the datacard are named after the EFT component they describe
+# ("sm", "w1_OPERATOR", "wm1_OPERATOR", "w11_OPERATOR1_OPERATOR2"), possibly
+# with a prefix (used when the signal is split in several processes) and/or a
+# suffix, separated by "_":
+#
+#                            WW_w1_cHW_2018
+#                            |_| |_____| |__|
+#                          prefix comp.  suffix
+#
+# "getEFTComponent" strips the prefix and "matchEFTComponent" compares what is
+# left with the component we are looking for, requiring the component to be
+# followed by "_" or by the end of the process name.
+#
+# NB: testing with 'component in process' instead is NOT safe:
+#      - whenever an operator name is the beginning of another operator name of
+#        the basis (cW/cWtil, cHW/cHWtil/cHWB, cH/cHbox/cHDD, ctZ/ctZI, ...)
+#        the operator that comes first in the list silently steals the scaling
+#        function of the other one;
+#      - "sm" matches any process name that merely contains "_sm", so a
+#        background called e.g. "DY_smearUp" would be scaled as the SM
+#        component.
+#     Operator names are assumed not to contain "_", as already required by the
+#     "w11_OPERATOR1_OPERATOR2" naming convention.
+#
+
+EFTComponentPrefixes = ("w1_", "wm1_", "w11_")
+EFTComponentKeywords = ("sm", "w1", "wm1", "w11")
+
+
+
+def getEFTComponent(process):
+
+    tokens = process.split("_")
+
+    for first in range(len(tokens)):
+      component = "_".join(tokens[first:])
+      if component == "sm" or component.startswith(EFTComponentPrefixes):
+        return component
+
+    return process
+
+
+def matchEFTComponent(process, component):
+
+    EFTComponent = getEFTComponent(process)
+
+    if EFTComponent == component:
+      return True
+
+    #
+    # a trailing "_something" is allowed, but it must not be the continuation
+    # of the EFT component itself
+    #
+    if not EFTComponent.startswith(component + "_"):
+      return False
+
+    return EFTComponent[len(component) + 1:].split("_")[0] not in EFTComponentKeywords
+
+
 class AnaliticAnomalousCouplingMorphing_comb(PhysicsModel):
 
     "Float independently cross sections and branching ratios"
@@ -244,9 +305,13 @@ class AnaliticAnomalousCouplingMorphing_comb(PhysicsModel):
             self.poiNames += ",k_" + str(self.Operators[operator])
             
         for _bin_name in self.bin_ops_map:
-            bin_name = _bin_name.replace("*", "WildCard")
-            active_ops = self.bin_ops_map[bin_name]
+            active_ops = self.bin_ops_map[_bin_name]
             self.numOperators = len(active_ops)
+            #
+            # "*" is not allowed in the name of a RooFit object:
+            # sanitize the key AFTER having used it to get the operators
+            #
+            bin_name = _bin_name.replace("*", "WildCard")
             if self.verbose:
                 print(f"Active ops for {bin_name}", active_ops)
 
@@ -470,13 +535,15 @@ class AnaliticAnomalousCouplingMorphing_comb(PhysicsModel):
         if bin_name is None:
             bin_name = bin
 
-        bin_name = bin_name.replace("*", "WildCard")
-
+        #
+        # the operators must be looked up with the key of the map that matched
+        # this bin (and not with the sanitized name, nor with the raw bin name:
+        # both of them raise a KeyError as soon as a key contains a wildcard)
+        #
         active_ops = self.bin_ops_map[bin_name]
         self.numOperators = len(active_ops)
 
-        active_ops = self.bin_ops_map[bin]
-        self.numOperators = len(active_ops)
+        bin_name = bin_name.replace("*", "WildCard")
 
         # excluded prefixes
 
@@ -487,23 +554,17 @@ class AnaliticAnomalousCouplingMorphing_comb(PhysicsModel):
             return 1
 
 
-        if process == "sm" or process.endswith("sm"):
+        if matchEFTComponent(process, "sm"):
             return f"func_sm_{bin_name}"
           
        
         for operator in range(0, self.numOperators):
-            if (
-                process == "w1_" + str(active_ops[operator]) 
-                or process.endswith("_w1_" + str(active_ops[operator])) 
-            ):
+            if matchEFTComponent(process, "w1_" + str(active_ops[operator])):
                 return f'func_sm_linear_quadratic_{bin_name}_' + str(
                     active_ops[operator]
                 )
             
-            if (
-                process == "wm1_" + str(active_ops[operator]) 
-                or process.endswith("_wm1_" + str(active_ops[operator])) 
-            ):
+            if matchEFTComponent(process, "wm1_" + str(active_ops[operator])):
                 return f'func_sm_minuslinear_quadratic_{bin_name}_' + str(
                     active_ops[operator]
                 )
@@ -511,19 +572,9 @@ class AnaliticAnomalousCouplingMorphing_comb(PhysicsModel):
             for operator_sub in range(operator+1, self.numOperators):
               
                 if (
-                    process == 'w11_' + str(active_ops[operator])  + '_' + str(active_ops[operator_sub])
-                    or 
-                    process.endswith('_w11_' + str(active_ops[operator]) + '_' + str(active_ops[operator_sub])
-                    )
-                ):
-                  
-                  return f'func_sm_linear_quadratic_mixed_{bin_name}_' + str(active_ops[operator]) + '_' + str(active_ops[operator_sub])
-                            
-                if (
-                    process == 'w11_' + str(active_ops[operator_sub])  + '_'  + str(active_ops[operator])
-                    or 
-                    process.endswith('_w11_' + str(active_ops[operator_sub]) + '_' + str(active_ops[operator])
-                    )
+                    matchEFTComponent(process, 'w11_' + str(active_ops[operator]) + '_' + str(active_ops[operator_sub]))
+                    or
+                    matchEFTComponent(process, 'w11_' + str(active_ops[operator_sub]) + '_' + str(active_ops[operator]))
                 ):
                   
                   return f'func_sm_linear_quadratic_mixed_{bin_name}_' + str(active_ops[operator]) + '_' + str(active_ops[operator_sub])

@@ -7,6 +7,67 @@ import ROOT, os
 #
 
 
+
+#
+# Processes in the datacard are named after the EFT component they describe
+# ("sm", "w1_OPERATOR", "wm1_OPERATOR", "w11_OPERATOR1_OPERATOR2"), possibly
+# with a prefix (used when the signal is split in several processes) and/or a
+# suffix, separated by "_":
+#
+#                            WW_w1_cHW_2018
+#                            |_| |_____| |__|
+#                          prefix comp.  suffix
+#
+# "getEFTComponent" strips the prefix and "matchEFTComponent" compares what is
+# left with the component we are looking for, requiring the component to be
+# followed by "_" or by the end of the process name.
+#
+# NB: testing with 'component in process' instead is NOT safe:
+#      - whenever an operator name is the beginning of another operator name of
+#        the basis (cW/cWtil, cHW/cHWtil/cHWB, cH/cHbox/cHDD, ctZ/ctZI, ...)
+#        the operator that comes first in the list silently steals the scaling
+#        function of the other one;
+#      - "sm" matches any process name that merely contains "_sm", so a
+#        background called e.g. "DY_smearUp" would be scaled as the SM
+#        component.
+#     Operator names are assumed not to contain "_", as already required by the
+#     "w11_OPERATOR1_OPERATOR2" naming convention.
+#
+
+EFTComponentPrefixes = ("w1_", "wm1_", "w11_")
+EFTComponentKeywords = ("sm", "w1", "wm1", "w11")
+
+
+
+def getEFTComponent(process):
+
+    tokens = process.split("_")
+
+    for first in range(len(tokens)):
+      component = "_".join(tokens[first:])
+      if component == "sm" or component.startswith(EFTComponentPrefixes):
+        return component
+
+    return process
+
+
+def matchEFTComponent(process, component):
+
+    EFTComponent = getEFTComponent(process)
+
+    if EFTComponent == component:
+      return True
+
+    #
+    # a trailing "_something" is allowed, but it must not be the continuation
+    # of the EFT component itself
+    #
+    if not EFTComponent.startswith(component + "_"):
+      return False
+
+    return EFTComponent[len(component) + 1:].split("_")[0] not in EFTComponentKeywords
+
+
 class AnaliticAnomalousCouplingMorphing(PhysicsModel):
 
     "Float independently cross sections and branching ratios"
@@ -401,28 +462,26 @@ class AnaliticAnomalousCouplingMorphing(PhysicsModel):
 
         #print "process = " , process
 
-        if   process == "sm" or "_sm" in process:
+        if   matchEFTComponent(process, "sm") :
           print(f"scaling {process} with func_sm")          
           return "func_sm"
 
         for operator in range(0, self.numOperators):
 
           # Sm + Li + Qi coefficient
-          if process == "w1_" + str(self.Operators[operator]) or "_w1_" + str(self.Operators[operator]) in process :
+          if matchEFTComponent(process, "w1_" + str(self.Operators[operator])) :
             print(f"scaling {process} with func_sm_linear_quadratic_{self.Operators[operator]}")
             return "func_sm_linear_quadratic_"+ str(self.Operators[operator])
 
           # Sm - Li + Qi coefficient
-          if process == "wm1_" + str(self.Operators[operator]) or "_wm1_" + str(self.Operators[operator]) in process :
+          if matchEFTComponent(process, "wm1_" + str(self.Operators[operator])) :
             print(f"scaling {process} with func_sm_minuslinear_quadratic_{self.Operators[operator]}")
             return "func_sm_minuslinear_quadratic_"+ str(self.Operators[operator])
           
           # Mixed w(1,1)
           for operator_sub in range(operator+1, self.numOperators):
-            if process == "w11_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) or "_w11_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) in process :   
-              print(f"scaling {process} with " + "func_sm_linear_quadratic_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]))
-              return "func_sm_linear_quadratic_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])
-            if process == "w11_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator]) or "_w11_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator]) in process :  
+            if matchEFTComponent(process, "w11_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub])) or \
+               matchEFTComponent(process, "w11_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator])) :
               print(f"scaling {process} with " + "func_sm_linear_quadratic_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub]))
               return "func_sm_linear_quadratic_mixed_" + str(self.Operators[operator]) + "_" + str(self.Operators[operator_sub])
 
