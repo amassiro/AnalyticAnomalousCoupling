@@ -10,6 +10,53 @@ import ROOT, os
 #
 
 
+
+#
+# Processes in the datacard are named after the EFT component they describe,
+# possibly with a prefix (used when the signal is split in several processes)
+# and/or a suffix, separated by "_":
+#
+#                            WW_sm_lin_quad_cHW_2018
+#                            |_| |__________| |__|
+#                          prefix  component  suffix
+#
+# "getEFTComponent" strips the prefix and "matchEFTComponent" compares what is
+# left with the component we are looking for, requiring the component to be
+# followed by "_" or by the end of the process name.
+
+
+EFTComponentKeywords = ("sm", "lin", "quad", "mixed")
+
+
+def getEFTComponent(process):
+
+    tokens = process.split("_")
+
+    for first in range(len(tokens)):
+      component = "_".join(tokens[first:])
+      if component == "sm" or component.startswith("sm_lin_") or component.startswith("quad_"):
+        return component
+
+    return process
+
+
+def matchEFTComponent(process, component):
+
+    EFTComponent = getEFTComponent(process)
+
+    if EFTComponent == component:
+      return True
+
+    #
+    # a trailing "_something" is allowed, but it must not be the continuation
+    # of the EFT component itself: "sm" must not match "sm_lin_quad_cHW"
+    #
+    if not EFTComponent.startswith(component + "_"):
+      return False
+
+    return EFTComponent[len(component) + 1:].split("_")[0] not in EFTComponentKeywords
+
+
 class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
     "Float independently cross sections and branching ratios"
 
@@ -278,9 +325,13 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
         #
 
         for _bin_name in self.bin_ops_map:
-            bin_name = _bin_name.replace("*", "WildCard")
-            active_ops = self.bin_ops_map[bin_name]
+            active_ops = self.bin_ops_map[_bin_name]
             self.numOperators = len(active_ops)
+            #
+            # "*" is not allowed in the name of a RooFit object:
+            # sanitize the key AFTER having used it to get the operators
+            #
+            bin_name = _bin_name.replace("*", "WildCard")
             if self.verbose:
                 print(f"Active ops for {bin_name}", active_ops)
 
@@ -418,13 +469,15 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
         if bin_name is None:
             bin_name = bin
 
-        bin_name = bin_name.replace("*", "WildCard")
-
+        #
+        # the operators must be looked up with the key of the map that matched
+        # this bin (and not with the sanitized name, nor with the raw bin name:
+        # both of them raise a KeyError as soon as a key contains a wildcard)
+        #
         active_ops = self.bin_ops_map[bin_name]
         self.numOperators = len(active_ops)
 
-        active_ops = self.bin_ops_map[bin]
-        self.numOperators = len(active_ops)
+        bin_name = bin_name.replace("*", "WildCard")
 
         # excluded prefixes
 
@@ -435,51 +488,32 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
             return 1
 
 
-        if process == "sm" or process.endswith("sm"):
+        if matchEFTComponent(process, "sm"):
             return f"func_sm_{bin_name}"
 
         for operator in range(0, self.numOperators):
-            if (
-                process == "sm_lin_quad_" + str(active_ops[operator])
-                or process.endswith("_sm_lin_quad_" + str(active_ops[operator]))
+            if matchEFTComponent(
+                process, "sm_lin_quad_" + str(active_ops[operator])
             ):
                 return f"func_sm_linear_quadratic_{bin_name}_" + str(
                     active_ops[operator]
                 )
-            if (
-                process == "quad_" + str(active_ops[operator])
-                or process.endswith("_quad_" + str(active_ops[operator]))
-            ):
+            if matchEFTComponent(process, "quad_" + str(active_ops[operator])):
                 return f"func_quadratic_{bin_name}_" + str(active_ops[operator])
             for operator_sub in range(operator + 1, self.numOperators):
                 if not self.alternative:
-                    if (
-                        process
-                        == "sm_lin_quad_mixed_"
+                    if matchEFTComponent(
+                        process,
+                        "sm_lin_quad_mixed_"
                         + str(active_ops[operator])
                         + "_"
-                        + str(active_ops[operator_sub])
-                        or process.endswith("_sm_lin_quad_mixed_"
-                        + str(active_ops[operator])
-                        + "_"
-                        + str(active_ops[operator_sub]))
-                    ):
-                        return (
-                            f"func_sm_linear_quadratic_mixed_{bin_name}_"
-                            + str(active_ops[operator_sub])
-                            + "_"
-                            + str(active_ops[operator])
-                        )
-                    if (
-                        process
-                        == "sm_lin_quad_mixed_"
+                        + str(active_ops[operator_sub]),
+                    ) or matchEFTComponent(
+                        process,
+                        "sm_lin_quad_mixed_"
                         + str(active_ops[operator_sub])
                         + "_"
-                        + str(active_ops[operator])
-                        or process.endswith("_sm_lin_quad_mixed_"
-                        + str(active_ops[operator_sub])
-                        + "_"
-                        + str(active_ops[operator]))
+                        + str(active_ops[operator]),
                     ):
                         return (
                             f"func_sm_linear_quadratic_mixed_{bin_name}_"
@@ -488,18 +522,19 @@ class AnaliticAnomalousCouplingEFTNegative_comb(PhysicsModel):
                             + str(active_ops[operator])
                         )
                 else:
-                    if process == "quad_mixed_" + str(active_ops[operator]) + "_" + str(
-                        active_ops[operator_sub]
+                    if matchEFTComponent(
+                        process,
+                        "quad_mixed_"
+                        + str(active_ops[operator])
+                        + "_"
+                        + str(active_ops[operator_sub]),
+                    ) or matchEFTComponent(
+                        process,
+                        "quad_mixed_"
+                        + str(active_ops[operator_sub])
+                        + "_"
+                        + str(active_ops[operator]),
                     ):
-                        return (
-                            f"func_quadratic_mixed_{bin_name}_"
-                            + str(active_ops[operator_sub])
-                            + "_"
-                            + str(active_ops[operator])
-                        )
-                    if process == "quad_mixed_" + str(
-                        active_ops[operator_sub]
-                    ) + "_" + str(active_ops[operator]):
                         return (
                             f"func_quadratic_mixed_{bin_name}_"
                             + str(active_ops[operator_sub])

@@ -7,6 +7,53 @@ import ROOT, os
 #
 
 
+
+#
+# Processes in the datacard are named after the EFT component they describe,
+# possibly with a prefix (used when the signal is split in several processes)
+# and/or a suffix, separated by "_":
+#
+#                            WW_sm_lin_quad_cHW_2018
+#                            |_| |__________| |__|
+#                          prefix  component  suffix
+#
+# "getEFTComponent" strips the prefix and "matchEFTComponent" compares what is
+# left with the component we are looking for, requiring the component to be
+# followed by "_" or by the end of the process name.
+
+
+EFTComponentKeywords = ("sm", "lin", "quad", "mixed")
+
+
+def getEFTComponent(process):
+
+    tokens = process.split("_")
+
+    for first in range(len(tokens)):
+      component = "_".join(tokens[first:])
+      if component == "sm" or component.startswith("sm_lin_") or component.startswith("quad_"):
+        return component
+
+    return process
+
+
+def matchEFTComponent(process, component):
+
+    EFTComponent = getEFTComponent(process)
+
+    if EFTComponent == component:
+      return True
+
+    #
+    # a trailing "_something" is allowed, but it must not be the continuation
+    # of the EFT component itself: "sm" must not match "sm_lin_quad_cHW"
+    #
+    if not EFTComponent.startswith(component + "_"):
+      return False
+
+    return EFTComponent[len(component) + 1:].split("_")[0] not in EFTComponentKeywords
+
+
 class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
 
     "Float independently cross sections and branching ratios"
@@ -453,23 +500,21 @@ class AnaliticAnomalousCouplingEFTNegative(PhysicsModel):
 
         #print "process = " , process
 
-        if   process == "sm" or process.endswith("sm") :          return "func_sm"
+        if   matchEFTComponent(process, "sm") :          return "func_sm"
 
         for operator in range(0, self.numOperators):
-          if process == "sm_lin_quad_"+ str(self.Operators[operator]) or "_sm_lin_quad_"+ str(self.Operators[operator]) in process : 
+          if matchEFTComponent(process, "sm_lin_quad_"+ str(self.Operators[operator])) :
             return "func_sm_linear_quadratic_"+ str(self.Operators[operator])
-          if process == "quad_"+ str(self.Operators[operator]) or  "_quad_"+ str(self.Operators[operator]) in process:    
+          if matchEFTComponent(process, "quad_"+ str(self.Operators[operator])) :
             return "func_quadratic_"+ str(self.Operators[operator])
           for operator_sub in range(operator+1, self.numOperators):
             if not self.alternative :
-              if process == "sm_lin_quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) or "_sm_lin_quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) in process :   
-                return "func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])
-              if process == "sm_lin_quad_mixed_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator]) or "_sm_lin_quad_mixed_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator]) in process :  
+              if matchEFTComponent(process, "sm_lin_quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub])) or \
+                 matchEFTComponent(process, "sm_lin_quad_mixed_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator])) :
                 return "func_sm_linear_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])
             else :
-              if process == "quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub]) : 
-                return "func_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])
-              if process == "quad_mixed_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator]) :  
+              if matchEFTComponent(process, "quad_mixed_"+ str(self.Operators[operator]) + "_"+ str(self.Operators[operator_sub])) or \
+                 matchEFTComponent(process, "quad_mixed_"+ str(self.Operators[operator_sub]) + "_"+ str(self.Operators[operator])) :
                 return "func_quadratic_mixed_" + str(self.Operators[operator_sub]) + "_" + str(self.Operators[operator])
 
         
